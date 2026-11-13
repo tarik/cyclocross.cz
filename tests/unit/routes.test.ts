@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { equivalentFragment, equivalentPath, eventPath, locales, staticRoutes } from '../../src/i18n/routes.ts';
+import { equivalentFragment, equivalentPath, eventPath, locales, normaliseBase, staticRoutes, stripBase, withBase } from '../../src/i18n/routes.ts';
 import { ui } from '../../src/i18n/ui.ts';
 
 describe('route registry', () => {
@@ -30,6 +30,25 @@ describe('route registry', () => {
     expect(equivalentFragment('kalendar', 'en')).toBe('calendar');
     expect(equivalentFragment('calendar', 'cs')).toBe('kalendar');
     expect(equivalentFragment('nope', 'cs')).toBeNull();
+  });
+});
+
+describe('base path', () => {
+  it('normalises the configured base', () => {
+    expect(normaliseBase(undefined)).toBe('');
+    expect(normaliseBase('/')).toBe('');
+    expect(normaliseBase('/cyclocross.cz')).toBe('/cyclocross.cz');
+    expect(normaliseBase('/cyclocross.cz/')).toBe('/cyclocross.cz');
+    expect(normaliseBase('cyclocross.cz')).toBe('/cyclocross.cz');
+  });
+
+  it('adds and removes the base', () => {
+    expect(withBase('/en/', '/cyclocross.cz')).toBe('/cyclocross.cz/en/');
+    expect(withBase('/en/', '')).toBe('/en/');
+    expect(stripBase('/cyclocross.cz/en/', '/cyclocross.cz')).toBe('/en/');
+    expect(stripBase('/cyclocross.cz', '/cyclocross.cz')).toBe('/');
+    expect(stripBase('/cyclocross.cz-other/', '/cyclocross.cz')).toBe('/cyclocross.cz-other/');
+    expect(stripBase('/en/', '')).toBe('/en/');
   });
 });
 

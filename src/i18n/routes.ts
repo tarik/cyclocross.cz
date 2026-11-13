@@ -33,25 +33,47 @@ export type FragmentKey = keyof typeof fragments;
 
 const eventBase: Record<Locale, string> = { cs: '/zavody/', en: '/en/events/' };
 
+/**
+ * The sub-path the site is served under, without a trailing slash. Empty on
+ * the real domain. The GitHub Pages preview sets it through `BASE_PATH`.
+ */
+export function normaliseBase(value: string | undefined): string {
+  const trimmed = (value ?? '/').replace(/\/+$/, '');
+  return trimmed === '' || trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
+}
+
+const base = normaliseBase(import.meta.env?.BASE_URL);
+
+/** Prefixes a root-relative path with the base. Every emitted link goes through here. */
+export function withBase(path: string, prefix: string = base): string {
+  return `${prefix}${path}`;
+}
+
+/** Removes the base from a request path, so it can be matched against the registry. */
+export function stripBase(pathname: string, prefix: string = base): string {
+  if (prefix && (pathname === prefix || pathname.startsWith(`${prefix}/`))) return pathname.slice(prefix.length) || '/';
+  return pathname;
+}
+
 export function routePath(key: StaticRouteKey, locale: Locale): string {
-  return staticRoutes[key][locale];
+  return withBase(staticRoutes[key][locale]);
 }
 
 export function sectionPath(key: FragmentKey, locale: Locale): string {
-  return `${staticRoutes.home[locale]}#${fragments[key][locale]}`;
+  return `${routePath('home', locale)}#${fragments[key][locale]}`;
 }
 
 export function eventPath(slug: string, locale: Locale): string {
-  return `${eventBase[locale]}${slug}/`;
+  return withBase(`${eventBase[locale]}${slug}/`);
 }
 
 /** Calendar files are language-neutral, so they live outside the translated routes. */
 export function icsPath(slug: string): string {
-  return `/ics/${slug}.ics`;
+  return withBase(`/ics/${slug}.ics`);
 }
 
 export function seasonFeedPath(seasonId: string): string {
-  return `/ics/season-${seasonId}.ics`;
+  return withBase(`/ics/season-${seasonId}.ics`);
 }
 
 export function otherLocale(locale: Locale): Locale {
@@ -63,10 +85,11 @@ export function otherLocale(locale: Locale): Locale {
  * path is not a known translated route, so callers can fall back to the hub.
  */
 export function equivalentPath(pathname: string, target: Locale): string | null {
-  const path = pathname.endsWith('/') ? pathname : `${pathname}/`;
-  for (const route of Object.values(staticRoutes)) {
+  const unprefixed = stripBase(pathname);
+  const path = unprefixed.endsWith('/') ? unprefixed : `${unprefixed}/`;
+  for (const [key, route] of Object.entries(staticRoutes)) {
     for (const locale of locales) {
-      if (route[locale] === path) return route[target];
+      if (route[locale] === path) return routePath(key as StaticRouteKey, target);
     }
   }
   for (const locale of locales) {
