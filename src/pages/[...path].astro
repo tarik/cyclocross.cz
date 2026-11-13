@@ -1,0 +1,30 @@
+---
+/**
+ * Supporting pages in both languages, generated from the route registry and
+ * the Markdown in `src/content/pages/`.
+ */
+import { getCollection, render } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import { locales, staticRoutes, supportingPages } from '../i18n/routes.ts';
+
+export async function getStaticPaths() {
+  const pages = await getCollection('pages');
+  return supportingPages.flatMap((page) =>
+    locales.map((locale) => {
+      const entry = pages.find((candidate) => candidate.data.page === page && candidate.data.locale === locale);
+      if (!entry) throw new Error(`Missing ${locale} content for supporting page "${page}"`);
+      return { params: { path: staticRoutes[page][locale].replace(/^\/|\/$/g, '') }, props: { entry, locale } };
+    }),
+  );
+}
+
+const { entry, locale } = Astro.props;
+const { Content } = await render(entry);
+---
+
+<Base locale={locale} title={entry.data.title} description={entry.data.description}>
+  <article class="wrap section prose">
+    <h1>{entry.data.title}</h1>
+    <Content />
+  </article>
+</Base>

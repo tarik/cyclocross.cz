@@ -1,0 +1,7 @@
+id: demo-club
+demo: true
+name: Smyšlený cyklistický klub (demo)
+description:
+  cs: Smyšlený pořadatel, který slouží jen k náhledům a testům.
+  en: A fictional organiser used only for previews and tests.
+website: https://example.com/club

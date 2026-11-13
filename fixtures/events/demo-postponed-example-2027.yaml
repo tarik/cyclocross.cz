@@ -1,0 +1,33 @@
+id: demo-postponed-example-2027
+slug: 2027-postponed-example
+seasonId: 2026-2027
+demo: true
+name:
+  official: Smyšlený odložený závod (demo)
+timing:
+  precision: unknown
+  previousDates:
+    - startDate: 2027-01-09
+      note: Původní smyšlený termín.
+location:
+  town: Ostrava
+  regionId: moravskoslezsky
+status: postponed
+verification: unverified
+statusHistory:
+  - date: 2026-11-10
+    status: scheduled
+  - date: 2026-11-13
+    status: postponed
+    note:
+      cs: Smyšlené odložení bez nového termínu.
+      en: Fictional postponement without a new date.
+provenance:
+  - sourceId: demo-source
+    url: https://example.com/postponed
+    checkedDate: 2026-11-13
+    facts: [status]
+updatedDate: 2026-11-13
+feed:
+  sequence: 1
+  lastModified: 2026-11-13T12:00:00Z

@@ -1,0 +1,23 @@
+---
+import Base from '../layouts/Base.astro';
+import { routePath } from '../i18n/routes.ts';
+import { useTranslations } from '../i18n/ui.ts';
+
+// A static host serves one 404 document for every path, so it carries both
+// languages. Czech is first because it is the default language.
+const cs = useTranslations('cs');
+const en = useTranslations('en');
+---
+
+<Base locale="cs" title={cs('notfound.title')} translated={false}>
+  <div class="wrap section">
+    <h1>{cs('notfound.title')}</h1>
+    <p>{cs('notfound.lead')}</p>
+    <p><a href={routePath('home', 'cs')}>{cs('notfound.home')}</a></p>
+    <div lang="en">
+      <h2>{en('notfound.title')}</h2>
+      <p>{en('notfound.lead')}</p>
+      <p><a href={routePath('home', 'en')}>{en('notfound.home')}</a></p>
+    </div>
+  </div>
+</Base>

@@ -1,0 +1,66 @@
+---
+import { site } from '../config/site.ts';
+import { routePath, supportingPages, type Locale } from '../i18n/routes.ts';
+import { useTranslations } from '../i18n/ui.ts';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const t = useTranslations(locale);
+---
+
+<footer class="site-footer">
+  <div class="wrap grid">
+    <div>
+      <p class="name">cyclocross.cz</p>
+      <p>{t('footer.independent')}</p>
+    </div>
+    <nav aria-label={t('footer.pages')}>
+      <ul>
+        {
+          supportingPages.map((page) => (
+            <li>
+              <a href={routePath(page, locale)}>{t(`page.${page}`)}</a>
+            </li>
+          ))
+        }
+        <li><a href={site.repositoryUrl}>{t('footer.source')}</a></li>
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    margin-top: var(--space-6);
+    padding-block: var(--space-5);
+    background: var(--color-ink);
+    color: var(--color-paper);
+  }
+  .grid {
+    display: grid;
+    gap: var(--space-4) var(--space-6);
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  }
+  .name {
+    font-family: var(--font-display);
+    font-size: var(--step-2);
+    line-height: 1;
+  }
+  p { color: #e6dccb; }
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: var(--space-1);
+  }
+  a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    color: var(--color-paper);
+  }
+  :global(.site-footer :focus-visible) { outline-color: #ffd866; }
+</style>
