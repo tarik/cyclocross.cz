@@ -39,7 +39,8 @@ const hasYoung = views.some((view) => view.index.types.includes('young'));
 // card; the explicit ARIA roles keep the table semantics for assistive tech.
 const cell = 'px-2 py-4 text-left align-top max-lg:block max-lg:p-0';
 const sub = 'block text-sm text-ink-soft';
-const rowControl = 'inline-flex min-h-11 cursor-pointer items-center px-2 font-body text-sm font-semibold text-accent underline max-lg:px-0';
+// On desktop the control is pulled up so its label sits on the row's first text line.
+const rowControl = 'inline-flex min-h-9 cursor-pointer items-center border-2 border-ink bg-surface px-3 font-body text-sm font-semibold text-ink no-underline hover:bg-line max-lg:mt-2 max-lg:min-h-11 lg:-my-[5px]';
 const columns = ['date', 'event', 'place', 'series', 'who', 'status', 'details'] as const;
 const strings = {
   one: t('filter.count.one'),
@@ -52,8 +53,20 @@ const strings = {
 ---
 
 <div data-calendar data-strings={JSON.stringify(strings)}>
-  <form class="mb-6 grid gap-4 border-2 border-ink bg-surface p-4 shadow-pixel" data-filters hidden role="search" aria-label={t('filter.title')}>
-    <div class="grid grid-cols-2 gap-x-4 gap-y-2 lg:grid-cols-[minmax(0,2fr)_repeat(3,minmax(0,1.1fr))_repeat(2,minmax(9.5rem,1fr))]">
+  <form class="mb-4 grid gap-3" data-filters hidden role="search" aria-label={t('filter.title')}>
+    <div class="flex flex-wrap items-center gap-2">
+      <button type="button" class="chip group inline-flex items-center gap-2" data-filter-toggle aria-expanded="false" aria-controls={`filter-panel-${locale}`}>
+        <span class="relative block h-0.5 w-4 bg-current before:absolute before:-top-[5px] before:left-0 before:h-0.5 before:w-4 before:bg-current after:absolute after:top-[5px] after:left-1 after:h-0.5 after:w-2 after:bg-current" aria-hidden="true"></span>
+        {t('filter.toggle')}
+        <span class="hidden size-2 bg-accent" data-filter-dot aria-hidden="true"></span>
+      </button>
+      <button type="button" class="chip" data-shortcut="weekend" aria-pressed="false">{t('filter.weekend')}</button>
+      <button type="button" class="chip" data-shortcut="amateur" aria-pressed="false">{t('filter.amateur')}</button>
+      {hasYoung && <button type="button" class="chip" data-shortcut="young" aria-pressed="false">{t('filter.children')}</button>}
+      <button type="reset" class="chip border-dashed" data-reset hidden>{t('filter.reset')}</button>
+      <p class="m-0 text-sm font-semibold text-ink-soft max-lg:basis-full lg:ml-auto" role="status" data-count></p>
+    </div>
+    <div id={`filter-panel-${locale}`} data-filter-panel hidden class="grid grid-cols-2 gap-x-4 gap-y-2 border-2 border-ink bg-surface p-4 shadow-pixel lg:grid-cols-[minmax(0,2fr)_repeat(3,minmax(0,1.1fr))_repeat(2,minmax(9.5rem,1fr))]">
       <label class="col-span-2 grid min-w-0 gap-0.5 text-sm font-semibold lg:col-span-1">
         <span>{t('filter.q')}</span>
         <input class="control" type="search" name="q" placeholder={t('filter.qPlaceholder')} autocomplete="off" maxlength="80" />
@@ -88,13 +101,6 @@ const strings = {
         <span>{t('filter.to')}</span>
         <input class="control" type="date" name="to" />
       </label>
-    </div>
-    <div class="flex flex-wrap items-center gap-2">
-      <button type="button" class="chip" data-shortcut="weekend" aria-pressed="false">{t('filter.weekend')}</button>
-      <button type="button" class="chip" data-shortcut="amateur" aria-pressed="false">{t('filter.amateur')}</button>
-      {hasYoung && <button type="button" class="chip" data-shortcut="young" aria-pressed="false">{t('filter.children')}</button>}
-      <button type="reset" class="chip border-dashed" data-reset hidden>{t('filter.reset')}</button>
-      <p class="m-0 font-semibold max-lg:basis-full lg:ml-auto" role="status" data-count></p>
     </div>
   </form>
 
@@ -161,7 +167,7 @@ const strings = {
               <tr role="row" data-detail class="max-lg:block" id={`${view.anchor}-details`} hidden>
                 <td role="cell" colspan={columns.length} class="border-l-4 border-accent bg-surface px-4 pt-4 pb-6 max-lg:mt-2 max-lg:block">
                   <EventDetails view={view} locale={locale} dataset={dataset} heading="h4">
-                    <a slot="actions" href={view.path}>
+                    <a slot="actions" class="pill" href={view.path}>
                       {t('cal.eventPage')}
                     </a>
                   </EventDetails>
@@ -195,9 +201,9 @@ const strings = {
     })
   }
 
-  <p class="mt-6">
-    <a class="font-semibold" href={seasonFeedPath(site.activeSeason)}>{t('cal.subscribe')}</a>
-    <span class={sub}>{t('cal.subscribeNote')}</span>
+  <p class="mt-6 flex max-w-none flex-wrap items-center gap-x-4 gap-y-1">
+    <a class="pill" href={seasonFeedPath(site.activeSeason)}>{t('cal.subscribe')}</a>
+    <span class="text-sm text-ink-soft">{t('cal.subscribeNote')}</span>
   </p>
 </div>
 

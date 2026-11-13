@@ -2,6 +2,16 @@
 
 Newest first. Each entry says what was decided, by whom and why. Owner decisions are binding; agent decisions are defaults that the owner can overturn.
 
+## 2026-11-13, calendar PR, owner review of screenshots
+
+- **Owner: the filter is hidden by default.** A "Filtr" button opens the fields. The three shortcuts, the reset and the count stay visible. A dot on the button marks an active hidden filter, and a link that carries a filter opens the panel.
+- **Owner: actions are buttons, not text links.** Official page, registration, regulations, results, calendar file, series links and the contribute actions use `.pill`; one primary action per group uses `.pill-primary`. Text links remain for sources and for the error report.
+- **Owner: details are restructured to remove empty space.** One "Kde" line, then "Pro závodníky" and "Pro diváky" side by side with the programme, then the buttons, then one small line with sources, check date and the unverified note. A column with no data is not rendered.
+- **Owner: the header stays fixed at the top** and the footer no longer repeats the navigation. The footer is a slim soil band with a pixel turf edge and three links (advertising, privacy, GitHub). A fuller pixel-art footer can follow with the art track.
+- **Owner: the wordmark is one colour**, ".cz" in black.
+- **Owner: the menu button on small screens is an icon without text** (accessible name "Menu"). The owner will judge the phone header again once the animation exists.
+- **Agent: the row control "Podrobnosti" is a small bordered button** aligned on the status baseline.
+
 ## 2026-11-13, calendar PR
 
 - **Owner: use Tailwind.** Tailwind 4 through its Vite plugin. Tokens live in `@theme` in `src/styles/global.css`; components use utilities in markup. A small `@layer components` holds what repeats (`.wrap`, `.button`, `.control`, `.chip`) and the two pieces that are not expressible as utilities (the stepped sky and ground).

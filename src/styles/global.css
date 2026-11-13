@@ -46,7 +46,8 @@
   html {
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
-    scroll-padding-top: 1.5rem;
+    /* Anchors must clear the sticky header. */
+    scroll-padding-top: 5rem;
   }
   body {
     @apply bg-paper font-body text-base leading-relaxed text-ink;
@@ -84,6 +85,11 @@
   .chip {
     @apply min-h-11 cursor-pointer border-2 border-ink bg-paper px-4 font-body text-sm font-semibold text-ink aria-pressed:bg-ink aria-pressed:text-paper;
   }
+  /* Link styled as a compact button, for the actions of one race. */
+  .pill {
+    @apply inline-flex min-h-11 items-center border-2 border-ink bg-paper px-3 font-body text-sm font-semibold text-ink no-underline hover:bg-line;
+  }
+  .pill-primary { @apply bg-accent text-white hover:bg-accent-dark; }
   /* Rendered Markdown of the supporting pages. */
   .prose h2 { @apply mt-10; }
   .prose ul { @apply max-w-[68ch] list-disc pl-5; }
@@ -91,6 +97,15 @@
   /* Stepped sky bands behind the header and hero. */
   .sky {
     background: linear-gradient(to bottom, var(--color-sky-1) 0 25%, var(--color-sky-2) 25% 50%, var(--color-sky-3) 50% 75%, var(--color-sky-4) 75% 100%);
+  }
+  /* A strip of turf with stepped tufts: the footer grows out of the page. */
+  .turf {
+    --px: var(--spacing-px4);
+    height: calc(var(--px) * 4);
+    background:
+      repeating-linear-gradient(to right, var(--color-paper) 0 calc(var(--px) * 3), transparent calc(var(--px) * 3) calc(var(--px) * 5), var(--color-paper) calc(var(--px) * 5) calc(var(--px) * 6), transparent calc(var(--px) * 6) calc(var(--px) * 8), var(--color-paper) calc(var(--px) * 8) calc(var(--px) * 12), transparent calc(var(--px) * 12) calc(var(--px) * 13))
+        top / 100% var(--px) no-repeat,
+      linear-gradient(to bottom, var(--color-grass-1) 0 calc(var(--px) * 3), var(--color-grass-2) calc(var(--px) * 3) 100%);
   }
   /* Grass over a cutaway of soil that steps down into the page. A stand-in
      until the pixel-art landscape exists. */

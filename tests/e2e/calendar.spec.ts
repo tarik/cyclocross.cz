@@ -26,17 +26,24 @@ test('status is given in words, including cancelled and postponed races', async 
 
 test('search ignores diacritics and the filter survives a reload', async ({ page }) => {
   await open(page, '/');
+  const toggle = page.getByRole('button', { name: 'Filtr', exact: true });
+  await expect(page.getByLabel('Hledat')).toBeHidden();
+  await toggle.click();
+  await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+  await expect(page.getByLabel('Hledat')).toBeFocused();
   await page.getByLabel('Hledat').fill('rericha');
   await expect(upcoming(page)).toHaveCount(1);
   await expect(upcoming(page).locator('th')).toContainText('Řeřicha');
   await expect(page.getByRole('status')).toHaveText('Zobrazeno: 1 závod');
   await expect(page).toHaveURL(/\?q=rericha/);
   await page.reload();
+  await expect(page.getByLabel('Hledat')).toBeVisible();
   await expect(page.getByLabel('Hledat')).toHaveValue('rericha');
   await expect(upcoming(page)).toHaveCount(1);
   await page.getByRole('button', { name: 'Zrušit filtry' }).click();
   await expect(upcoming(page)).toHaveCount(3);
   await expect(page).not.toHaveURL(/\?/);
+  await expect(page.getByLabel('Hledat')).toBeHidden();
 });
 
 test('an empty result is explained and a past-only match is revealed', async ({ page }) => {
@@ -51,6 +58,7 @@ test('"this weekend" selects Friday to Sunday of the current week', async ({ pag
   const shortcut = page.getByRole('button', { name: 'Tento víkend' });
   await shortcut.click();
   await expect(shortcut).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByLabel('Hledat')).toBeHidden();
   await expect(upcoming(page).locator('th')).toHaveText([/Příliš žluťoučký kůň/]);
   await expect(page).toHaveURL(/from=2026-12-04&to=2026-12-06/);
 });

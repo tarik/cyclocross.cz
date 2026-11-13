@@ -19,16 +19,16 @@ const series = [...dataset.series.values()]
 <ul class="mb-4 grid grid-cols-[repeat(auto-fit,minmax(min(100%,18rem),1fr))] gap-6">
   {
     series.map(({ item, races }) => (
-      <li class="border-t-4 border-ink pt-4">
+      <li class="flex flex-col border-t-4 border-ink pt-4">
         <h3 class="mb-1 text-[1.75rem]" lang={htmlLang.cs}>{item.name}</h3>
         {item.scope && <p class="eyebrow">{item.scope[locale] ?? item.scope.cs}</p>}
         {item.description && <p>{item.description[locale] ?? item.description.cs}</p>}
-        <p class="flex flex-wrap gap-x-4 [&>a]:inline-flex [&>a]:min-h-11 [&>a]:items-center [&>a]:font-semibold">
-          <a href={`${sectionPath('calendar', locale).replace('#', `?series=${item.id}#`)}`}>
+        <p class="mt-auto flex max-w-none flex-wrap gap-2">
+          <a class="pill pill-primary" href={`${sectionPath('calendar', locale).replace('#', `?series=${item.id}#`)}`}>
             {races} {t('dir.races')}
           </a>
-          {item.website && <a href={item.website} rel="noopener">{t('dir.website')}</a>}
-          {item.calendarUrl && item.calendarUrl !== item.website && <a href={item.calendarUrl} rel="noopener">{t('dir.calendar')}</a>}
+          {item.website && <a class="pill" href={item.website} rel="noopener">{t('dir.website')}</a>}
+          {item.calendarUrl && item.calendarUrl !== item.website && <a class="pill" href={item.calendarUrl} rel="noopener">{t('dir.calendar')}</a>}
         </p>
       </li>
     ))

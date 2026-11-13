@@ -6,7 +6,7 @@ import { isPast } from '../lib/calendar-filter.ts';
 import { formatEventDate } from '../lib/dates.ts';
 import { eventView } from '../lib/event-view.ts';
 import type { Dataset } from '../lib/events.ts';
-import { htmlLang, sectionPath, type Locale } from '../i18n/routes.ts';
+import { htmlLang, type Locale } from '../i18n/routes.ts';
 import { useTranslations } from '../i18n/ui.ts';
 
 interface Props {
@@ -30,7 +30,7 @@ const visible = 4;
   views.length === 0 ? (
     <p class="text-ink-soft">{t('cal.emptyUpcoming')}</p>
   ) : (
-    <ul class="mb-4 grid grid-cols-[repeat(auto-fit,minmax(min(100%,15rem),1fr))] gap-4" data-upcoming data-visible={visible}>
+    <ul class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,15rem),1fr))] gap-4" data-upcoming data-visible={visible}>
       {views.map((view, position) => (
         <li class="flex flex-col gap-1 border-2 border-ink bg-surface p-4 shadow-pixel" data-date={view.index.endDate ?? view.index.date} hidden={position >= visible}>
           <p class="m-0 font-bold text-accent">
@@ -54,7 +54,6 @@ const visible = 4;
     </ul>
   )
 }
-<p><a href={sectionPath('calendar', locale)}>{t('upcoming.more')}</a></p>
 
 <script>
   // Hide cards whose day has passed since the build and reveal the next ones.

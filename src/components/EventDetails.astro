@@ -1,7 +1,9 @@
 ---
 /**
  * The detail block of one event. Used in the expanded calendar row and on the
- * event page. Unknown optional facts produce no heading at all; important
+ * event page. Layout: summary, one line for the place, racers and spectators
+ * side by side, link buttons, then sources as a small footer line.
+ * Unknown optional facts produce no heading at all; important
  * unknowns (eligibility, registration) get an explicit note instead.
  */
 import { formatEventDate } from '../lib/dates.ts';
@@ -50,6 +52,8 @@ const linkList = (
 // The registration note only makes sense where the public can enter.
 const openEntry = (event.participation?.types ?? []).some((type) => type !== 'elite');
 const upcoming = view.status === 'scheduled' && openEntry;
+const checkedDates = [...new Set(event.provenance.map((item) => item.checkedDate))].sort();
+const hasVisitorColumn = Boolean(practical.timetable || spectators);
 const sourceLabel = (item: (typeof event.provenance)[number]) => {
   const name = (item.sourceId && dataset.sources.get(item.sourceId)?.name) || new URL(item.url).hostname;
   const repeated = event.provenance.filter((other) => other.sourceId === item.sourceId).length > 1;
@@ -69,28 +73,25 @@ const sourceLabel = (item: (typeof event.provenance)[number]) => {
   }
   {details && <p lang={details.fallback ? htmlLang.cs : undefined}>{details.body}</p>}
 
-  <div class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,17rem),1fr))] gap-x-10 gap-y-4">
-    <section>
-      <H class="eyebrow">{t('ev.where')}</H>
-      <p>
-        {location.venue && <span lang={htmlLang.cs}>{location.venue}, </span>}
-        <span lang={htmlLang.cs}>{location.town}</span>{view.region && `, ${view.region}`}
-        {location.address && <br />}
-        {location.address && <span lang={htmlLang.cs}>{location.address}</span>}
-      </p>
-      {mapUrl && <p><a href={mapUrl}>{t('ev.map')}</a></p>}
-      {
-        timing.previousDates.length > 0 && (
-          <p>
-            {t('ev.previousDate')}: {timing.previousDates.map((previous) => formatEventDate(previous.startDate, locale)).join(', ')}
-          </p>
-        )
-      }
-    </section>
+  <p class="max-w-none">
+    <span class="eyebrow mr-2">{t('ev.where')}</span>
+    {location.venue && <span lang={htmlLang.cs}>{location.venue}, </span>}
+    <span lang={htmlLang.cs}>{location.town}</span>{view.region && `, ${view.region}`}
+    {location.address && <span lang={htmlLang.cs}>, {location.address}</span>}
+    {mapUrl && <span> · <a href={mapUrl}>{t('ev.map')}</a></span>}
+    {
+      timing.previousDates.length > 0 && (
+        <span class="block">
+          {t('ev.previousDate')}: {timing.previousDates.map((previous) => formatEventDate(previous.startDate, locale)).join(', ')}
+        </span>
+      )
+    }
+  </p>
 
+  <div class={`grid gap-x-10 gap-y-4 ${hasVisitorColumn ? 'md:grid-cols-2' : ''}`}>
     <section>
       <H class="eyebrow">{t('ev.participation')}</H>
-      {view.typeLabels.length > 0 && <p>{view.typeLabels.join(', ')}</p>}
+      {view.typeLabels.length > 0 && <p class="font-semibold">{view.typeLabels.join(', ')}</p>}
       {
         eligibility ? (
           <p lang={eligibility.fallback ? htmlLang.cs : undefined}>{eligibility.body}</p>
@@ -99,84 +100,69 @@ const sourceLabel = (item: (typeof event.provenance)[number]) => {
         )
       }
       {event.participation?.categories && <p lang={htmlLang.cs}>{event.participation.categories.join(', ')}</p>}
+      {practical.fees && <p>{practical.fees.map((fee) => `${fee.amount} ${fee.currency}`).join(', ')}</p>}
+      {feeNote && <p lang={feeNote.fallback ? htmlLang.cs : undefined}>{feeNote.body}</p>}
+      {upcoming && !links.registration && <p class="text-ink-soft">{t('ev.registrationPending')}</p>}
       {
         event.classifications.length > 0 && (
-          <p>
+          <p class="text-sm">
             {t('ev.classification')}: {event.classifications.map((item) => `${item.body} ${item.code}`).join(', ')}.
             <span class="text-ink-soft"> {t('ev.classNote')}</span>
           </p>
         )
       }
-      {practical.fees && <p>{practical.fees.map((fee) => `${fee.amount} ${fee.currency}`).join(', ')}</p>}
-      {feeNote && <p lang={feeNote.fallback ? htmlLang.cs : undefined}>{feeNote.body}</p>}
-      {upcoming && !links.registration && <p class="text-ink-soft">{t('ev.registrationPending')}</p>}
     </section>
 
     {
-      practical.timetable && (
+      hasVisitorColumn && (
         <section>
-          <H class="eyebrow">{t('ev.timetable')}</H>
-          <ul>
-            {practical.timetable.map((slot) => (
-              <li>
-                <time class="inline-block min-w-13 font-semibold tabular-nums">{slot.time}</time> {slot.label[locale] ?? slot.label.cs}
-              </li>
-            ))}
-          </ul>
+          {spectators && (
+            <>
+              <H class="eyebrow">{t('ev.spectators')}</H>
+              <p lang={spectators.fallback ? htmlLang.cs : undefined}>{spectators.body}</p>
+            </>
+          )}
+          {practical.timetable && (
+            <>
+              <H class={`eyebrow ${spectators ? 'mt-4' : ''}`}>{t('ev.timetable')}</H>
+              <ul class="grid grid-cols-[repeat(auto-fill,minmax(11rem,1fr))] gap-x-4">
+                {practical.timetable.map((slot) => (
+                  <li>
+                    <time class="inline-block min-w-13 font-semibold tabular-nums">{slot.time}</time> {slot.label[locale] ?? slot.label.cs}
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
         </section>
       )
     }
-
-    {
-      spectators && (
-        <section>
-          <H class="eyebrow">{t('ev.spectators')}</H>
-          <p lang={spectators.fallback ? htmlLang.cs : undefined}>{spectators.body}</p>
-        </section>
-      )
-    }
-
-    {
-      linkList.length > 0 && (
-        <section>
-          <H class="eyebrow">{t('ev.links')}</H>
-          <ul>
-            {linkList.map(([kind, url]) => (
-              <li>
-                <a href={url} rel="noopener">
-                  {t(`ev.link.${kind}`)}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )
-    }
-
-    <section>
-      <H class="eyebrow">{t('ev.sources')}</H>
-      <ul>
-        {
-          event.provenance.map((item) => (
-            <li>
-              <a href={item.url} rel="noopener">
-                {sourceLabel(item)}
-              </a>
-              <span class="text-ink-soft">
-                , {t('ev.checked')} {formatEventDate(item.checkedDate, locale)}
-              </span>
-            </li>
-          ))
-        }
-      </ul>
-    </section>
   </div>
 
-  {event.verification === 'unverified' && <p class="max-w-none border-l-4 border-line bg-surface px-4 py-2 text-ink-soft">{t('ev.unverified')}</p>}
-
-  <p class="flex flex-wrap gap-x-6 gap-y-2 [&>a]:inline-flex [&>a]:min-h-11 [&>a]:items-center [&>a]:font-semibold">
-    {view.ics && <a href={view.ics}>{t('ev.ics')}</a>}
-    <a href={view.reportUrl}>{t('ev.report')}</a>
+  <p class="flex max-w-none flex-wrap gap-2">
+    {
+      linkList.map(([kind, url]) => (
+        <a class={`pill ${kind === 'registration' ? 'pill-primary' : ''}`} href={url} rel="noopener">
+          {t(`ev.link.${kind}`)}
+        </a>
+      ))
+    }
+    {view.ics && <a class="pill" href={view.ics}>{t('ev.ics')}</a>}
     <slot name="actions" />
+  </p>
+
+  <p class="max-w-none border-t border-line pt-3 text-sm text-ink-soft">
+    <span class="font-semibold">{t('ev.sources')}:</span>{' '}
+    {
+      event.provenance.map((item, position) => (
+        <>
+          {position > 0 && ', '}
+          <a href={item.url} rel="noopener">{sourceLabel(item)}</a>
+        </>
+      ))
+    }
+    {' '}({t('ev.checked')} {checkedDates.map((date) => formatEventDate(date, locale)).join(', ')}).
+    {event.verification === 'unverified' && <span> {t('ev.unverified')}</span>}
+    <a class="ml-1 font-semibold whitespace-nowrap" href={view.reportUrl}>{t('ev.report')}</a>
   </p>
 </div>

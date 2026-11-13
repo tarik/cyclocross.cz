@@ -92,6 +92,24 @@ export function initCalendar(root: HTMLElement): void {
   const reset = form.querySelector<HTMLButtonElement>('[data-reset]');
   const empty = root.querySelector<HTMLElement>('[data-empty]');
   const weekend = weekendRange(today);
+  const toggle = form.querySelector<HTMLButtonElement>('[data-filter-toggle]');
+  const panel = form.querySelector<HTMLElement>('[data-filter-panel]');
+  const dot = form.querySelector<HTMLElement>('[data-filter-dot]');
+  const setPanel = (open: boolean) => {
+    if (!toggle || !panel) return;
+    toggle.setAttribute('aria-expanded', String(open));
+    panel.hidden = !open;
+  };
+  toggle?.addEventListener('click', () => {
+    const open = toggle.getAttribute('aria-expanded') !== 'true';
+    setPanel(open);
+    if (open) field('q').focus();
+  });
+  /** True when a filter is set that only the panel can show, as opposed to a shortcut. */
+  const needsPanel = (filters: Filters) => {
+    const isWeekend = filters.from === weekend.from && filters.to === weekend.to;
+    return Boolean(filters.q || filters.region || filters.series || (filters.type && filters.type !== 'amateur' && filters.type !== 'young') || ((filters.from || filters.to) && !isWeekend));
+  };
 
   const read = (): Filters => ({
     q: field('q').value.trim(),
@@ -133,6 +151,8 @@ export function initCalendar(root: HTMLElement): void {
     const total = shown.upcoming + shown.unconfirmed + (active ? shown.past : 0);
     if (count) count.textContent = `${strings.label} ${total} ${plural(total, strings)}`;
     if (reset) reset.hidden = !active;
+    // A mark on the collapsed button, so a hidden filter is never a silent one.
+    dot?.classList.toggle('hidden', !needsPanel(filters));
     const pressed: Record<string, boolean> = {
       weekend: filters.from === weekend.from && filters.to === weekend.to,
       amateur: filters.type === 'amateur',
@@ -155,7 +175,8 @@ export function initCalendar(root: HTMLElement): void {
     setTimeout(() => {
       write(emptyFilters);
       apply(true);
-      field('q').focus();
+      setPanel(false);
+      toggle?.focus();
     });
   });
   for (const button of form.querySelectorAll<HTMLButtonElement>('[data-shortcut]')) {
@@ -173,7 +194,9 @@ export function initCalendar(root: HTMLElement): void {
     });
   }
 
-  write(parseFilters(new URLSearchParams(location.search), allowed));
+  const initial = parseFilters(new URLSearchParams(location.search), allowed);
+  write(initial);
+  setPanel(needsPanel(initial));
   apply(false);
 
   // Open the event named in the URL fragment, now and when it changes.

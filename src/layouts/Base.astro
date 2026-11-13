@@ -53,10 +53,12 @@ const alternates = translated
         </p>
       )
     }
-    <div class={`sky ${variant === 'page' ? 'border-b-4 border-grass-2' : ''}`}>
-      <Header locale={locale} />
-      <slot name="hero" />
-    </div>
+    <Header locale={locale} />
+    {variant === 'home' && (
+      <div class="sky">
+        <slot name="hero" />
+      </div>
+    )}
     <main id="main" tabindex="-1">
       <slot />
     </main>

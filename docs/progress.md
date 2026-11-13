@@ -30,6 +30,7 @@ Read this after `SPEC.md`. Update it in every PR.
 - Event pages in both languages, per-event `.ics` files and a season feed under `/ics/`.
 - Issue Forms for adding and correcting a race and reporting a site problem.
 - Styling is Tailwind 4.
+- After the owner's screenshot review: collapsed filter, button-style actions, two-column details, sticky header, slim turf footer. See `docs/decisions.md`.
 
 ## Data gaps to close
 

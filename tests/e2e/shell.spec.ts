@@ -41,6 +41,17 @@ test('skip link moves focus to the main content', async ({ page, browserName }) 
   await expect(page.locator('#main')).toBeFocused();
 });
 
+test('the header stays in view and does not cover a section it links to', async ({ page }) => {
+  await page.goto('/');
+  const menu = page.getByRole('button', { name: 'Menu' });
+  if (await menu.isVisible()) await menu.click();
+  await page.getByRole('navigation', { name: 'Hlavní navigace' }).getByRole('link', { name: 'Série a pořadatelé' }).click();
+  const header = await page.locator('header').boundingBox();
+  const heading = await page.getByRole('heading', { name: 'Série a pořadatelé' }).boundingBox();
+  expect(header!.y).toBe(0);
+  expect(heading!.y).toBeGreaterThanOrEqual(header!.height);
+});
+
 test('mobile menu opens, closes with Escape and returns focus', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');

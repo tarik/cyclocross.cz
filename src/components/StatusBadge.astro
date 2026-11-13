@@ -11,7 +11,7 @@ const colours: Record<DisplayStatus, string> = { scheduled: 'text-ok', postponed
 const marks: Record<DisplayStatus, string> = { scheduled: '●', postponed: '▲', cancelled: '✕', completed: '✓', past: '○' };
 ---
 
-<span class={`inline-flex items-baseline gap-[0.35em] text-sm font-semibold whitespace-nowrap ${colours[status]}`} data-status={status}>
+<span class={`inline-flex items-baseline gap-[0.35em] text-sm leading-[1.625rem] font-semibold whitespace-nowrap ${colours[status]}`} data-status={status}>
   <span aria-hidden="true">{marks[status]}</span>
   <span data-status-label>{label}</span>
 </span>

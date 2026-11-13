@@ -48,10 +48,10 @@ const lastChecked = dataset.events.map((event) => event.updatedDate).sort().at(-
   <section class="section wrap" id={id('contribute')} aria-labelledby="contribute-title">
     <h2 id="contribute-title">{t('home.contribute.title')}</h2>
     <p>{t('home.contribute.lead')}</p>
-    <p class="flex flex-wrap gap-x-6">
-      <a class="action-link" href={`${site.issuesUrl}/new?template=add-event.yml`}>{t('contribute.add')}</a>
-      <a class="action-link" href={`${site.issuesUrl}/new?template=correct-event.yml`}>{t('contribute.correct')}</a>
-      <a class="action-link" href={routePath('contribute', locale)}>{t('home.contribute.cta')}</a>
+    <p class="flex max-w-none flex-wrap gap-2">
+      <a class="pill pill-primary" href={`${site.issuesUrl}/new?template=add-event.yml`}>{t('contribute.add')}</a>
+      <a class="pill" href={`${site.issuesUrl}/new?template=correct-event.yml`}>{t('contribute.correct')}</a>
+      <a class="pill" href={routePath('contribute', locale)}>{t('home.contribute.cta')}</a>
     </p>
   </section>
 </Base>
