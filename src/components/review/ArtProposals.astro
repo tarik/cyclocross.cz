@@ -1,0 +1,72 @@
+---
+/**
+ * Cyclist direction proposals: both riders, both kits, three views, at
+ * display size and enlarged. The sheets come from `art/build.mjs`.
+ */
+import { withBase } from '../../i18n/routes.ts';
+
+const CELL = { width: 76, height: 78 };
+const views = ['Side', 'Front three-quarter', 'Rear three-quarter'];
+const sheets = [
+  { file: 'proposal-female-club.png', rider: 'Rider A', kit: 'Club kit' },
+  { file: 'proposal-female-national.png', rider: 'Rider A', kit: 'Czech colours' },
+  { file: 'proposal-male-club.png', rider: 'Rider B', kit: 'Club kit' },
+  { file: 'proposal-male-national.png', rider: 'Rider B', kit: 'Czech colours' },
+];
+const frame = (file: string, index: number, zoom: number) =>
+  `width:${CELL.width * zoom}px;height:${CELL.height * zoom}px;background:url(${withBase(`/art/${file}`)}) -${index * CELL.width * zoom}px 0 / ${CELL.width * 3 * zoom}px ${CELL.height * zoom}px no-repeat;image-rendering:pixelated`;
+---
+
+<div class="prose mb-10">
+  <p>
+    These are direction proposals, not finished sprites. I draw the riders from one posable model, so every view shares the same
+    proportions, wheel centres and ground anchor. That is what will let the same rider turn through eight directions later
+    without changing shape. Kits are palette swaps, so both riders wear both kits.
+  </p>
+  <p>What I need from you: are the proportions, the level of detail and the two kits the right direction?</p>
+</div>
+
+<h2>At display size</h2>
+<p class="mb-4 text-ink-soft">Three screen pixels per art pixel, on the hero sky and grass colours.</p>
+<div class="mb-12 overflow-x-auto border-2 border-ink">
+  <div class="min-w-max bg-sky-2">
+    {sheets.map((sheet) => (
+      <div class="flex items-end gap-2 px-4 pt-2">
+        {views.map((_, index) => <div role="img" aria-label={`${sheet.rider}, ${sheet.kit}, ${views[index]}`} style={frame(sheet.file, index, 3)} />)}
+        <p class="mb-6 ml-4 max-w-none text-sm font-semibold">{sheet.rider} · {sheet.kit}</p>
+      </div>
+    ))}
+    <div class="h-6 bg-grass-1"></div>
+  </div>
+</div>
+
+<h2>Enlarged pixel detail</h2>
+<p class="mb-4 text-ink-soft">Six screen pixels per art pixel.</p>
+{sheets.filter((_, index) => index === 0 || index === 3).map((sheet) => (
+  <figure class="mb-8">
+    <figcaption class="mb-2 font-semibold">{sheet.rider} · {sheet.kit}</figcaption>
+    <div class="border-2 border-ink bg-sky-2">
+      <div class="flex flex-wrap justify-around">
+        {views.map((view, index) => (
+          <div>
+            <div role="img" aria-label={`${sheet.rider}, ${sheet.kit}, ${view}, enlarged`} style={frame(sheet.file, index, 6)} class="max-w-full" />
+            <p class="max-w-none pb-2 text-center text-sm">{view}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </figure>
+))}
+
+<h2>Kits</h2>
+<ul class="prose mb-10">
+  <li><strong>Club kit:</strong> an original design in the site colours, burnt orange and deep teal with a cream band.</li>
+  <li><strong>Czech colours:</strong> an original white, red and blue design. It carries no federation or team marks.</li>
+</ul>
+
+<h2>Known gaps</h2>
+<ul class="prose">
+  <li>Faces, hands and the drivetrain are still schematic. They get hand-finished pixels once the direction is approved.</li>
+  <li>Only the riding pose is shown. Carrying, running, remounting and the wave come with the motion work.</li>
+  <li>The two riders differ in build and hair only. Tell me if you want them further apart.</li>
+</ul>

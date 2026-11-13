@@ -2,6 +2,15 @@
 
 Newest first. Each entry says what was decided, by whom and why. Owner decisions are binding; agent decisions are defaults that the owner can overturn.
 
+## 2026-11-13, art proposals PR
+
+- **Agent: sprites are drawn from a posable model, not frame by frame.** `art/rider.mjs` describes bicycle and rider in model units; `art/lib/raster.mjs` projects it for a facing direction and rasterises it with a depth buffer, a three-step shade and an outside-only outline. One model gives every direction the same proportions, wheel centres and ground anchor (SPEC.md 5.3). Hand-finished pixels can be layered on after the direction is approved.
+- **Agent: kits are palette swaps** (`art/palettes.mjs`). Materials are named ramps, a kit replaces jersey, helmet and frame ramps.
+- **Agent: the camera pitch is 18 degrees** for the proposals. To be confirmed with the track study.
+- **Agent: generated sheets are committed in `public/art/`** because the site serves them. A unit test regenerates them and fails if they differ from the source.
+- **Agent: review pages live under `/review/`** and are not built for production. They are also left out of the sitemap.
+- **Agent: Czech race photographs are not yet on the reference board.** Wikimedia Commons could not be reached from the build environment and no link was guessed. See `docs/art-references.md`.
+
 ## 2026-11-13, calendar PR, owner review of screenshots
 
 - **Owner: a development preview is published on GitHub Pages.** `.github/workflows/pages-preview.yml` builds `main` with `SITE_ENV=staging` under the sub-path `/cyclocross.cz/`, so it carries the development notice and `noindex`. This is not the production release; hosting for the real domain is still open. The sub-path comes from `BASE_PATH` and is applied only in the route registry (`withBase`, `stripBase`), so every internal link must come from `src/i18n/routes.ts`.
