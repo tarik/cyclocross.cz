@@ -1,0 +1,30 @@
+id: demo-cancelled-example-2026
+slug: 2026-cancelled-example
+seasonId: 2026-2027
+demo: true
+name:
+  official: Smyšlený zrušený závod (demo)
+timing:
+  precision: day
+  startDate: '2026-12-20'
+location:
+  town: Kolín
+  regionId: stredocesky
+status: cancelled
+verification: verified
+statusHistory:
+- date: '2026-11-13'
+  status: cancelled
+  note:
+    cs: Smyšlené zrušení.
+    en: Fictional cancellation.
+provenance:
+- sourceId: demo-source
+  url: https://example.com/x
+  checkedDate: '2026-11-13'
+  facts:
+  - date
+updatedDate: '2026-11-13'
+feed:
+  sequence: 0
+  lastModified: '2026-11-13T12:00:00Z'

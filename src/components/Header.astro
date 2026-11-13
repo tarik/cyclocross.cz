@@ -17,21 +17,20 @@ const links = [
 ];
 ---
 
-<header class="site-header">
-  <div class="wrap bar">
-    <a class="wordmark" href={routePath('home', locale)} aria-label={`cyclocross.cz, ${t('site.tagline')}`}>
-      cyclocross<span>.cz</span>
+<header class="sticky top-0 z-20 bg-sky-1 shadow-[0_2px_0_rgb(42_37_32/0.12)]">
+  <div class="wrap flex min-h-14 flex-wrap items-center justify-between gap-x-6 gap-y-2 py-2">
+    <a class="py-1 font-display text-[clamp(1.75rem,8vw,2.25rem)] leading-none text-ink no-underline" href={routePath('home', locale)} aria-label={`cyclocross.cz, ${t('site.tagline')}`}>
+      cyclocross.cz
     </a>
-    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav" hidden>
-      <span class="bars" aria-hidden="true"></span>
-      {t('nav.menu')}
+    <button class="menu-toggle hidden size-11 cursor-pointer items-center justify-center border-2 border-ink bg-surface text-ink max-lg:js:inline-flex" type="button" aria-label={t('nav.menu')} aria-expanded="false" aria-controls="site-nav" hidden>
+      <span class="relative block h-0.5 w-4 bg-current before:absolute before:-top-[5px] before:left-0 before:h-0.5 before:w-4 before:bg-current after:absolute after:top-[5px] after:left-0 after:h-0.5 after:w-4 after:bg-current" aria-hidden="true"></span>
     </button>
-    <nav id="site-nav" class="nav" aria-label={t('nav.label')}>
-      <ul>
+    <nav id="site-nav" class="flex flex-wrap items-center gap-x-6 gap-y-2 max-lg:js:hidden max-lg:js:basis-full max-lg:js:data-open:flex max-lg:js:data-open:flex-col max-lg:js:data-open:items-stretch max-lg:js:data-open:border-2 max-lg:js:data-open:border-ink max-lg:js:data-open:bg-surface max-lg:js:data-open:px-4 max-lg:js:data-open:pt-2 max-lg:js:data-open:pb-4 max-lg:js:data-open:shadow-pixel" aria-label={t('nav.label')}>
+      <ul class="flex flex-wrap gap-x-4 gap-y-1 max-lg:flex-col">
         {
           links.map((link) => (
             <li>
-              <a href={link.href} aria-current={link.href === pathname ? 'page' : undefined}>
+              <a class="inline-flex min-h-11 items-center px-2 font-semibold text-ink no-underline decoration-2 underline-offset-[0.3em] hover:underline aria-[current=page]:underline" href={link.href} aria-current={link.href === pathname ? 'page' : undefined}>
                 {link.label}
               </a>
             </li>
@@ -51,7 +50,7 @@ const links = [
     toggle.hidden = false;
     const setOpen = (open: boolean) => {
       toggle.setAttribute('aria-expanded', String(open));
-      nav.classList.toggle('is-open', open);
+      nav.toggleAttribute('data-open', open);
     };
     toggle.addEventListener('click', () => setOpen(toggle.getAttribute('aria-expanded') !== 'true'));
     document.addEventListener('keydown', (event) => {
@@ -65,94 +64,3 @@ const links = [
     });
   }
 </script>
-
-<style>
-  .bar {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-2) var(--space-4);
-    min-height: var(--header-height);
-    padding-block: var(--space-2);
-  }
-  .wordmark {
-    font-family: var(--font-display);
-    font-size: clamp(1.75rem, 8vw, 2.25rem);
-    font-weight: 400;
-    line-height: 1;
-    color: var(--color-ink);
-    text-decoration: none;
-    padding-block: var(--space-2);
-  }
-  .wordmark span { color: var(--color-accent); }
-  .nav {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--space-2) var(--space-4);
-  }
-  .nav ul {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-1) var(--space-3);
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-  .nav a {
-    display: inline-flex;
-    align-items: center;
-    min-height: 2.75rem;
-    padding-inline: var(--space-2);
-    color: var(--color-ink);
-    font-weight: 600;
-    text-decoration: none;
-  }
-  .nav a:hover,
-  .nav a[aria-current='page'] {
-    text-decoration: underline;
-    text-decoration-thickness: 2px;
-    text-underline-offset: 0.3em;
-  }
-  .menu-toggle {
-    display: none;
-    align-items: center;
-    gap: var(--space-2);
-    min-height: 2.75rem;
-    padding: 0 var(--space-3);
-    background: var(--color-surface);
-    color: var(--color-ink);
-    border: var(--border);
-    font: 600 var(--step-0) var(--font-body);
-    cursor: pointer;
-  }
-  .bars,
-  .bars::before,
-  .bars::after {
-    display: block;
-    width: 1rem;
-    height: 2px;
-    background: currentColor;
-  }
-  .bars { position: relative; }
-  .bars::before,
-  .bars::after { content: ''; position: absolute; left: 0; }
-  .bars::before { top: -5px; }
-  .bars::after { top: 5px; }
-
-  @media (max-width: 59.99rem) {
-    :global(.js) .menu-toggle:not([hidden]) { display: inline-flex; }
-    :global(.js) .nav { display: none; flex-basis: 100%; }
-    :global(.js) .nav.is-open {
-      display: flex;
-      flex-direction: column;
-      align-items: stretch;
-      padding: var(--space-2) var(--space-3) var(--space-3);
-      background: var(--color-surface);
-      border: var(--border);
-      box-shadow: var(--shadow);
-    }
-    .nav ul { flex-direction: column; }
-  }
-</style>

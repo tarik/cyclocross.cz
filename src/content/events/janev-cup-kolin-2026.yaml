@@ -1,0 +1,48 @@
+id: janev-cup-kolin-2026
+slug: 2026-janev-cup-kolin
+seasonId: 2026-2027
+name:
+  official: JANEV Cup Kolín
+timing:
+  precision: day
+  startDate: '2026-12-05'
+location:
+  town: Kolín
+  regionId: stredocesky
+seriesIds:
+- janev-cup-2026
+classifications:
+- body: UCI
+  code: C2
+participation:
+  types:
+  - elite
+  - juniors
+  - youth
+  eligibilityNotes:
+    cs: Závody UCI jsou vypsány pro muže, ženy a juniory, doplňují je národní závody mládeže. Podmínky startu ověřte v propozicích.
+    en: The UCI races are for men, women and juniors, with national youth races alongside. Check the regulations for entry conditions.
+status: scheduled
+verification: unverified
+links:
+  official: https://www.cyklokros.cz/janev-kolin-26
+  regulations: https://www.cyklokros.cz/files/2026-12-05-kolin-c2-v10-final.pdf
+  registration: https://cycling.sportsoft.cz/cyklokros/
+provenance:
+- sourceId: cyklokros-cz
+  url: https://www.cyklokros.cz/kalendar
+  checkedDate: '2026-11-13'
+  facts:
+  - date
+  - location
+  - name
+- sourceId: cyklokros-cz
+  url: https://www.cyklokros.cz/janev-kolin-26
+  checkedDate: '2026-11-13'
+  facts:
+  - date
+  - classification
+updatedDate: '2026-11-13'
+feed:
+  sequence: 0
+  lastModified: '2026-11-13T15:00:00Z'

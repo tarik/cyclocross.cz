@@ -1,0 +1,49 @@
+name: Přidat závod / Add a race
+description: Navrhněte závod, který v kalendáři chybí. / Suggest a race that is missing from the calendar.
+title: 'Přidat závod: '
+labels: [event, add]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Děkujeme! Každý údaj ověřujeme podle oficiálního zdroje, proto je odkaz na něj povinný. Neuvádějte prosím soukromé kontakty.
+
+        Thank you! We verify every fact against an official source, so a link to one is required. Please do not include private contact details.
+  - type: input
+    id: name
+    attributes:
+      label: Název závodu / Race name
+      description: Oficiální název tak, jak ho uvádí pořadatel. / The official name as the organiser writes it.
+    validations:
+      required: true
+  - type: input
+    id: date
+    attributes:
+      label: Datum / Date
+      placeholder: '2026-12-05'
+    validations:
+      required: true
+  - type: input
+    id: place
+    attributes:
+      label: Místo konání / Town and venue
+    validations:
+      required: true
+  - type: input
+    id: evidence
+    attributes:
+      label: Odkaz na oficiální zdroj / Link to an official source
+      description: Stránka pořadatele, série nebo svazu, případně propozice. / The organiser, series or federation page, or the race regulations.
+      placeholder: https://
+    validations:
+      required: true
+  - type: input
+    id: series
+    attributes:
+      label: Série / Series
+      description: Pokud je závod součástí série. / If the race belongs to a series.
+  - type: textarea
+    id: details
+    attributes:
+      label: Další informace / Anything else
+      description: Kategorie, startovné, přihlášky, informace pro diváky. Jen to, co je uvedeno ve zdroji. / Categories, fees, registration, spectator information. Only what the source states.

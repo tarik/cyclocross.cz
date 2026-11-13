@@ -1,0 +1,56 @@
+id: tbc-sedlcany-2026
+slug: 2026-tbc-sedlcany
+seasonId: 2026-2027
+name:
+  official: Žabácký cyklokros – Memoriál Rudolfa Bartoše
+timing:
+  precision: day
+  startDate: '2026-11-22'
+  startTime: '10:00'
+location:
+  town: Sedlčany
+  regionId: stredocesky
+  venue: Areál RAC Sedlčany, Sedlčanská kotlina
+  coordinates:
+    lat: 49.6689169
+    lon: 14.4300139
+seriesIds:
+- tbc-serie-2026
+participation:
+  types:
+  - amateur
+  - juniors
+  - youth
+  - children
+  eligibilityNotes:
+    cs: Amatérská série s kategoriemi od odrážedel po muže nad 60 let. Startovat lze i bez registrace v sérii jako příchozí.
+    en: An amateur series with categories from balance bikes to men over 60. You can also start without series registration as a walk-in.
+status: scheduled
+verification: unverified
+links:
+  official: https://www.da-ba.com/zavody/zabacky-cyklokros
+  regulations: https://tbcserie.cz/pravidla
+  registration: https://maraton.cz/terminovka/entry/708
+provenance:
+- sourceId: tbcserie-cz
+  url: https://tbcserie.cz/kalendar-2026
+  checkedDate: '2026-11-13'
+  facts:
+  - date
+  - location
+- sourceId: tbcserie-cz
+  url: https://tbcserie.cz/kalendar-2026/zavod-201/
+  checkedDate: '2026-11-13'
+  facts:
+  - name
+  - venue
+- sourceId: maraton-cz
+  url: https://www.maraton.cz/
+  checkedDate: '2026-11-13'
+  facts:
+  - name
+  - registration
+updatedDate: '2026-11-13'
+feed:
+  sequence: 0
+  lastModified: '2026-11-13T15:00:00Z'

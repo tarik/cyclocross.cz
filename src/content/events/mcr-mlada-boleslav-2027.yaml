@@ -1,0 +1,42 @@
+id: mcr-mlada-boleslav-2027
+slug: 2027-mcr-mlada-boleslav
+seasonId: 2026-2027
+name:
+  official: Mistrovství ČR v cyklokrosu
+timing:
+  precision: day
+  startDate: '2027-01-10'
+location:
+  town: Mladá Boleslav
+  regionId: stredocesky
+participation:
+  types:
+  - elite
+  - juniors
+  eligibilityNotes:
+    cs: Mistrovství je vypsáno pro muže, ženy, juniory a juniorky.
+    en: The championship is held for men, women and junior men and women.
+status: scheduled
+verification: unverified
+links:
+  official: https://www.cyklokros.cz/mcr-mlada-boleslav-2026
+  regulations: https://www.cyklokros.cz/files/propozice-mcr-2027-mlada-boleslav-v13-final.pdf
+  registration: https://cycling.sportsoft.cz/cyklokros/
+provenance:
+- sourceId: cyklokros-cz
+  url: https://www.cyklokros.cz/kalendar
+  checkedDate: '2026-11-13'
+  facts:
+  - date
+  - location
+  - name
+- sourceId: cyklokros-cz
+  url: https://www.cyklokros.cz/mcr-mlada-boleslav-2026
+  checkedDate: '2026-11-13'
+  facts:
+  - date
+  - categories
+updatedDate: '2026-11-13'
+feed:
+  sequence: 0
+  lastModified: '2026-11-13T15:00:00Z'

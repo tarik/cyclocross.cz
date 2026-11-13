@@ -1,0 +1,37 @@
+id: mcr-mladeze-veseli-2026
+slug: 2026-mcr-mladeze-veseli-nad-luznici
+seasonId: 2026-2027
+name:
+  official: Mistrovství ČR mládeže v cyklokrosu
+timing:
+  precision: day
+  startDate: '2026-12-13'
+location:
+  town: Veselí nad Lužnicí
+  regionId: jihocesky
+participation:
+  types:
+  - youth
+status: scheduled
+verification: unverified
+links:
+  official: https://www.cyklokros.cz/janev-veseli-mcr-mladez-26
+  registration: https://cycling.sportsoft.cz/cyklokros/
+provenance:
+- sourceId: cyklokros-cz
+  url: https://www.cyklokros.cz/kalendar
+  checkedDate: '2026-11-13'
+  facts:
+  - date
+  - location
+  - name
+- sourceId: csc-sportsoft
+  url: https://cycling.sportsoft.cz/cyklokros/
+  checkedDate: '2026-11-13'
+  facts:
+  - date
+  - name
+updatedDate: '2026-11-13'
+feed:
+  sequence: 0
+  lastModified: '2026-11-13T15:00:00Z'

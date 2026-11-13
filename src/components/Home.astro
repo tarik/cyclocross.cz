@@ -1,9 +1,13 @@
 ---
-import { getCollection } from 'astro:content';
 import Base from '../layouts/Base.astro';
+import Calendar from './Calendar.astro';
+import Directory from './Directory.astro';
 import HeroPlaceholder from './HeroPlaceholder.astro';
-import { formatEventDate } from '../lib/dates.ts';
-import { fragments, htmlLang, routePath, type Locale } from '../i18n/routes.ts';
+import Upcoming from './Upcoming.astro';
+import { site } from '../config/site.ts';
+import { formatEventDate, todayInPrague } from '../lib/dates.ts';
+import { loadDataset } from '../lib/events.ts';
+import { fragments, routePath, type Locale } from '../i18n/routes.ts';
 import { useTranslations } from '../i18n/ui.ts';
 
 interface Props {
@@ -12,12 +16,9 @@ interface Props {
 const { locale } = Astro.props;
 const t = useTranslations(locale);
 const id = (key: keyof typeof fragments) => fragments[key][locale];
-
-// Foundation only: a plain list proves the data pipeline. The real calendar
-// (table, filters, details) is delivered in the calendar PR.
-const events = (await getCollection('events')).map((entry) => entry.data).sort((a, b) =>
-  (a.timing.startDate ?? '9999').localeCompare(b.timing.startDate ?? '9999'),
-);
+const dataset = await loadDataset();
+const today = todayInPrague();
+const lastChecked = dataset.events.map((event) => event.updatedDate).sort().at(-1);
 ---
 
 <Base locale={locale} variant="home">
@@ -25,56 +26,32 @@ const events = (await getCollection('events')).map((entry) => entry.data).sort((
 
   <section class="section wrap" id={id('upcoming')} aria-labelledby="upcoming-title">
     <h2 id="upcoming-title">{t('home.upcoming.title')}</h2>
-    <p class="muted">{t('home.pending')}</p>
+    <Upcoming locale={locale} dataset={dataset} today={today} />
   </section>
 
   <section class="section wrap" id={id('calendar')} aria-labelledby="calendar-title">
-    <h2 id="calendar-title">{t('home.calendar.title')}</h2>
-    {
-      events.length === 0 ? (
-        <p class="muted">{t('home.pending')}</p>
-      ) : (
-        <ul class="events">
-          {events.map((event) => (
-            <li data-event={event.id}>
-              <span class="date">{event.timing.startDate ? formatEventDate(event.timing.startDate, locale) : '?'}</span>
-              <span class="name" lang={htmlLang.cs}>{event.name.official}</span>
-              <span class="muted">{event.location.town}</span>
-            </li>
-          ))}
-        </ul>
-      )
-    }
+    <div class="flex flex-wrap items-baseline justify-between gap-x-6">
+      <h2 id="calendar-title">{t('home.calendar.title')}</h2>
+      <p class="text-ink-soft">
+        {t('cal.season')} {site.activeSeason.replace('-', '–')}
+        {lastChecked && ` · ${t('data.updated')} ${formatEventDate(lastChecked, locale)}`}
+      </p>
+    </div>
+    <Calendar locale={locale} dataset={dataset} today={today} />
   </section>
 
   <section class="section wrap" id={id('directory')} aria-labelledby="directory-title">
     <h2 id="directory-title">{t('home.directory.title')}</h2>
-    <p class="muted">{t('home.pending')}</p>
+    <Directory locale={locale} dataset={dataset} />
   </section>
 
   <section class="section wrap" id={id('contribute')} aria-labelledby="contribute-title">
     <h2 id="contribute-title">{t('home.contribute.title')}</h2>
     <p>{t('home.contribute.lead')}</p>
-    <p><a href={routePath('contribute', locale)}>{t('home.contribute.cta')}</a></p>
+    <p class="flex max-w-none flex-wrap gap-2">
+      <a class="pill pill-primary" href={`${site.issuesUrl}/new?template=add-event.yml`}>{t('contribute.add')}</a>
+      <a class="pill" href={`${site.issuesUrl}/new?template=correct-event.yml`}>{t('contribute.correct')}</a>
+      <a class="pill" href={routePath('contribute', locale)}>{t('home.contribute.cta')}</a>
+    </p>
   </section>
 </Base>
-
-<style>
-  .events {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    border-top: 1px solid var(--color-line);
-  }
-  .events li {
-    display: grid;
-    gap: var(--space-1) var(--space-4);
-    padding-block: var(--space-3);
-    border-bottom: 1px solid var(--color-line);
-  }
-  .date { font-variant-numeric: tabular-nums; }
-  .name { font-weight: 600; overflow-wrap: anywhere; }
-  @media (min-width: 48rem) {
-    .events li { grid-template-columns: 14rem 1fr 10rem; align-items: baseline; }
-  }
-</style>

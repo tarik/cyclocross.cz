@@ -1,0 +1,49 @@
+id: tbc-chynov-2026
+slug: 2026-tbc-chynov
+seasonId: 2026-2027
+name:
+  official: Cyklokros Chýnov
+timing:
+  precision: day
+  startDate: '2026-09-27'
+  startTime: '10:00'
+location:
+  town: Chýnov
+  regionId: jihocesky
+  venue: Fotbalové hřiště Chýnov
+  coordinates:
+    lat: 49.413448
+    lon: 14.805591
+seriesIds:
+- tbc-serie-2026
+participation:
+  types:
+  - amateur
+  - juniors
+  - youth
+  - children
+  eligibilityNotes:
+    cs: Amatérská série s kategoriemi od odrážedel po muže nad 60 let. Startovat lze i bez registrace v sérii jako příchozí.
+    en: An amateur series with categories from balance bikes to men over 60. You can also start without series registration as a walk-in.
+status: scheduled
+verification: unverified
+links:
+  official: https://cykloklubchynov.cz/zavody/cyklokros-tbc/
+  regulations: https://tbcserie.cz/pravidla
+provenance:
+- sourceId: tbcserie-cz
+  url: https://tbcserie.cz/kalendar-2026
+  checkedDate: '2026-11-13'
+  facts:
+  - date
+  - location
+- sourceId: tbcserie-cz
+  url: https://tbcserie.cz/kalendar-2026/zavod-199/
+  checkedDate: '2026-11-13'
+  facts:
+  - name
+  - venue
+updatedDate: '2026-11-13'
+feed:
+  sequence: 0
+  lastModified: '2026-11-13T15:00:00Z'

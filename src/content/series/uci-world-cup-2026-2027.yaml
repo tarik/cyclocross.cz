@@ -1,0 +1,12 @@
+id: uci-world-cup-2026-2027
+name: UCI Cyclo-cross World Cup 2026–2027
+seasonIds:
+- 2026-2027
+description:
+  cs: 'Světový pohár v cyklokrosu. V sezóně 2026–2027 ho zahajují dva závody v Česku: Ostrava a Tábor.'
+  en: 'The cyclocross World Cup. The 2026–2027 season opens with two rounds in Czechia: Ostrava and Tábor.'
+website: https://www.ucicyclocrossworldcup.com/
+calendarUrl: https://www.ucicyclocrossworldcup.com/en/calendar
+scope:
+  cs: Mezinárodní
+  en: International

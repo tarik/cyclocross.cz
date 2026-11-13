@@ -1,0 +1,75 @@
+id: world-cup-tabor-2026
+slug: 2026-svetovy-pohar-tabor
+seasonId: 2026-2027
+name:
+  official: UCI Cyclo-cross World Cup Tábor
+timing:
+  precision: day
+  startDate: '2026-11-29'
+  startTime: 08:50
+location:
+  town: Tábor
+  regionId: jihocesky
+  venue: Areál Komora
+seriesIds:
+- uci-world-cup-2026-2027
+classifications:
+- body: UCI
+  code: World Cup
+participation:
+  types:
+  - elite
+  - juniors
+status: scheduled
+verification: unverified
+summary:
+  cs: Druhý závod Světového poháru 2026–2027 v areálu Komora u Lužnice. Jedou junioři, juniorky, muži do 23 let, ženy Elite a muži Elite.
+  en: The second round of the 2026–2027 World Cup at the Komora venue by the Lužnice river, with races for junior men and women, under-23 men, elite women and elite men.
+translation:
+  en: machine
+practical:
+  timetable:
+  - time: 08:50
+    label:
+      cs: Junioři
+      en: Junior men
+  - time: 09:55
+    label:
+      cs: Juniorky
+      en: Junior women
+  - time: '11:20'
+    label:
+      cs: Muži do 23 let
+      en: Under-23 men
+  - time: '13:00'
+    label:
+      cs: Ženy Elite
+      en: Women Elite
+  - time: '14:30'
+    label:
+      cs: Muži Elite
+      en: Men Elite
+  spectatorNotes:
+    cs: Vstupenky online v předprodeji do 28. 11. za 390 Kč, v den závodu 450 Kč. Na místě snížené vstupné 200 Kč (65+, ZTP, ZTP/P). Děti do 130 cm zdarma.
+    en: Tickets online in presale until 28 November for 390 CZK, on race day 450 CZK. Reduced entry on site 200 CZK (65+, disability card holders). Children under 130 cm free.
+links:
+  official: https://www.cyklokros.cz/sp-tabor-2026
+provenance:
+- sourceId: cyklokros-cz
+  url: https://www.cyklokros.cz/sp-tabor-2026
+  checkedDate: '2026-11-13'
+  facts:
+  - date
+  - venue
+  - timetable
+  - tickets
+- sourceId: cyklokros-cz
+  url: https://www.cyklokros.cz/kalendar
+  checkedDate: '2026-11-13'
+  facts:
+  - date
+  - categories
+updatedDate: '2026-11-13'
+feed:
+  sequence: 0
+  lastModified: '2026-11-13T15:00:00Z'

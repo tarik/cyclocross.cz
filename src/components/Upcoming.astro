@@ -1,0 +1,70 @@
+---
+/** The next few races, as a quick answer to "what is on soon?". */
+import StatusBadge from './StatusBadge.astro';
+import { site } from '../config/site.ts';
+import { isPast } from '../lib/calendar-filter.ts';
+import { formatEventDate } from '../lib/dates.ts';
+import { eventView } from '../lib/event-view.ts';
+import type { Dataset } from '../lib/events.ts';
+import { htmlLang, type Locale } from '../i18n/routes.ts';
+import { useTranslations } from '../i18n/ui.ts';
+
+interface Props {
+  locale: Locale;
+  dataset: Dataset;
+  today: string;
+}
+const { locale, dataset, today } = Astro.props;
+const t = useTranslations(locale);
+// A few extra cards are rendered hidden so the script can top the row up when
+// a stale build's first cards have already passed.
+const views = dataset.events
+  .filter((event) => event.seasonId === site.activeSeason && event.timing.startDate)
+  .map((event) => eventView(event, locale, dataset, today))
+  .filter((view) => !isPast(view.index, today))
+  .slice(0, 8);
+const visible = 4;
+---
+
+{
+  views.length === 0 ? (
+    <p class="text-ink-soft">{t('cal.emptyUpcoming')}</p>
+  ) : (
+    <ul class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,15rem),1fr))] gap-4" data-upcoming data-visible={visible}>
+      {views.map((view, position) => (
+        <li class="flex flex-col gap-1 border-2 border-ink bg-surface p-4 shadow-pixel" data-date={view.index.endDate ?? view.index.date} hidden={position >= visible}>
+          <p class="m-0 font-bold text-accent">
+            <time datetime={view.index.date}>{formatEventDate(view.index.date!, locale)}</time>
+          </p>
+          <h3 class="m-0 text-[1.625rem]">
+            <a class="text-ink no-underline hover:underline" href={view.path} lang={htmlLang.cs}>
+              {view.name}
+            </a>
+          </h3>
+          <p class="m-0 font-semibold">
+            <span lang={htmlLang.cs}>{view.town}</span>
+            {view.series.length > 0 && <span lang={htmlLang.cs}> · {view.series.map((series) => series.name).join(', ')}</span>}
+          </p>
+          <p class="m-0 mt-auto flex flex-wrap justify-between gap-2 pt-2 text-sm text-ink-soft">
+            {view.typeLabels.length > 0 && <span>{view.typeLabels.join(', ')}</span>}
+            {view.status !== 'scheduled' && <StatusBadge status={view.status} label={view.statusLabel} />}
+          </p>
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+<script>
+  // Hide cards whose day has passed since the build and reveal the next ones.
+  const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Prague' }).format(new Date());
+  for (const list of document.querySelectorAll<HTMLElement>('[data-upcoming]')) {
+    let shown = 0;
+    const limit = Number(list.dataset.visible);
+    for (const card of list.querySelectorAll<HTMLElement>('[data-date]')) {
+      const current = (card.dataset.date ?? '') >= today && shown < limit;
+      card.hidden = !current;
+      if (current) shown += 1;
+    }
+  }
+</script>

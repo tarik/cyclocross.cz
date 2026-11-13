@@ -1,16 +1,24 @@
 /**
  * Validates all content data. Run with `npm run check:content`.
- * Fixtures are included unless SITE_ENV=production, where any demo record fails.
+ * Real data and fixtures are checked as two separate sets.
  */
 import { validateContent } from '../src/lib/content-validation.ts';
 
 const production = process.env.SITE_ENV === 'production';
-const roots = production ? ['src/content'] : ['src/content', 'fixtures'];
-const { events, problems } = validateContent({ roots, production });
+let failed = false;
 
-if (problems.length > 0) {
-  console.error(`Content validation failed with ${problems.length} problem(s):`);
-  for (const problem of problems) console.error(`  ${problem.file}: ${problem.message}`);
-  process.exit(1);
+function check(label: string, roots: string[], rejectDemo: boolean) {
+  const { events, problems } = validateContent({ roots, production: rejectDemo });
+  if (problems.length > 0) {
+    failed = true;
+    console.error(`${label}: ${problems.length} problem(s)`);
+    for (const problem of problems) console.error(`  ${problem.file}: ${problem.message}`);
+  } else {
+    console.log(`${label}: valid, ${events.length} event(s).`);
+  }
 }
-console.log(`Content is valid: ${events.length} event(s) from ${roots.join(', ')}.`);
+
+// Real data must never contain demo records. Fixtures are a separate, self-contained set.
+check('src/content', ['src/content'], true);
+if (!production) check('fixtures', ['fixtures'], false);
+if (failed) process.exit(1);

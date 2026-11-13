@@ -1,0 +1,55 @@
+id: tbc-prachatice-2026
+slug: 2026-tbc-prachatice
+seasonId: 2026-2027
+name:
+  official: Cyklokros Prachatice
+timing:
+  precision: day
+  startDate: '2026-11-15'
+  startTime: '10:00'
+location:
+  town: Prachatice
+  regionId: jihocesky
+  coordinates:
+    lat: 48.9982933
+    lon: 14.0170867
+seriesIds:
+- tbc-serie-2026
+participation:
+  types:
+  - amateur
+  - juniors
+  - youth
+  - children
+  eligibilityNotes:
+    cs: Amatérská série s kategoriemi od odrážedel po muže nad 60 let. Startovat lze i bez registrace v sérii jako příchozí.
+    en: An amateur series with categories from balance bikes to men over 60. You can also start without series registration as a walk-in.
+status: scheduled
+verification: unverified
+links:
+  official: https://cxprachatice.cz/
+  regulations: https://tbcserie.cz/pravidla
+  registration: https://maraton.cz/terminovka/entry/713
+provenance:
+- sourceId: tbcserie-cz
+  url: https://tbcserie.cz/kalendar-2026
+  checkedDate: '2026-11-13'
+  facts:
+  - date
+  - location
+- sourceId: tbcserie-cz
+  url: https://tbcserie.cz/kalendar-2026/zavod-216/
+  checkedDate: '2026-11-13'
+  facts:
+  - name
+  - venue
+- sourceId: maraton-cz
+  url: https://www.maraton.cz/
+  checkedDate: '2026-11-13'
+  facts:
+  - name
+  - registration
+updatedDate: '2026-11-13'
+feed:
+  sequence: 0
+  lastModified: '2026-11-13T15:00:00Z'

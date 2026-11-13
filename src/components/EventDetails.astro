@@ -1,0 +1,168 @@
+---
+/**
+ * The detail block of one event. Used in the expanded calendar row and on the
+ * event page. Layout: summary, one line for the place, racers and spectators
+ * side by side, link buttons, then sources as a small footer line.
+ * Unknown optional facts produce no heading at all; important
+ * unknowns (eligibility, registration) get an explicit note instead.
+ */
+import { formatEventDate } from '../lib/dates.ts';
+import type { EventView } from '../lib/event-view.ts';
+import type { Dataset } from '../lib/events.ts';
+import { htmlLang, type Locale } from '../i18n/routes.ts';
+import { useTranslations } from '../i18n/ui.ts';
+
+interface Props {
+  view: EventView;
+  locale: Locale;
+  dataset: Dataset;
+  /** Heading element for the sub-sections. */
+  heading?: 'h2' | 'h3' | 'h4';
+}
+const { view, locale, dataset, heading: H = 'h3' } = Astro.props;
+const t = useTranslations(locale);
+const { event } = view;
+const { location, timing, practical, links } = event;
+
+/** Text in the page language, or the Czech original with a language label. */
+function text(value: { cs?: string; en?: string } | undefined) {
+  if (!value) return null;
+  if (value[locale]) return { body: value[locale]!, fallback: false };
+  if (value.cs) return { body: value.cs, fallback: locale !== 'cs' };
+  return null;
+}
+const summary = text(event.summary);
+const details = text(event.details);
+const eligibility = text(event.participation?.eligibilityNotes);
+const spectators = text(practical.spectatorNotes);
+const feeNote = text(practical.feeNote);
+const mapUrl =
+  location.mapUrl ??
+  (location.coordinates
+    ? `https://www.openstreetmap.org/?mlat=${location.coordinates.lat}&mlon=${location.coordinates.lon}#map=15/${location.coordinates.lat}/${location.coordinates.lon}`
+    : null);
+const linkList = (
+  [
+    ['official', links.official],
+    ['registration', links.registration],
+    ['regulations', links.regulations],
+    ['results', links.results],
+  ] as const
+).filter(([, url]) => url);
+// The registration note only makes sense where the public can enter.
+const openEntry = (event.participation?.types ?? []).some((type) => type !== 'elite');
+const upcoming = view.status === 'scheduled' && openEntry;
+const checkedDates = [...new Set(event.provenance.map((item) => item.checkedDate))].sort();
+const hasVisitorColumn = Boolean(practical.timetable || spectators);
+const sourceLabel = (item: (typeof event.provenance)[number]) => {
+  const name = (item.sourceId && dataset.sources.get(item.sourceId)?.name) || new URL(item.url).hostname;
+  const repeated = event.provenance.filter((other) => other.sourceId === item.sourceId).length > 1;
+  const path = new URL(item.url).pathname.replace(/\/$/, '');
+  return repeated && path ? `${name}: ${path}` : name;
+};
+---
+
+<div class="grid gap-4 [&_li]:mb-1 [&_p]:mb-2">
+  {
+    summary && (
+      <p class="text-[1.0625rem]" lang={summary.fallback ? htmlLang.cs : undefined}>
+        {summary.body}
+        {summary.fallback && <span class="text-ink-soft"> ({t('ev.onlyCzech')})</span>}
+      </p>
+    )
+  }
+  {details && <p lang={details.fallback ? htmlLang.cs : undefined}>{details.body}</p>}
+
+  <p class="max-w-none">
+    <span class="eyebrow mr-2">{t('ev.where')}</span>
+    {location.venue && <span lang={htmlLang.cs}>{location.venue}, </span>}
+    <span lang={htmlLang.cs}>{location.town}</span>{view.region && `, ${view.region}`}
+    {location.address && <span lang={htmlLang.cs}>, {location.address}</span>}
+    {mapUrl && <span> · <a href={mapUrl}>{t('ev.map')}</a></span>}
+    {
+      timing.previousDates.length > 0 && (
+        <span class="block">
+          {t('ev.previousDate')}: {timing.previousDates.map((previous) => formatEventDate(previous.startDate, locale)).join(', ')}
+        </span>
+      )
+    }
+  </p>
+
+  <div class={`grid gap-x-10 gap-y-4 ${hasVisitorColumn ? 'md:grid-cols-2' : ''}`}>
+    <section>
+      <H class="eyebrow">{t('ev.participation')}</H>
+      {view.typeLabels.length > 0 && <p class="font-semibold">{view.typeLabels.join(', ')}</p>}
+      {
+        eligibility ? (
+          <p lang={eligibility.fallback ? htmlLang.cs : undefined}>{eligibility.body}</p>
+        ) : (
+          <p class="text-ink-soft">{t('ev.eligibilityUnknown')}</p>
+        )
+      }
+      {event.participation?.categories && <p lang={htmlLang.cs}>{event.participation.categories.join(', ')}</p>}
+      {practical.fees && <p>{practical.fees.map((fee) => `${fee.amount} ${fee.currency}`).join(', ')}</p>}
+      {feeNote && <p lang={feeNote.fallback ? htmlLang.cs : undefined}>{feeNote.body}</p>}
+      {upcoming && !links.registration && <p class="text-ink-soft">{t('ev.registrationPending')}</p>}
+      {
+        event.classifications.length > 0 && (
+          <p class="text-sm">
+            {t('ev.classification')}: {event.classifications.map((item) => `${item.body} ${item.code}`).join(', ')}.
+            <span class="text-ink-soft"> {t('ev.classNote')}</span>
+          </p>
+        )
+      }
+    </section>
+
+    {
+      hasVisitorColumn && (
+        <section>
+          {spectators && (
+            <>
+              <H class="eyebrow">{t('ev.spectators')}</H>
+              <p lang={spectators.fallback ? htmlLang.cs : undefined}>{spectators.body}</p>
+            </>
+          )}
+          {practical.timetable && (
+            <>
+              <H class={`eyebrow ${spectators ? 'mt-4' : ''}`}>{t('ev.timetable')}</H>
+              <ul class="grid grid-cols-[repeat(auto-fill,minmax(11rem,1fr))] gap-x-4">
+                {practical.timetable.map((slot) => (
+                  <li>
+                    <time class="inline-block min-w-13 font-semibold tabular-nums">{slot.time}</time> {slot.label[locale] ?? slot.label.cs}
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+        </section>
+      )
+    }
+  </div>
+
+  <p class="flex max-w-none flex-wrap gap-2">
+    {
+      linkList.map(([kind, url]) => (
+        <a class={`pill ${kind === 'registration' ? 'pill-primary' : ''}`} href={url} rel="noopener">
+          {t(`ev.link.${kind}`)}
+        </a>
+      ))
+    }
+    {view.ics && <a class="pill" href={view.ics}>{t('ev.ics')}</a>}
+    <slot name="actions" />
+  </p>
+
+  <p class="max-w-none border-t border-line pt-3 text-sm text-ink-soft">
+    <span class="font-semibold">{t('ev.sources')}:</span>{' '}
+    {
+      event.provenance.map((item, position) => (
+        <>
+          {position > 0 && ', '}
+          <a href={item.url} rel="noopener">{sourceLabel(item)}</a>
+        </>
+      ))
+    }
+    {' '}({t('ev.checked')} {checkedDates.map((date) => formatEventDate(date, locale)).join(', ')}).
+    {event.verification === 'unverified' && <span> {t('ev.unverified')}</span>}
+    <a class="ml-1 font-semibold whitespace-nowrap" href={view.reportUrl}>{t('ev.report')}</a>
+  </p>
+</div>

@@ -1,0 +1,36 @@
+---
+import Base from '../layouts/Base.astro';
+import EventDetails from './EventDetails.astro';
+import StatusBadge from './StatusBadge.astro';
+import { todayInPrague } from '../lib/dates.ts';
+import { eventView } from '../lib/event-view.ts';
+import { loadDataset } from '../lib/events.ts';
+import type { EventRecord } from '../lib/schemas.ts';
+import { htmlLang, sectionPath, type Locale } from '../i18n/routes.ts';
+import { useTranslations } from '../i18n/ui.ts';
+
+interface Props {
+  event: EventRecord;
+  locale: Locale;
+}
+const { event, locale } = Astro.props;
+const t = useTranslations(locale);
+const dataset = await loadDataset();
+const view = eventView(event, locale, dataset, todayInPrague());
+const description = [view.dateLabel, view.town, view.series.map((series) => series.name).join(', ')].filter(Boolean).join(' · ');
+---
+
+<Base locale={locale} title={view.name} description={description}>
+  <article class="wrap section">
+    <p class="mb-2"><a class="action-link" href={sectionPath('calendar', locale)}>← {t('ev.back')}</a></p>
+    <p class="mb-2"><StatusBadge status={view.status} label={view.statusLabel} /></p>
+    <h1 class="mb-2" lang={htmlLang.cs}>{view.name}</h1>
+    <p class="mb-6 text-xl leading-[1.45]">
+      <time datetime={view.index.date ?? undefined}>{view.dateLabel}</time>{view.time && `, ${t('ev.start')} ${view.time}`}
+      <br />
+      <span lang={htmlLang.cs}>{view.town}</span>
+      {view.series.length > 0 && <span lang={htmlLang.cs}> · {view.series.map((series) => series.name).join(', ')}</span>}
+    </p>
+    <EventDetails view={view} locale={locale} dataset={dataset} heading="h2" />
+  </article>
+</Base>

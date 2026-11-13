@@ -1,0 +1,34 @@
+id: vc-mesta-plzne-2026
+slug: 2026-velka-cena-mesta-plzne
+seasonId: 2026-2027
+name:
+  official: Velká cena města Plzně
+timing:
+  precision: day
+  startDate: '2026-10-10'
+location:
+  town: Plzeň
+  regionId: plzensky
+status: scheduled
+verification: unverified
+links:
+  regulations: https://www.cyklokros.cz/files/plzen-propozice-2026cz.pdf
+provenance:
+- sourceId: cyklokros-cz
+  url: https://www.cyklokros.cz/kalendar
+  checkedDate: '2026-11-13'
+  facts:
+  - date
+  - location
+  - name
+  note: Listed in the "Mezinárodní závody UCI" column; the UCI class is not stated.
+- sourceId: csc-sportsoft
+  url: https://cycling.sportsoft.cz/cyklokros/
+  checkedDate: '2026-11-13'
+  facts:
+  - series
+  note: The federation portal says the race is not part of the JANEV Cup.
+updatedDate: '2026-11-13'
+feed:
+  sequence: 0
+  lastModified: '2026-11-13T15:00:00Z'

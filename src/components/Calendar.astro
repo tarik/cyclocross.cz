@@ -1,0 +1,213 @@
+---
+/**
+ * The calendar: a semantic table at desktop widths that reflows into cards on
+ * phones. It is complete without JavaScript (every row links to its event
+ * page); the script adds filters, in-place details and date regrouping.
+ */
+import EventDetails from './EventDetails.astro';
+import StatusBadge from './StatusBadge.astro';
+import { regions } from '../config/regions.ts';
+import { site } from '../config/site.ts';
+import { isPast } from '../lib/calendar-filter.ts';
+import { formatShortDate } from '../lib/dates.ts';
+import { eventView, type EventView } from '../lib/event-view.ts';
+import type { Dataset } from '../lib/events.ts';
+import { htmlLang, seasonFeedPath, type Locale } from '../i18n/routes.ts';
+import { ui, useTranslations } from '../i18n/ui.ts';
+
+interface Props {
+  locale: Locale;
+  dataset: Dataset;
+  today: string;
+}
+const { locale, dataset, today } = Astro.props;
+const t = useTranslations(locale);
+
+const views = dataset.events.filter((event) => event.seasonId === site.activeSeason).map((event) => eventView(event, locale, dataset, today));
+const dated = views.filter((view) => view.index.date);
+const groups = [
+  { key: 'upcoming', title: t('cal.upcoming'), views: dated.filter((view) => !isPast(view.index, today)) },
+  { key: 'unconfirmed', title: t('cal.unconfirmed'), views: views.filter((view) => !view.index.date) },
+  { key: 'past', title: t('cal.past'), views: dated.filter((view) => isPast(view.index, today)).reverse() },
+] as const;
+
+const usedRegions = Object.keys(regions).filter((id) => views.some((view) => view.index.region === id));
+const usedSeries = [...dataset.series.values()].filter((series) => views.some((view) => view.index.series.includes(series.id)));
+const typeOptions = (['elite', 'amateur', 'masters', 'juniors'] as const).filter((type) => views.some((view) => view.index.types.includes(type)));
+const hasYoung = views.some((view) => view.index.types.includes('young'));
+// Below the lg breakpoint every table element becomes a block and each event a
+// card; the explicit ARIA roles keep the table semantics for assistive tech.
+const cell = 'px-2 py-4 text-left align-top max-lg:block max-lg:p-0';
+const sub = 'block text-sm text-ink-soft';
+// On desktop the control is pulled up so its label sits on the row's first text line.
+const rowControl = 'inline-flex min-h-9 cursor-pointer items-center border-2 border-ink bg-surface px-3 font-body text-sm font-semibold text-ink no-underline hover:bg-line max-lg:mt-2 max-lg:min-h-11 lg:-my-[5px]';
+const columns = ['date', 'event', 'place', 'series', 'who', 'status', 'details'] as const;
+const strings = {
+  one: t('filter.count.one'),
+  few: t('filter.count.few'),
+  many: t('filter.count.many'),
+  label: t('filter.count.label'),
+  past: t('status.past'),
+  locale,
+};
+---
+
+<div data-calendar data-strings={JSON.stringify(strings)}>
+  <form class="mb-4 grid gap-3" data-filters hidden role="search" aria-label={t('filter.title')}>
+    <div class="flex flex-wrap items-center gap-2">
+      <button type="button" class="chip group inline-flex items-center gap-2" data-filter-toggle aria-expanded="false" aria-controls={`filter-panel-${locale}`}>
+        <span class="relative block h-0.5 w-4 bg-current before:absolute before:-top-[5px] before:left-0 before:h-0.5 before:w-4 before:bg-current after:absolute after:top-[5px] after:left-1 after:h-0.5 after:w-2 after:bg-current" aria-hidden="true"></span>
+        {t('filter.toggle')}
+        <span class="hidden size-2 bg-accent" data-filter-dot aria-hidden="true"></span>
+      </button>
+      <button type="button" class="chip" data-shortcut="weekend" aria-pressed="false">{t('filter.weekend')}</button>
+      <button type="button" class="chip" data-shortcut="amateur" aria-pressed="false">{t('filter.amateur')}</button>
+      {hasYoung && <button type="button" class="chip" data-shortcut="young" aria-pressed="false">{t('filter.children')}</button>}
+      <button type="reset" class="chip border-dashed" data-reset hidden>{t('filter.reset')}</button>
+      <p class="m-0 text-sm font-semibold text-ink-soft max-lg:basis-full lg:ml-auto" role="status" data-count></p>
+    </div>
+    <div id={`filter-panel-${locale}`} data-filter-panel hidden class="grid grid-cols-2 gap-x-4 gap-y-2 border-2 border-ink bg-surface p-4 shadow-pixel lg:grid-cols-[minmax(0,2fr)_repeat(3,minmax(0,1.1fr))_repeat(2,minmax(9.5rem,1fr))]">
+      <label class="col-span-2 grid min-w-0 gap-0.5 text-sm font-semibold lg:col-span-1">
+        <span>{t('filter.q')}</span>
+        <input class="control" type="search" name="q" placeholder={t('filter.qPlaceholder')} autocomplete="off" maxlength="80" />
+      </label>
+      <label class="grid min-w-0 gap-0.5 text-sm font-semibold">
+        <span>{t('filter.region')}</span>
+        <select class="control" name="region">
+          <option value="">{t('filter.all')}</option>
+          {usedRegions.map((id) => <option value={id}>{regions[id as keyof typeof regions][locale]}</option>)}
+        </select>
+      </label>
+      <label class="grid min-w-0 gap-0.5 text-sm font-semibold">
+        <span>{t('filter.series')}</span>
+        <select class="control" name="series">
+          <option value="">{t('filter.all')}</option>
+          {usedSeries.map((series) => <option value={series.id}>{series.name}</option>)}
+        </select>
+      </label>
+      <label class="grid min-w-0 gap-0.5 text-sm font-semibold">
+        <span>{t('filter.type')}</span>
+        <select class="control" name="type">
+          <option value="">{t('filter.all')}</option>
+          {typeOptions.map((type) => <option value={type}>{ui[locale][`type.${type}`]}</option>)}
+          {hasYoung && <option value="young">{t('filter.children')}</option>}
+        </select>
+      </label>
+      <label class="grid min-w-0 gap-0.5 text-sm font-semibold">
+        <span>{t('filter.from')}</span>
+        <input class="control" type="date" name="from" />
+      </label>
+      <label class="grid min-w-0 gap-0.5 text-sm font-semibold">
+        <span>{t('filter.to')}</span>
+        <input class="control" type="date" name="to" />
+      </label>
+    </div>
+  </form>
+
+  {
+    groups.map((group) => {
+      const table = (
+        <table class="w-full border-collapse max-lg:block" role="table" data-table={group.key}>
+          <caption class="sr-only">{group.title}</caption>
+          <thead class="max-lg:sr-only" role="rowgroup">
+            <tr role="row">
+              {columns.map((column) => (
+                <th scope="col" role="columnheader" class="border-b-2 border-ink p-2 text-left text-sm tracking-[0.06em] text-ink-soft uppercase">
+                  {column === 'details' ? <span class="sr-only">{t('cal.col.details')}</span> : t(`cal.col.${column}`)}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          {group.views.map((view: EventView) => (
+            <tbody
+              role="rowgroup"
+              class="border-b border-line max-lg:block max-lg:py-4"
+              id={view.anchor}
+              data-event
+              data-date={view.index.date ?? ''}
+              data-end={view.index.endDate ?? ''}
+              data-text={view.index.text}
+              data-region={view.index.region}
+              data-series={view.index.series.join(' ')}
+              data-types={view.index.types.join(' ')}
+            >
+              <tr role="row" class="max-lg:grid max-lg:grid-cols-[1fr_auto] max-lg:gap-x-4 max-lg:gap-y-0.5">
+                <td role="cell" class={`${cell} font-semibold whitespace-nowrap tabular-nums max-lg:col-start-1`}>
+                  {view.index.date ? <time datetime={view.index.date}>{formatShortDate(view.index.date, locale)}</time> : '–'}
+                  {view.index.date && <span class="font-normal text-ink-soft"> {view.index.date.slice(0, 4)}</span>}
+                </td>
+                <th scope="row" role="rowheader" class={`${cell} font-normal max-lg:col-span-full max-lg:py-0.5 max-lg:text-lg lg:w-[27%]`}>
+                  <a class="font-bold wrap-anywhere text-ink" href={view.path} lang={htmlLang.cs}>
+                    {view.name}
+                  </a>
+                </th>
+                <td role="cell" class={`${cell} max-lg:col-span-full lg:w-[16%]`}>
+                  <span lang={htmlLang.cs}>{view.town}</span>
+                  {view.region && <span class={`${sub} max-lg:inline max-lg:before:content-['_·_']`}>{view.region}</span>}
+                </td>
+                <td role="cell" class={`${cell} max-lg:col-span-full max-lg:text-sm max-lg:text-ink-soft lg:w-[16%]`}>
+                  {view.series.length > 0 ? view.series.map((series) => <span class="block" lang={htmlLang.cs}>{series.name}</span>) : <span class={sub}>{t('cal.noSeries')}</span>}
+                </td>
+                <td role="cell" class={`${cell} max-lg:col-span-full max-lg:text-sm max-lg:text-ink-soft lg:w-[17%]`}>{view.typeLabels.length > 0 ? view.typeLabels.join(', ') : <span class={sub}>{t('cal.unknown')}</span>}</td>
+                <td role="cell" data-cell="status" class={`${cell} max-lg:col-start-2 max-lg:row-start-1 max-lg:justify-self-end`}>
+                  <StatusBadge status={view.status} label={view.statusLabel} />
+                </td>
+                <td role="cell" class={`${cell} whitespace-nowrap max-lg:col-span-full lg:text-right`}>
+                  <button type="button" class={`${rowControl} group`} data-expand aria-expanded="false" aria-controls={`${view.anchor}-details`} hidden>
+                    {t('cal.showDetails')}
+                    <span class="sr-only">: {view.name}</span>
+                    <span class="ml-[0.4em] border-x-[5px] border-t-[5px] border-x-transparent border-t-current group-aria-expanded:rotate-180" aria-hidden="true" />
+                  </button>
+                  <a class={rowControl} href={view.path} data-page-link>
+                    {t('cal.showDetails')}
+                    <span class="sr-only">: {view.name}</span>
+                  </a>
+                </td>
+              </tr>
+              <tr role="row" data-detail class="max-lg:block" id={`${view.anchor}-details`} hidden>
+                <td role="cell" colspan={columns.length} class="border-l-4 border-accent bg-surface px-4 pt-4 pb-6 max-lg:mt-2 max-lg:block">
+                  <EventDetails view={view} locale={locale} dataset={dataset} heading="h4">
+                    <a slot="actions" class="pill" href={view.path}>
+                      {t('cal.eventPage')}
+                    </a>
+                  </EventDetails>
+                </td>
+              </tr>
+            </tbody>
+          ))}
+        </table>
+      );
+      if (group.key === 'past') {
+        return (
+          <details class="mb-6" data-group="past" hidden={group.views.length === 0}>
+            <summary class="min-h-11 cursor-pointer py-2">
+              <h3 class="m-0 inline text-xl">{group.title}</h3> <span class="text-sm text-ink-soft" data-group-count>({group.views.length})</span>
+            </summary>
+            {table}
+          </details>
+        );
+      }
+      return (
+        <section class="mb-6" data-group={group.key} hidden={group.key === 'unconfirmed' && group.views.length === 0}>
+          <h3 class={group.key === 'upcoming' ? 'sr-only' : 'text-xl'}>{group.title}</h3>
+          {table}
+          {group.key === 'upcoming' && (
+            <p class="py-6 font-semibold" data-empty hidden={group.views.length > 0} data-empty-default={t('cal.emptyUpcoming')} data-empty-filtered={t('cal.empty')}>
+              {t('cal.emptyUpcoming')}
+            </p>
+          )}
+        </section>
+      );
+    })
+  }
+
+  <p class="mt-6 flex max-w-none flex-wrap items-center gap-x-4 gap-y-1">
+    <a class="pill" href={seasonFeedPath(site.activeSeason)}>{t('cal.subscribe')}</a>
+    <span class="text-sm text-ink-soft">{t('cal.subscribeNote')}</span>
+  </p>
+</div>
+
+<script>
+  import { initCalendar } from '../scripts/calendar.ts';
+  for (const root of document.querySelectorAll<HTMLElement>('[data-calendar]')) initCalendar(root);
+</script>

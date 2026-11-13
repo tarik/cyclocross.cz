@@ -1,6 +1,6 @@
 ---
 import { site } from '../config/site.ts';
-import { routePath, supportingPages, type Locale } from '../i18n/routes.ts';
+import { routePath, type Locale } from '../i18n/routes.ts';
 import { useTranslations } from '../i18n/ui.ts';
 
 interface Props {
@@ -8,59 +8,35 @@ interface Props {
 }
 const { locale } = Astro.props;
 const t = useTranslations(locale);
+// The header stays in view, so the footer only carries what the header does not.
+const links = [
+  { href: routePath('advertise', locale), label: t('page.advertise') },
+  { href: routePath('privacy', locale), label: t('page.privacy') },
+  { href: site.repositoryUrl, label: 'GitHub' },
+];
 ---
 
-<footer class="site-footer">
-  <div class="wrap grid">
-    <div>
-      <p class="name">cyclocross.cz</p>
-      <p>{t('footer.independent')}</p>
+<footer class="mt-16 [&_:focus-visible]:outline-[#ffd866]">
+  <div class="turf" aria-hidden="true"></div>
+  <div class="border-t-[12px] border-soil-1 bg-soil-2 py-8 text-paper">
+    <div class="wrap flex flex-wrap items-end justify-between gap-x-10 gap-y-4">
+      <div>
+        <p class="mb-1 font-display text-4xl leading-none">cyclocross.cz</p>
+        <p class="m-0 max-w-[44ch] text-sm text-footer-text">{t('footer.independent')}</p>
+      </div>
+      <nav aria-label={t('footer.pages')}>
+        <ul class="flex flex-wrap gap-2">
+          {
+            links.map((link) => (
+              <li>
+                <a class="inline-flex min-h-11 items-center border-2 border-footer-text/60 px-3 text-sm font-semibold text-paper no-underline hover:bg-soil-1" href={link.href}>
+                  {link.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
     </div>
-    <nav aria-label={t('footer.pages')}>
-      <ul>
-        {
-          supportingPages.map((page) => (
-            <li>
-              <a href={routePath(page, locale)}>{t(`page.${page}`)}</a>
-            </li>
-          ))
-        }
-        <li><a href={site.repositoryUrl}>{t('footer.source')}</a></li>
-      </ul>
-    </nav>
   </div>
 </footer>
-
-<style>
-  .site-footer {
-    margin-top: var(--space-6);
-    padding-block: var(--space-5);
-    background: var(--color-ink);
-    color: var(--color-paper);
-  }
-  .grid {
-    display: grid;
-    gap: var(--space-4) var(--space-6);
-    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
-  }
-  .name {
-    font-family: var(--font-display);
-    font-size: var(--step-2);
-    line-height: 1;
-  }
-  p { color: #e6dccb; }
-  ul {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    display: grid;
-    gap: var(--space-1);
-  }
-  a {
-    display: inline-flex;
-    align-items: center;
-    min-height: 2.75rem;
-    color: var(--color-paper);
-  }
-  :global(.site-footer :focus-visible) { outline-color: #ffd866; }
-</style>

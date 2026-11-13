@@ -1,0 +1,27 @@
+id: slovacky-kros-2026
+slug: 2026-slovacky-kros-kyjov
+seasonId: 2026-2027
+name:
+  official: Slovácký Kros
+timing:
+  precision: day
+  startDate: '2026-11-15'
+location:
+  town: Kyjov
+  regionId: jihomoravsky
+status: scheduled
+verification: unverified
+links:
+  regulations: https://www.cyklokros.cz/files/slovacky-kros-rozpis-kyjov-2026-final-2.pdf
+provenance:
+- sourceId: cyklokros-cz
+  url: https://www.cyklokros.cz/kalendar
+  checkedDate: '2026-11-13'
+  facts:
+  - date
+  - location
+  - name
+updatedDate: '2026-11-13'
+feed:
+  sequence: 0
+  lastModified: '2026-11-13T15:00:00Z'

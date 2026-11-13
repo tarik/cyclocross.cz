@@ -1,0 +1,37 @@
+name: Opravit závod / Correct a race
+description: Nahlaste chybu nebo změnu u závodu v kalendáři. / Report an error or a change to a race in the calendar.
+title: 'Oprava: '
+labels: [event, correction]
+body:
+  - type: input
+    id: event
+    attributes:
+      label: Závod / Race
+      description: Název a sezóna, odkaz na stránku závodu na cyclocross.cz, nebo jeho ID. / Name and season, a link to the race page on cyclocross.cz, or its ID.
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Co se změnilo / What changed
+      options:
+        - Termín nebo čas / Date or time
+        - Místo / Venue
+        - Zrušeno nebo odloženo / Cancelled or postponed
+        - Přihlášky nebo startovné / Registration or fees
+        - Jiný údaj / Something else
+    validations:
+      required: true
+  - type: textarea
+    id: correction
+    attributes:
+      label: Správný údaj / The correct information
+    validations:
+      required: true
+  - type: input
+    id: evidence
+    attributes:
+      label: Odkaz na oficiální zdroj / Link to an official source
+      placeholder: https://
+    validations:
+      required: true
