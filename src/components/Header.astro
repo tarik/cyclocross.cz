@@ -1,0 +1,158 @@
+---
+import LanguageSwitch from './LanguageSwitch.astro';
+import { routePath, sectionPath, type Locale } from '../i18n/routes.ts';
+import { useTranslations } from '../i18n/ui.ts';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const t = useTranslations(locale);
+const pathname = Astro.url.pathname;
+const links = [
+  { href: sectionPath('calendar', locale), label: t('nav.calendar') },
+  { href: sectionPath('directory', locale), label: t('nav.directory') },
+  { href: routePath('about', locale), label: t('nav.about') },
+  { href: routePath('contribute', locale), label: t('nav.contribute') },
+];
+---
+
+<header class="site-header">
+  <div class="wrap bar">
+    <a class="wordmark" href={routePath('home', locale)} aria-label={`cyclocross.cz, ${t('site.tagline')}`}>
+      cyclocross<span>.cz</span>
+    </a>
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav" hidden>
+      <span class="bars" aria-hidden="true"></span>
+      {t('nav.menu')}
+    </button>
+    <nav id="site-nav" class="nav" aria-label={t('nav.label')}>
+      <ul>
+        {
+          links.map((link) => (
+            <li>
+              <a href={link.href} aria-current={link.href === pathname ? 'page' : undefined}>
+                {link.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+      <LanguageSwitch locale={locale} />
+    </nav>
+  </div>
+</header>
+
+<script>
+  // Progressive enhancement: without JavaScript the navigation is always visible.
+  const toggle = document.querySelector<HTMLButtonElement>('.menu-toggle');
+  const nav = document.getElementById('site-nav');
+  if (toggle && nav) {
+    toggle.hidden = false;
+    const setOpen = (open: boolean) => {
+      toggle.setAttribute('aria-expanded', String(open));
+      nav.classList.toggle('is-open', open);
+    };
+    toggle.addEventListener('click', () => setOpen(toggle.getAttribute('aria-expanded') !== 'true'));
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && toggle.getAttribute('aria-expanded') === 'true') {
+        setOpen(false);
+        toggle.focus();
+      }
+    });
+    nav.addEventListener('click', (event) => {
+      if ((event.target as HTMLElement).closest('a')) setOpen(false);
+    });
+  }
+</script>
+
+<style>
+  .bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2) var(--space-4);
+    min-height: var(--header-height);
+    padding-block: var(--space-2);
+  }
+  .wordmark {
+    font-family: var(--font-display);
+    font-size: clamp(1.75rem, 8vw, 2.25rem);
+    font-weight: 400;
+    line-height: 1;
+    color: var(--color-ink);
+    text-decoration: none;
+    padding-block: var(--space-2);
+  }
+  .wordmark span { color: var(--color-accent); }
+  .nav {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-4);
+  }
+  .nav ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1) var(--space-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .nav a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    padding-inline: var(--space-2);
+    color: var(--color-ink);
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .nav a:hover,
+  .nav a[aria-current='page'] {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.3em;
+  }
+  .menu-toggle {
+    display: none;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: 2.75rem;
+    padding: 0 var(--space-3);
+    background: var(--color-surface);
+    color: var(--color-ink);
+    border: var(--border);
+    font: 600 var(--step-0) var(--font-body);
+    cursor: pointer;
+  }
+  .bars,
+  .bars::before,
+  .bars::after {
+    display: block;
+    width: 1rem;
+    height: 2px;
+    background: currentColor;
+  }
+  .bars { position: relative; }
+  .bars::before,
+  .bars::after { content: ''; position: absolute; left: 0; }
+  .bars::before { top: -5px; }
+  .bars::after { top: 5px; }
+
+  @media (max-width: 59.99rem) {
+    :global(.js) .menu-toggle:not([hidden]) { display: inline-flex; }
+    :global(.js) .nav { display: none; flex-basis: 100%; }
+    :global(.js) .nav.is-open {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      padding: var(--space-2) var(--space-3) var(--space-3);
+      background: var(--color-surface);
+      border: var(--border);
+      box-shadow: var(--shadow);
+    }
+    .nav ul { flex-direction: column; }
+  }
+</style>

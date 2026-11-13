@@ -1,0 +1,5 @@
+id: demo-source
+demo: true
+name: Fictional source (demo)
+url: https://example.com/calendar
+type: other

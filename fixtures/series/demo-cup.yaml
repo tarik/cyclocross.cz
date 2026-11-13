@@ -1,0 +1,9 @@
+id: demo-cup
+demo: true
+name: Smyšlený pohár (demo)
+seasonIds: ['2026-2027']
+organiserIds: [demo-club]
+description:
+  cs: Smyšlená série, která slouží jen k náhledům a testům.
+  en: A fictional series used only for previews and tests.
+calendarUrl: https://example.com/cup

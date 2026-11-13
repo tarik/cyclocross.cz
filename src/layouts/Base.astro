@@ -1,0 +1,90 @@
+---
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { site } from '../config/site.ts';
+import { equivalentPath, htmlLang, locales, type Locale } from '../i18n/routes.ts';
+import { useTranslations } from '../i18n/ui.ts';
+
+interface Props {
+  locale: Locale;
+  title?: string;
+  description?: string;
+  /** Pages without a translated equivalent (404) leave out canonical and hreflang. */
+  translated?: boolean;
+  /** The homepage places the header inside the hero sky. */
+  variant?: 'home' | 'page';
+}
+
+const { locale, title, description, translated = true, variant = 'page' } = Astro.props;
+const t = useTranslations(locale);
+const pathname = Astro.url.pathname;
+const pageTitle = title ? `${title} · ${site.name}` : `${site.name} · ${t('site.tagline')}`;
+const absolute = (path: string) => new URL(path, Astro.site).href;
+const alternates = translated
+  ? locales.map((code) => ({ code, path: equivalentPath(pathname, code) })).filter((entry) => entry.path !== null)
+  : [];
+---
+
+<!doctype html>
+<html lang={htmlLang[locale]}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description ?? t('site.description')} />
+    {!site.indexable && <meta name="robots" content="noindex, nofollow" />}
+    {translated && <link rel="canonical" href={absolute(pathname)} />}
+    {alternates.map(({ code, path }) => <link rel="alternate" hreflang={code} href={absolute(path!)} />)}
+    {alternates.length > 0 && <link rel="alternate" hreflang="x-default" href={absolute(equivalentPath(pathname, 'cs')!)} />}
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description ?? t('site.description')} />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content={locale === 'cs' ? 'cs_CZ' : 'en_GB'} />
+    <meta name="theme-color" content="#bfe0ea" />
+    <script is:inline>document.documentElement.classList.add('js');</script>
+  </head>
+  <body class={`variant-${variant}`}>
+    <a class="skip-link" href="#main">{t('skip.toContent')}</a>
+    {
+      !site.indexable && (
+        <p class="env-notice" data-env={site.env}>
+          {t('env.notice')}
+        </p>
+      )
+    }
+    <div class="top">
+      <Header locale={locale} />
+      <slot name="hero" />
+    </div>
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+    <Footer locale={locale} />
+  </body>
+</html>
+
+<style>
+  .env-notice {
+    margin: 0;
+    max-width: none;
+    padding: var(--space-1) var(--gutter);
+    background: var(--color-ink);
+    color: var(--color-paper);
+    font-size: var(--step--1);
+    text-align: center;
+  }
+  .top {
+    background: linear-gradient(
+      to bottom,
+      var(--sky-1) 0 25%,
+      var(--sky-2) 25% 50%,
+      var(--sky-3) 50% 75%,
+      var(--sky-4) 75% 100%
+    );
+  }
+  .variant-page .top {
+    border-bottom: var(--pixel) solid var(--grass-2);
+  }
+  main:focus { outline: none; }
+</style>

@@ -1,0 +1,40 @@
+id: demo-tabor-example-2026
+slug: 2026-tabor-example
+seasonId: 2026-2027
+demo: true
+name:
+  official: Smyšlený cyklokros Příliš žluťoučký kůň (demo)
+timing:
+  precision: day
+  startDate: 2026-12-05
+  startTime: '10:00'
+location:
+  town: Tábor
+  regionId: jihocesky
+organiserIds: [demo-club]
+seriesIds: [demo-cup]
+classifications: []
+participation:
+  types: [elite, amateur, children]
+  eligibilityNotes:
+    cs: Smyšlený údaj. Závod neexistuje.
+    en: Fictional entry. This race does not exist.
+status: scheduled
+verification: unverified
+summary:
+  cs: Smyšlený závod pro náhledy a testy. Neexistuje.
+  en: A fictional race for previews and tests. It does not exist.
+translation:
+  en: reviewed
+links:
+  official: https://example.com/race
+provenance:
+  - sourceId: demo-source
+    url: https://example.com/race
+    checkedDate: 2026-11-13
+    facts: [date, location]
+    note: Fictional evidence for a fictional event.
+updatedDate: 2026-11-13
+feed:
+  sequence: 0
+  lastModified: 2026-11-13T12:00:00Z
