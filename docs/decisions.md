@@ -4,6 +4,7 @@ Newest first. Each entry says what was decided, by whom and why. Owner decisions
 
 ## 2026-11-13, calendar PR, owner review of screenshots
 
+- **Owner: a development preview is published on GitHub Pages.** `.github/workflows/pages-preview.yml` builds `main` with `SITE_ENV=staging` under the sub-path `/cyclocross.cz/`, so it carries the development notice and `noindex`. This is not the production release; hosting for the real domain is still open. The sub-path comes from `BASE_PATH` and is applied only in the route registry (`withBase`, `stripBase`), so every internal link must come from `src/i18n/routes.ts`.
 - **Owner: the filter is hidden by default.** A "Filtr" button opens the fields. The three shortcuts, the reset and the count stay visible. A dot on the button marks an active hidden filter, and a link that carries a filter opens the panel.
 - **Owner: actions are buttons, not text links.** Official page, registration, regulations, results, calendar file, series links and the contribute actions use `.pill`; one primary action per group uses `.pill-primary`. Text links remain for sources and for the error report.
 - **Owner: details are restructured to remove empty space.** One "Kde" line, then "Pro závodníky" and "Pro diváky" side by side with the programme, then the buttons, then one small line with sources, check date and the unverified note. A column with no data is not rendered.
