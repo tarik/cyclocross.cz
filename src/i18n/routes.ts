@@ -45,6 +45,15 @@ export function eventPath(slug: string, locale: Locale): string {
   return `${eventBase[locale]}${slug}/`;
 }
 
+/** Calendar files are language-neutral, so they live outside the translated routes. */
+export function icsPath(slug: string): string {
+  return `/ics/${slug}.ics`;
+}
+
+export function seasonFeedPath(seasonId: string): string {
+  return `/ics/season-${seasonId}.ics`;
+}
+
 export function otherLocale(locale: Locale): Locale {
   return locale === 'cs' ? 'en' : 'cs';
 }

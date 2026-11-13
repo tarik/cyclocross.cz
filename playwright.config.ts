@@ -18,10 +18,13 @@ export default defineConfig({
     trace: 'off',
   },
   webServer: {
-    command: `npx astro preview --port ${port} --ignore-lock`,
+    // Tests run against the fictional fixtures with a pinned build date, so
+    // they do not change when real event data does.
+    command: `npx astro build --outDir dist-test && npx astro preview --outDir dist-test --port ${port} --ignore-lock`,
+    env: { CONTENT_SET: 'fixtures', BUILD_TODAY: '2026-11-30', SITE_ENV: 'development' },
     url: `http://localhost:${port}/`,
     reuseExistingServer: !process.env.CI,
-    timeout: 60_000,
+    timeout: 120_000,
   },
   projects: [
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },

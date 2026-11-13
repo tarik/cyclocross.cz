@@ -1,0 +1,12 @@
+---
+import EventPage from '../../components/EventPage.astro';
+import { loadDataset } from '../../lib/events.ts';
+
+export async function getStaticPaths() {
+  const { events } = await loadDataset();
+  return events.map((event) => ({ params: { slug: event.slug }, props: { event } }));
+}
+const { event } = Astro.props;
+---
+
+<EventPage event={event} locale="cs" />

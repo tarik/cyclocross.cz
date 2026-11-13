@@ -1,0 +1,99 @@
+---
+/** The next few races, as a quick answer to "what is on soon?". */
+import StatusBadge from './StatusBadge.astro';
+import { site } from '../config/site.ts';
+import { isPast } from '../lib/calendar-filter.ts';
+import { formatEventDate } from '../lib/dates.ts';
+import { eventView } from '../lib/event-view.ts';
+import type { Dataset } from '../lib/events.ts';
+import { htmlLang, sectionPath, type Locale } from '../i18n/routes.ts';
+import { useTranslations } from '../i18n/ui.ts';
+
+interface Props {
+  locale: Locale;
+  dataset: Dataset;
+  today: string;
+}
+const { locale, dataset, today } = Astro.props;
+const t = useTranslations(locale);
+// A few extra cards are rendered hidden so the script can top the row up when
+// a stale build's first cards have already passed.
+const views = dataset.events
+  .filter((event) => event.seasonId === site.activeSeason && event.timing.startDate)
+  .map((event) => eventView(event, locale, dataset, today))
+  .filter((view) => !isPast(view.index, today))
+  .slice(0, 8);
+const visible = 4;
+---
+
+{
+  views.length === 0 ? (
+    <p class="muted">{t('cal.emptyUpcoming')}</p>
+  ) : (
+    <ul class="cards" data-upcoming data-visible={visible}>
+      {views.map((view, position) => (
+        <li class="card" data-date={view.index.endDate ?? view.index.date} hidden={position >= visible}>
+          <p class="date">
+            <time datetime={view.index.date}>{formatEventDate(view.index.date!, locale)}</time>
+          </p>
+          <h3>
+            <a href={view.path} lang={htmlLang.cs}>
+              {view.name}
+            </a>
+          </h3>
+          <p class="place">
+            <span lang={htmlLang.cs}>{view.town}</span>
+            {view.series.length > 0 && <span lang={htmlLang.cs}> · {view.series.map((series) => series.name).join(', ')}</span>}
+          </p>
+          <p class="meta">
+            {view.typeLabels.length > 0 && <span>{view.typeLabels.join(', ')}</span>}
+            {view.status !== 'scheduled' && <StatusBadge status={view.status} label={view.statusLabel} />}
+          </p>
+        </li>
+      ))}
+    </ul>
+  )
+}
+<p><a href={sectionPath('calendar', locale)}>{t('upcoming.more')}</a></p>
+
+<script>
+  // Hide cards whose day has passed since the build and reveal the next ones.
+  const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Prague' }).format(new Date());
+  for (const list of document.querySelectorAll<HTMLElement>('[data-upcoming]')) {
+    let shown = 0;
+    const limit = Number(list.dataset.visible);
+    for (const card of list.querySelectorAll<HTMLElement>('[data-date]')) {
+      const current = (card.dataset.date ?? '') >= today && shown < limit;
+      card.hidden = !current;
+      if (current) shown += 1;
+    }
+  }
+</script>
+
+<style>
+  .cards {
+    display: grid;
+    gap: var(--space-3);
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+    margin: 0 0 var(--space-3);
+    padding: 0;
+    list-style: none;
+  }
+  .card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    padding: var(--space-3);
+    background: var(--color-surface);
+    border: var(--border);
+    box-shadow: var(--shadow);
+  }
+  .card[hidden] { display: none; }
+  .card p { margin: 0; }
+  .date { font-weight: 700; color: var(--color-accent); }
+  .card h3 { margin: 0; font-size: 1.625rem; }
+  .card h3 a { color: var(--color-ink); text-decoration: none; }
+  .card h3 a:hover { text-decoration: underline; }
+  .place { font-weight: 600; }
+  .meta { margin-top: auto; padding-top: var(--space-2); font-size: var(--step--1); color: var(--color-ink-soft); display: flex; flex-wrap: wrap; gap: var(--space-2); justify-content: space-between; }
+</style>

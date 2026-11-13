@@ -1,0 +1,24 @@
+id: demo-past-example-2026
+slug: 2026-past-example
+seasonId: 2026-2027
+demo: true
+name:
+  official: Smyšlený proběhlý závod (demo)
+timing:
+  precision: day
+  startDate: '2026-11-01'
+location:
+  town: Plzeň
+  regionId: plzensky
+status: scheduled
+verification: unverified
+provenance:
+- sourceId: demo-source
+  url: https://example.com/x
+  checkedDate: '2026-11-13'
+  facts:
+  - date
+updatedDate: '2026-11-13'
+feed:
+  sequence: 0
+  lastModified: '2026-11-13T12:00:00Z'

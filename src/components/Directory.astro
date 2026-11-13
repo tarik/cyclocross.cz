@@ -1,0 +1,53 @@
+---
+import { site } from '../config/site.ts';
+import type { Dataset } from '../lib/events.ts';
+import { htmlLang, sectionPath, type Locale } from '../i18n/routes.ts';
+import { useTranslations } from '../i18n/ui.ts';
+
+interface Props {
+  locale: Locale;
+  dataset: Dataset;
+}
+const { locale, dataset } = Astro.props;
+const t = useTranslations(locale);
+const series = [...dataset.series.values()]
+  .filter((item) => item.seasonIds.includes(site.activeSeason))
+  .map((item) => ({ item, races: dataset.events.filter((event) => event.seriesIds.includes(item.id)).length }))
+  .sort((a, b) => b.races - a.races);
+---
+
+<ul class="directory">
+  {
+    series.map(({ item, races }) => (
+      <li>
+        <h3 lang={htmlLang.cs}>{item.name}</h3>
+        {item.scope && <p class="scope">{item.scope[locale] ?? item.scope.cs}</p>}
+        {item.description && <p>{item.description[locale] ?? item.description.cs}</p>}
+        <p class="links">
+          <a href={`${sectionPath('calendar', locale).replace('#', `?series=${item.id}#`)}`}>
+            {races} {t('dir.races')}
+          </a>
+          {item.website && <a href={item.website} rel="noopener">{t('dir.website')}</a>}
+          {item.calendarUrl && item.calendarUrl !== item.website && <a href={item.calendarUrl} rel="noopener">{t('dir.calendar')}</a>}
+        </p>
+      </li>
+    ))
+  }
+</ul>
+<p class="muted">{t('dir.editorial')}</p>
+
+<style>
+  .directory {
+    display: grid;
+    gap: var(--space-4);
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+    margin: 0 0 var(--space-3);
+    padding: 0;
+    list-style: none;
+  }
+  li { padding-top: var(--space-3); border-top: var(--pixel) solid var(--color-ink); }
+  h3 { font-size: 1.75rem; margin-bottom: var(--space-1); }
+  .scope { font-size: var(--step--1); font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-ink-soft); }
+  .links { display: flex; flex-wrap: wrap; gap: 0 var(--space-3); }
+  .links a { display: inline-flex; align-items: center; min-height: 2.75rem; font-weight: 600; }
+</style>

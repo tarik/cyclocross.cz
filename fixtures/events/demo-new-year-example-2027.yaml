@@ -1,0 +1,32 @@
+id: demo-new-year-example-2027
+slug: 2027-new-year-example
+seasonId: 2026-2027
+demo: true
+name:
+  official: Smyšlený novoroční kros Řeřicha (demo)
+timing:
+  precision: day
+  startDate: '2027-01-02'
+location:
+  town: Česká Třebová
+  regionId: pardubicky
+status: scheduled
+verification: unverified
+participation:
+  types:
+  - amateur
+  - children
+summary:
+  cs: Smyšlený závod jen s českým popisem.
+links:
+  registration: https://example.com/entry
+provenance:
+- sourceId: demo-source
+  url: https://example.com/x
+  checkedDate: '2026-11-13'
+  facts:
+  - date
+updatedDate: '2026-11-13'
+feed:
+  sequence: 0
+  lastModified: '2026-11-13T12:00:00Z'

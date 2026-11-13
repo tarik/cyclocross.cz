@@ -1,0 +1,46 @@
+id: janev-cup-hole-vrchy-2026
+slug: 2026-janev-cup-hole-vrchy
+seasonId: 2026-2027
+name:
+  official: JANEV Cup Holé Vrchy
+timing:
+  precision: day
+  startDate: '2026-10-17'
+location:
+  town: Holé Vrchy
+seriesIds:
+- janev-cup-2026
+classifications:
+- body: UCI
+  code: C2
+participation:
+  types:
+  - elite
+  - juniors
+  - youth
+  eligibilityNotes:
+    cs: Závody UCI jsou vypsány pro muže, ženy a juniory, doplňují je národní závody mládeže. Podmínky startu ověřte v propozicích.
+    en: The UCI races are for men, women and juniors, with national youth races alongside. Check the regulations for entry conditions.
+status: scheduled
+verification: unverified
+links:
+  official: https://www.cyklokros.cz/janev-holevrchy-26
+  regulations: https://www.cyklokros.cz/files/2026-10-17-hole-vrchy-rozpis-2026-v11-final.pdf
+provenance:
+- sourceId: cyklokros-cz
+  url: https://www.cyklokros.cz/kalendar
+  checkedDate: '2026-11-13'
+  facts:
+  - date
+  - location
+  - name
+- sourceId: cyklokros-cz
+  url: https://www.cyklokros.cz/janev-holevrchy-26
+  checkedDate: '2026-11-13'
+  facts:
+  - date
+  - classification
+updatedDate: '2026-11-13'
+feed:
+  sequence: 0
+  lastModified: '2026-11-13T15:00:00Z'

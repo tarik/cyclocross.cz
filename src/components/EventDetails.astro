@@ -1,0 +1,216 @@
+---
+/**
+ * The detail block of one event. Used in the expanded calendar row and on the
+ * event page. Unknown optional facts produce no heading at all; important
+ * unknowns (eligibility, registration) get an explicit note instead.
+ */
+import { formatEventDate } from '../lib/dates.ts';
+import type { EventView } from '../lib/event-view.ts';
+import type { Dataset } from '../lib/events.ts';
+import { htmlLang, type Locale } from '../i18n/routes.ts';
+import { useTranslations } from '../i18n/ui.ts';
+
+interface Props {
+  view: EventView;
+  locale: Locale;
+  dataset: Dataset;
+  /** Heading element for the sub-sections. */
+  heading?: 'h2' | 'h3' | 'h4';
+}
+const { view, locale, dataset, heading: H = 'h3' } = Astro.props;
+const t = useTranslations(locale);
+const { event } = view;
+const { location, timing, practical, links } = event;
+
+/** Text in the page language, or the Czech original with a language label. */
+function text(value: { cs?: string; en?: string } | undefined) {
+  if (!value) return null;
+  if (value[locale]) return { body: value[locale]!, fallback: false };
+  if (value.cs) return { body: value.cs, fallback: locale !== 'cs' };
+  return null;
+}
+const summary = text(event.summary);
+const details = text(event.details);
+const eligibility = text(event.participation?.eligibilityNotes);
+const spectators = text(practical.spectatorNotes);
+const feeNote = text(practical.feeNote);
+const mapUrl =
+  location.mapUrl ??
+  (location.coordinates
+    ? `https://www.openstreetmap.org/?mlat=${location.coordinates.lat}&mlon=${location.coordinates.lon}#map=15/${location.coordinates.lat}/${location.coordinates.lon}`
+    : null);
+const linkList = (
+  [
+    ['official', links.official],
+    ['registration', links.registration],
+    ['regulations', links.regulations],
+    ['results', links.results],
+  ] as const
+).filter(([, url]) => url);
+// The registration note only makes sense where the public can enter.
+const openEntry = (event.participation?.types ?? []).some((type) => type !== 'elite');
+const upcoming = view.status === 'scheduled' && openEntry;
+const sourceLabel = (item: (typeof event.provenance)[number]) => {
+  const name = (item.sourceId && dataset.sources.get(item.sourceId)?.name) || new URL(item.url).hostname;
+  const repeated = event.provenance.filter((other) => other.sourceId === item.sourceId).length > 1;
+  const path = new URL(item.url).pathname.replace(/\/$/, '');
+  return repeated && path ? `${name}: ${path}` : name;
+};
+---
+
+<div class="details">
+  {
+    summary && (
+      <p class="summary" lang={summary.fallback ? htmlLang.cs : undefined}>
+        {summary.body}
+        {summary.fallback && <span class="note"> ({t('ev.onlyCzech')})</span>}
+      </p>
+    )
+  }
+  {details && <p lang={details.fallback ? htmlLang.cs : undefined}>{details.body}</p>}
+
+  <div class="grid">
+    <section>
+      <H>{t('ev.where')}</H>
+      <p>
+        {location.venue && <span lang={htmlLang.cs}>{location.venue}, </span>}
+        <span lang={htmlLang.cs}>{location.town}</span>{view.region && `, ${view.region}`}
+        {location.address && <br />}
+        {location.address && <span lang={htmlLang.cs}>{location.address}</span>}
+      </p>
+      {mapUrl && <p><a href={mapUrl}>{t('ev.map')}</a></p>}
+      {
+        timing.previousDates.length > 0 && (
+          <p>
+            {t('ev.previousDate')}: {timing.previousDates.map((previous) => formatEventDate(previous.startDate, locale)).join(', ')}
+          </p>
+        )
+      }
+    </section>
+
+    <section>
+      <H>{t('ev.participation')}</H>
+      {view.typeLabels.length > 0 && <p>{view.typeLabels.join(', ')}</p>}
+      {
+        eligibility ? (
+          <p lang={eligibility.fallback ? htmlLang.cs : undefined}>{eligibility.body}</p>
+        ) : (
+          <p class="note">{t('ev.eligibilityUnknown')}</p>
+        )
+      }
+      {event.participation?.categories && <p lang={htmlLang.cs}>{event.participation.categories.join(', ')}</p>}
+      {
+        event.classifications.length > 0 && (
+          <p>
+            {t('ev.classification')}: {event.classifications.map((item) => `${item.body} ${item.code}`).join(', ')}.
+            <span class="note"> {t('ev.classNote')}</span>
+          </p>
+        )
+      }
+      {practical.fees && <p>{practical.fees.map((fee) => `${fee.amount} ${fee.currency}`).join(', ')}</p>}
+      {feeNote && <p lang={feeNote.fallback ? htmlLang.cs : undefined}>{feeNote.body}</p>}
+      {upcoming && !links.registration && <p class="note">{t('ev.registrationPending')}</p>}
+    </section>
+
+    {
+      practical.timetable && (
+        <section>
+          <H>{t('ev.timetable')}</H>
+          <ul class="timetable">
+            {practical.timetable.map((slot) => (
+              <li>
+                <time>{slot.time}</time> {slot.label[locale] ?? slot.label.cs}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+
+    {
+      spectators && (
+        <section>
+          <H>{t('ev.spectators')}</H>
+          <p lang={spectators.fallback ? htmlLang.cs : undefined}>{spectators.body}</p>
+        </section>
+      )
+    }
+
+    {
+      linkList.length > 0 && (
+        <section>
+          <H>{t('ev.links')}</H>
+          <ul class="links">
+            {linkList.map(([kind, url]) => (
+              <li>
+                <a href={url} rel="noopener">
+                  {t(`ev.link.${kind}`)}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+
+    <section>
+      <H>{t('ev.sources')}</H>
+      <ul class="links">
+        {
+          event.provenance.map((item) => (
+            <li>
+              <a href={item.url} rel="noopener">
+                {sourceLabel(item)}
+              </a>
+              <span class="note">
+                , {t('ev.checked')} {formatEventDate(item.checkedDate, locale)}
+              </span>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+  </div>
+
+  {event.verification === 'unverified' && <p class="note unverified">{t('ev.unverified')}</p>}
+
+  <p class="actions">
+    {view.ics && <a href={view.ics}>{t('ev.ics')}</a>}
+    <a href={view.reportUrl}>{t('ev.report')}</a>
+    <slot name="actions" />
+  </p>
+</div>
+
+<style>
+  .details { display: grid; gap: var(--space-3); }
+  .details p { margin: 0 0 var(--space-2); }
+  .summary { font-size: 1.0625rem; }
+  .grid {
+    display: grid;
+    gap: var(--space-3) var(--space-5);
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+  }
+  section > :global(h2),
+  section > :global(h3),
+  section > :global(h4) {
+    font-family: var(--font-body);
+    font-size: var(--step--1);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-ink-soft);
+    margin: 0 0 var(--space-1);
+  }
+  ul { margin: 0; padding: 0; list-style: none; }
+  li { margin-bottom: var(--space-1); }
+  .timetable time { display: inline-block; min-width: 3.25rem; font-variant-numeric: tabular-nums; font-weight: 600; }
+  .note { color: var(--color-ink-soft); }
+  .unverified {
+    padding: var(--space-2) var(--space-3);
+    border-left: var(--pixel) solid var(--color-line);
+    background: var(--color-surface);
+    max-width: none;
+  }
+  .actions { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-4); }
+  .actions :global(a) { display: inline-flex; align-items: center; min-height: 2.75rem; font-weight: 600; }
+</style>

@@ -1,0 +1,32 @@
+---
+import type { DisplayStatus } from '../lib/event-view.ts';
+
+interface Props {
+  status: DisplayStatus;
+  label: string;
+}
+const { status, label } = Astro.props;
+// The text carries the meaning; the mark and colour only reinforce it.
+const marks: Record<DisplayStatus, string> = { scheduled: '●', postponed: '▲', cancelled: '✕', completed: '✓', past: '○' };
+---
+
+<span class={`status status-${status}`} data-status={status}>
+  <span aria-hidden="true">{marks[status]}</span>
+  <span data-status-label>{label}</span>
+</span>
+
+<style>
+  .status {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.35em;
+    font-size: var(--step--1);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .status-scheduled { color: #3d5a1c; }
+  .status-postponed { color: #8a4b00; }
+  .status-cancelled { color: #a3211b; }
+  .status-completed,
+  .status-past { color: var(--color-ink-soft); }
+</style>

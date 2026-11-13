@@ -1,0 +1,53 @@
+id: tbc-vimperk-2026
+slug: 2026-tbc-vimperk
+seasonId: 2026-2027
+name:
+  official: Vimperský cyklokros na Vodníku
+timing:
+  precision: day
+  startDate: '2026-11-14'
+  startTime: '10:00'
+location:
+  town: Vimperk
+  regionId: jihocesky
+  venue: Areál Vodník
+seriesIds:
+- tbc-serie-2026
+participation:
+  types:
+  - amateur
+  - juniors
+  - youth
+  - children
+  eligibilityNotes:
+    cs: Amatérská série s kategoriemi od odrážedel po muže nad 60 let. Startovat lze i bez registrace v sérii jako příchozí.
+    en: An amateur series with categories from balance bikes to men over 60. You can also start without series registration as a walk-in.
+status: scheduled
+verification: unverified
+links:
+  official: https://tbcserie.cz/kalendar-2026/zavod-211/
+  regulations: https://tbcserie.cz/pravidla
+  registration: https://maraton.cz/terminovka/entry/695
+provenance:
+- sourceId: tbcserie-cz
+  url: https://tbcserie.cz/kalendar-2026
+  checkedDate: '2026-11-13'
+  facts:
+  - date
+  - location
+- sourceId: tbcserie-cz
+  url: https://tbcserie.cz/kalendar-2026/zavod-211/
+  checkedDate: '2026-11-13'
+  facts:
+  - name
+  - venue
+- sourceId: maraton-cz
+  url: https://www.maraton.cz/
+  checkedDate: '2026-11-13'
+  facts:
+  - name
+  - registration
+updatedDate: '2026-11-13'
+feed:
+  sequence: 0
+  lastModified: '2026-11-13T15:00:00Z'

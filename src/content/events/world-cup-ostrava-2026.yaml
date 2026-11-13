@@ -1,0 +1,66 @@
+id: world-cup-ostrava-2026
+slug: 2026-svetovy-pohar-ostrava
+seasonId: 2026-2027
+name:
+  official: UCI Cyclo-cross World Cup Ostrava
+timing:
+  precision: day
+  startDate: '2026-11-27'
+  startTime: '18:15'
+location:
+  town: Ostrava
+  regionId: moravskoslezsky
+  venue: Dolní oblast Vítkovice
+seriesIds:
+- uci-world-cup-2026-2027
+classifications:
+- body: UCI
+  code: World Cup
+participation:
+  types:
+  - elite
+status: scheduled
+verification: unverified
+summary:
+  cs: Úvodní závod Světového poháru 2026–2027, večerní závody elitních žen a mužů v Dolní oblasti Vítkovice. Den předem se jedou juniorské závody s volným vstupem.
+  en: The opening round of the 2026–2027 World Cup, with evening races for elite women and men in the Dolní Vítkovice area. Junior races take place the day before with free entry.
+translation:
+  en: machine
+practical:
+  timetable:
+  - time: '14:00'
+    label:
+      cs: Otevření areálu
+      en: Doors open
+  - time: '18:15'
+    label:
+      cs: Ženy Elite
+      en: Women Elite
+  - time: '19:45'
+    label:
+      cs: Muži Elite
+      en: Men Elite
+  spectatorNotes:
+    cs: 'Vstupenky online: dospělí 550 Kč; studenti, senioři a lidé se zdravotním postižením 350 Kč; děti do 12 let zdarma. Parkování P1 Plzeňská a P2 OC Avion. Tramvaje 3, 7 a 17 do zastávky Bělský les.'
+    en: 'Tickets online: adults 550 CZK; students, seniors and people with disabilities 350 CZK; children under 12 free. Parking at P1 Plzeňská and P2 OC Avion. Trams 3, 7 and 17 to the Bělský les stop.'
+links:
+  official: https://www.cxostrava.cz/
+provenance:
+- sourceId: uci-cx-world-cup
+  url: https://www.ucicyclocrossworldcup.com/en/calendar/2026-2027/ostrava
+  checkedDate: '2026-11-13'
+  facts:
+  - date
+  - venue
+  - timetable
+  - tickets
+- sourceId: cyklokros-cz
+  url: https://www.cyklokros.cz/kalendar
+  checkedDate: '2026-11-13'
+  facts:
+  - date
+  - categories
+updatedDate: '2026-11-13'
+feed:
+  sequence: 0
+  lastModified: '2026-11-13T15:00:00Z'

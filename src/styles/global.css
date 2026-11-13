@@ -95,3 +95,6 @@ a:hover { text-decoration-thickness: 2px; }
 
 .prose h2 { margin-top: var(--space-5); }
 .prose ul { max-width: var(--measure); padding-left: 1.25rem; }
+
+/* Component display rules must never bring a hidden element back. */
+[hidden] { display: none !important; }

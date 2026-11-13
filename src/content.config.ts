@@ -5,15 +5,15 @@ import { eventSchema, organiserSchema, seriesSchema, sourceSchema, sponsorSchema
 
 /**
  * Editorial data lives in `src/content/`. Clearly fictional fixtures live in
- * `fixtures/` and are loaded only outside production, so previews and tests
- * have something to render before real data exists.
+ * `fixtures/`. A build uses one set or the other, never a mix: real data by
+ * default, fixtures when `CONTENT_SET=fixtures` (browser tests and previews
+ * that need predictable content). Production always uses real data.
  */
-const production = process.env.SITE_ENV === 'production';
+const useFixtures = process.env.CONTENT_SET === 'fixtures' && process.env.SITE_ENV !== 'production';
 
 function data(name: string) {
-  const pattern = '*.{yaml,yml}';
   return glob({
-    pattern: production ? `src/content/${name}/${pattern}` : `{src/content,fixtures}/${name}/${pattern}`,
+    pattern: `${useFixtures ? 'fixtures' : 'src/content'}/${name}/*.{yaml,yml}`,
     base: '.',
     generateId: ({ data }) => String(data.id),
   });
