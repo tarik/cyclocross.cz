@@ -55,7 +55,7 @@ export function initCalendar(root: HTMLElement): void {
     const badge = row.querySelector<HTMLElement>('[data-status="scheduled"]');
     if (badge) {
       badge.dataset.status = 'past';
-      badge.className = badge.className.replace('status-scheduled', 'status-past');
+      badge.classList.replace('text-ok', 'text-ink-soft');
       const label = badge.querySelector('[data-status-label]');
       if (label) label.textContent = strings.past;
       const mark = badge.querySelector('[aria-hidden]');
@@ -66,7 +66,7 @@ export function initCalendar(root: HTMLElement): void {
   // In-place details.
   function setExpanded(row: HTMLElement, expanded: boolean) {
     const button = row.querySelector<HTMLButtonElement>('[data-expand]');
-    const detail = row.querySelector<HTMLElement>('tr.detail');
+    const detail = row.querySelector<HTMLElement>('[data-detail]');
     if (!button || !detail) return;
     button.setAttribute('aria-expanded', String(expanded));
     detail.hidden = !expanded;

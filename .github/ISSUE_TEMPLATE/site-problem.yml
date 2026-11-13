@@ -1,0 +1,23 @@
+name: Problém s webem / Site problem
+description: Něco na webu nefunguje nebo se špatně zobrazuje. / Something on the site is broken or looks wrong.
+title: 'Web: '
+labels: [site]
+body:
+  - type: input
+    id: page
+    attributes:
+      label: Stránka / Page
+      placeholder: https://cyclocross.cz/
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Co se stalo / What happened
+      description: A co jste čekali. / And what you expected.
+    validations:
+      required: true
+  - type: input
+    id: device
+    attributes:
+      label: Zařízení a prohlížeč / Device and browser

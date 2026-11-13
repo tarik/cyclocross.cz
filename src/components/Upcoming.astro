@@ -28,24 +28,24 @@ const visible = 4;
 
 {
   views.length === 0 ? (
-    <p class="muted">{t('cal.emptyUpcoming')}</p>
+    <p class="text-ink-soft">{t('cal.emptyUpcoming')}</p>
   ) : (
-    <ul class="cards" data-upcoming data-visible={visible}>
+    <ul class="mb-4 grid grid-cols-[repeat(auto-fit,minmax(min(100%,15rem),1fr))] gap-4" data-upcoming data-visible={visible}>
       {views.map((view, position) => (
-        <li class="card" data-date={view.index.endDate ?? view.index.date} hidden={position >= visible}>
-          <p class="date">
+        <li class="flex flex-col gap-1 border-2 border-ink bg-surface p-4 shadow-pixel" data-date={view.index.endDate ?? view.index.date} hidden={position >= visible}>
+          <p class="m-0 font-bold text-accent">
             <time datetime={view.index.date}>{formatEventDate(view.index.date!, locale)}</time>
           </p>
-          <h3>
-            <a href={view.path} lang={htmlLang.cs}>
+          <h3 class="m-0 text-[1.625rem]">
+            <a class="text-ink no-underline hover:underline" href={view.path} lang={htmlLang.cs}>
               {view.name}
             </a>
           </h3>
-          <p class="place">
+          <p class="m-0 font-semibold">
             <span lang={htmlLang.cs}>{view.town}</span>
             {view.series.length > 0 && <span lang={htmlLang.cs}> · {view.series.map((series) => series.name).join(', ')}</span>}
           </p>
-          <p class="meta">
+          <p class="m-0 mt-auto flex flex-wrap justify-between gap-2 pt-2 text-sm text-ink-soft">
             {view.typeLabels.length > 0 && <span>{view.typeLabels.join(', ')}</span>}
             {view.status !== 'scheduled' && <StatusBadge status={view.status} label={view.statusLabel} />}
           </p>
@@ -69,31 +69,3 @@ const visible = 4;
     }
   }
 </script>
-
-<style>
-  .cards {
-    display: grid;
-    gap: var(--space-3);
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
-    margin: 0 0 var(--space-3);
-    padding: 0;
-    list-style: none;
-  }
-  .card {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-1);
-    padding: var(--space-3);
-    background: var(--color-surface);
-    border: var(--border);
-    box-shadow: var(--shadow);
-  }
-  .card[hidden] { display: none; }
-  .card p { margin: 0; }
-  .date { font-weight: 700; color: var(--color-accent); }
-  .card h3 { margin: 0; font-size: 1.625rem; }
-  .card h3 a { color: var(--color-ink); text-decoration: none; }
-  .card h3 a:hover { text-decoration: underline; }
-  .place { font-weight: 600; }
-  .meta { margin-top: auto; padding-top: var(--space-2); font-size: var(--step--1); color: var(--color-ink-soft); display: flex; flex-wrap: wrap; gap: var(--space-2); justify-content: space-between; }
-</style>

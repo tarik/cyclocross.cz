@@ -2,6 +2,21 @@
 
 Newest first. Each entry says what was decided, by whom and why. Owner decisions are binding; agent decisions are defaults that the owner can overturn.
 
+## 2026-11-13, calendar PR
+
+- **Owner: use Tailwind.** Tailwind 4 through its Vite plugin. Tokens live in `@theme` in `src/styles/global.css`; components use utilities in markup. A small `@layer components` holds what repeats (`.wrap`, `.button`, `.control`, `.chip`) and the two pieces that are not expressible as utilities (the stepped sky and ground).
+- **Agent: a build uses real data or fixtures, never both.** `CONTENT_SET=fixtures` switches to the fictional set. Browser tests always use fixtures with `BUILD_TODAY=2026-11-30`, so they do not change when the calendar does.
+- **Agent: a past race is labelled "Termín proběhl" / "Date has passed", not "completed".** `completed` is reserved for races a source confirms took place. Researched races keep `status: scheduled`.
+- **Agent: researched races are `verification: unverified`** and every detail view says the organiser has not confirmed the data. The owner decides when a race counts as verified.
+- **Agent: without JavaScript the calendar lists every race with a link to its page.** Filters and in-place details are enhancements. The table becomes cards below 960 px and keeps explicit ARIA table roles.
+- **Agent: "This weekend" means Friday to Sunday**, so a Friday evening World Cup round is included.
+- **Agent: "Children and youth" is one filter value** matching the `youth` and `children` participation types.
+- **Agent: no season filter yet.** There is one season. Add the control when a second season has data.
+- **Agent: calendar files live at `/ics/{slug}.ics` and `/ics/season-{season}.ics`**, outside the translated routes. Timed races without a known end have no `DTEND`. Races without a confirmed day are left out of the feed.
+- **Agent: World Cup rounds carry the classification text "UCI World Cup"**, as the sources say, and no UCI class code.
+- **Agent: map links go to OpenStreetMap** when a source gives coordinates. No map is embedded.
+- **Agent: region left empty for Holé Vrchy and Hůrka** because no source read so far states it.
+
 ## 2026-11-13
 
 - **Owner: the implementing agent draws all pixel art.** Original work, iterated in the browser.

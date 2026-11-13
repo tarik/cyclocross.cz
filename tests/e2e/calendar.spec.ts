@@ -20,8 +20,8 @@ test('groups races into upcoming, unconfirmed and past, in date order across New
 
 test('status is given in words, including cancelled and postponed races', async ({ page }) => {
   await open(page, '/');
-  await expect(page.locator('#e-2026-cancelled-example .col-status')).toContainText('Zrušeno');
-  await expect(page.locator('#e-2027-postponed-example .col-status')).toContainText('Odloženo');
+  await expect(page.locator('#e-2026-cancelled-example [data-cell="status"]')).toContainText('Zrušeno');
+  await expect(page.locator('#e-2027-postponed-example [data-cell="status"]')).toContainText('Odloženo');
 });
 
 test('search ignores diacritics and the filter survives a reload', async ({ page }) => {
@@ -66,16 +66,16 @@ test('details open in place from the keyboard and get a shareable address', asyn
   const row = page.locator('#e-2026-tabor-example');
   const button = row.getByRole('button', { name: /Podrobnosti/ });
   await button.focus();
-  await expect(row.locator('tr.detail')).toBeHidden();
+  await expect(row.locator('[data-detail]')).toBeHidden();
   await page.keyboard.press('Enter');
   await expect(button).toHaveAttribute('aria-expanded', 'true');
-  await expect(row.locator('tr.detail')).toBeVisible();
-  await expect(row.locator('tr.detail')).toContainText('Smyšlený údaj. Závod neexistuje.');
+  await expect(row.locator('[data-detail]')).toBeVisible();
+  await expect(row.locator('[data-detail]')).toContainText('Smyšlený údaj. Závod neexistuje.');
   await expect(page).toHaveURL(/#e-2026-tabor-example$/);
 
   await open(page, '/#e-2027-postponed-example');
-  await expect(page.locator('#e-2027-postponed-example tr.detail')).toBeVisible();
-  await expect(page.locator('#e-2027-postponed-example tr.detail')).toContainText('Původní termín');
+  await expect(page.locator('#e-2027-postponed-example [data-detail]')).toBeVisible();
+  await expect(page.locator('#e-2027-postponed-example [data-detail]')).toContainText('Původní termín');
 });
 
 test('a stale build never shows a past race as upcoming', async ({ page }) => {
@@ -83,7 +83,7 @@ test('a stale build never shows a past race as upcoming', async ({ page }) => {
   await expect(upcoming(page).locator('th')).toHaveText([/zrušený/, /novoroční/]);
   await expect(past(page)).toHaveCount(2);
   await page.locator('details[data-group="past"] summary').click();
-  await expect(page.locator('#e-2026-tabor-example .col-status')).toContainText('Termín proběhl');
+  await expect(page.locator('#e-2026-tabor-example [data-cell="status"]')).toContainText('Termín proběhl');
   await expect(page.locator('[data-upcoming] li:visible h3')).toHaveText([/zrušený/, /novoroční/]);
 });
 

@@ -14,17 +14,17 @@ const labels: Record<Locale, string> = { cs: 'CZ', en: 'EN' };
 const fragmentMap = Object.fromEntries(Object.values(fragments).map((ids) => [ids[locale], ids[target]]));
 ---
 
-<p class="lang" aria-label={t('lang.label')} role="group">
+<p class="m-0 inline-flex self-start border-2 border-ink bg-surface font-display text-2xl leading-none" aria-label={t('lang.label')} role="group">
   {
     locales.map((code) =>
       code === locale ? (
-        <span class="current" aria-current="true" lang={htmlLang[code]}>
-          <span class="visually-hidden">{t('lang.current')}</span>
+        <span class="inline-flex min-h-10 min-w-11 items-center justify-center bg-ink px-2 text-paper" aria-current="true" lang={htmlLang[code]}>
+          <span class="sr-only">{t('lang.current')}</span>
           <span aria-hidden="true">{labels[code]}</span>
         </span>
       ) : (
-        <a href={href} hreflang={htmlLang[code]} lang={htmlLang[code]} data-lang-switch data-fragments={JSON.stringify(fragmentMap)}>
-          <span class="visually-hidden">{t('lang.switchTo')}</span>
+        <a class="inline-flex min-h-10 min-w-11 items-center justify-center px-2 text-ink no-underline hover:bg-line" href={href} hreflang={htmlLang[code]} lang={htmlLang[code]} data-lang-switch data-fragments={JSON.stringify(fragmentMap)}>
+          <span class="sr-only">{t('lang.switchTo')}</span>
           <span aria-hidden="true">{labels[code]}</span>
         </a>
       ),
@@ -47,32 +47,3 @@ const fragmentMap = Object.fromEntries(Object.values(fragments).map((ids) => [id
     });
   }
 </script>
-
-<style>
-  .lang {
-    display: inline-flex;
-    margin: 0;
-    border: var(--border);
-    background: var(--color-surface);
-    font-family: var(--font-display);
-    font-size: 1.5rem;
-    line-height: 1;
-    align-self: flex-start;
-  }
-  .lang a,
-  .lang .current {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 2.75rem;
-    min-height: 2.5rem;
-    padding-inline: var(--space-2);
-    color: var(--color-ink);
-    text-decoration: none;
-  }
-  .lang .current {
-    background: var(--color-ink);
-    color: var(--color-paper);
-  }
-  .lang a:hover { background: var(--color-line); }
-</style>

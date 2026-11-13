@@ -35,6 +35,11 @@ const usedRegions = Object.keys(regions).filter((id) => views.some((view) => vie
 const usedSeries = [...dataset.series.values()].filter((series) => views.some((view) => view.index.series.includes(series.id)));
 const typeOptions = (['elite', 'amateur', 'masters', 'juniors'] as const).filter((type) => views.some((view) => view.index.types.includes(type)));
 const hasYoung = views.some((view) => view.index.types.includes('young'));
+// Below the lg breakpoint every table element becomes a block and each event a
+// card; the explicit ARIA roles keep the table semantics for assistive tech.
+const cell = 'px-2 py-4 text-left align-top max-lg:block max-lg:p-0';
+const sub = 'block text-sm text-ink-soft';
+const rowControl = 'inline-flex min-h-11 cursor-pointer items-center px-2 font-body text-sm font-semibold text-accent underline max-lg:px-0';
 const columns = ['date', 'event', 'place', 'series', 'who', 'status', 'details'] as const;
 const strings = {
   one: t('filter.count.one'),
@@ -46,69 +51,71 @@ const strings = {
 };
 ---
 
-<div class="calendar" data-calendar data-strings={JSON.stringify(strings)}>
-  <form class="filters" data-filters hidden role="search" aria-label={t('filter.title')}>
-    <div class="fields">
-      <label class="field wide">
+<div data-calendar data-strings={JSON.stringify(strings)}>
+  <form class="mb-6 grid gap-4 border-2 border-ink bg-surface p-4 shadow-pixel" data-filters hidden role="search" aria-label={t('filter.title')}>
+    <div class="grid grid-cols-2 gap-x-4 gap-y-2 lg:grid-cols-[minmax(0,2fr)_repeat(3,minmax(0,1.1fr))_repeat(2,minmax(9.5rem,1fr))]">
+      <label class="col-span-2 grid min-w-0 gap-0.5 text-sm font-semibold lg:col-span-1">
         <span>{t('filter.q')}</span>
-        <input type="search" name="q" placeholder={t('filter.qPlaceholder')} autocomplete="off" maxlength="80" />
+        <input class="control" type="search" name="q" placeholder={t('filter.qPlaceholder')} autocomplete="off" maxlength="80" />
       </label>
-      <label class="field">
+      <label class="grid min-w-0 gap-0.5 text-sm font-semibold">
         <span>{t('filter.region')}</span>
-        <select name="region">
+        <select class="control" name="region">
           <option value="">{t('filter.all')}</option>
           {usedRegions.map((id) => <option value={id}>{regions[id as keyof typeof regions][locale]}</option>)}
         </select>
       </label>
-      <label class="field">
+      <label class="grid min-w-0 gap-0.5 text-sm font-semibold">
         <span>{t('filter.series')}</span>
-        <select name="series">
+        <select class="control" name="series">
           <option value="">{t('filter.all')}</option>
           {usedSeries.map((series) => <option value={series.id}>{series.name}</option>)}
         </select>
       </label>
-      <label class="field">
+      <label class="grid min-w-0 gap-0.5 text-sm font-semibold">
         <span>{t('filter.type')}</span>
-        <select name="type">
+        <select class="control" name="type">
           <option value="">{t('filter.all')}</option>
           {typeOptions.map((type) => <option value={type}>{ui[locale][`type.${type}`]}</option>)}
           {hasYoung && <option value="young">{t('filter.children')}</option>}
         </select>
       </label>
-      <label class="field">
+      <label class="grid min-w-0 gap-0.5 text-sm font-semibold">
         <span>{t('filter.from')}</span>
-        <input type="date" name="from" />
+        <input class="control" type="date" name="from" />
       </label>
-      <label class="field">
+      <label class="grid min-w-0 gap-0.5 text-sm font-semibold">
         <span>{t('filter.to')}</span>
-        <input type="date" name="to" />
+        <input class="control" type="date" name="to" />
       </label>
     </div>
-    <div class="shortcuts">
+    <div class="flex flex-wrap items-center gap-2">
       <button type="button" class="chip" data-shortcut="weekend" aria-pressed="false">{t('filter.weekend')}</button>
       <button type="button" class="chip" data-shortcut="amateur" aria-pressed="false">{t('filter.amateur')}</button>
       {hasYoung && <button type="button" class="chip" data-shortcut="young" aria-pressed="false">{t('filter.children')}</button>}
-      <button type="reset" class="chip reset" data-reset hidden>{t('filter.reset')}</button>
-      <p class="count" role="status" data-count></p>
+      <button type="reset" class="chip border-dashed" data-reset hidden>{t('filter.reset')}</button>
+      <p class="m-0 font-semibold max-lg:basis-full lg:ml-auto" role="status" data-count></p>
     </div>
   </form>
 
   {
     groups.map((group) => {
       const table = (
-        <table data-table={group.key}>
-          <caption class="visually-hidden">{group.title}</caption>
-          <thead>
-            <tr>
+        <table class="w-full border-collapse max-lg:block" role="table" data-table={group.key}>
+          <caption class="sr-only">{group.title}</caption>
+          <thead class="max-lg:sr-only" role="rowgroup">
+            <tr role="row">
               {columns.map((column) => (
-                <th scope="col" class={`col-${column}`}>
-                  {column === 'details' ? <span class="visually-hidden">{t('cal.col.details')}</span> : t(`cal.col.${column}`)}
+                <th scope="col" role="columnheader" class="border-b-2 border-ink p-2 text-left text-sm tracking-[0.06em] text-ink-soft uppercase">
+                  {column === 'details' ? <span class="sr-only">{t('cal.col.details')}</span> : t(`cal.col.${column}`)}
                 </th>
               ))}
             </tr>
           </thead>
           {group.views.map((view: EventView) => (
             <tbody
+              role="rowgroup"
+              class="border-b border-line max-lg:block max-lg:py-4"
               id={view.anchor}
               data-event
               data-date={view.index.date ?? ''}
@@ -118,40 +125,41 @@ const strings = {
               data-series={view.index.series.join(' ')}
               data-types={view.index.types.join(' ')}
             >
-              <tr class="main">
-                <td class="col-date">
+              <tr role="row" class="max-lg:grid max-lg:grid-cols-[1fr_auto] max-lg:gap-x-4 max-lg:gap-y-0.5">
+                <td role="cell" class={`${cell} font-semibold whitespace-nowrap tabular-nums max-lg:col-start-1`}>
                   {view.index.date ? <time datetime={view.index.date}>{formatShortDate(view.index.date, locale)}</time> : '–'}
-                  {view.index.date && <span class="year"> {view.index.date.slice(0, 4)}</span>}
+                  {view.index.date && <span class="font-normal text-ink-soft"> {view.index.date.slice(0, 4)}</span>}
                 </td>
-                <th scope="row" class="col-event">
-                  <a href={view.path} lang={htmlLang.cs}>
+                <th scope="row" role="rowheader" class={`${cell} font-normal max-lg:col-span-full max-lg:py-0.5 max-lg:text-lg lg:w-[27%]`}>
+                  <a class="font-bold wrap-anywhere text-ink" href={view.path} lang={htmlLang.cs}>
                     {view.name}
                   </a>
                 </th>
-                <td class="col-place">
+                <td role="cell" class={`${cell} max-lg:col-span-full lg:w-[16%]`}>
                   <span lang={htmlLang.cs}>{view.town}</span>
-                  {view.region && <span class="sub">{view.region}</span>}
+                  {view.region && <span class={`${sub} max-lg:inline max-lg:before:content-['_·_']`}>{view.region}</span>}
                 </td>
-                <td class="col-series">
-                  {view.series.length > 0 ? view.series.map((series) => <span lang={htmlLang.cs}>{series.name}</span>) : <span class="sub">{t('cal.noSeries')}</span>}
+                <td role="cell" class={`${cell} max-lg:col-span-full max-lg:text-sm max-lg:text-ink-soft lg:w-[16%]`}>
+                  {view.series.length > 0 ? view.series.map((series) => <span class="block" lang={htmlLang.cs}>{series.name}</span>) : <span class={sub}>{t('cal.noSeries')}</span>}
                 </td>
-                <td class="col-who">{view.typeLabels.length > 0 ? view.typeLabels.join(', ') : <span class="sub">{t('cal.unknown')}</span>}</td>
-                <td class="col-status">
+                <td role="cell" class={`${cell} max-lg:col-span-full max-lg:text-sm max-lg:text-ink-soft lg:w-[17%]`}>{view.typeLabels.length > 0 ? view.typeLabels.join(', ') : <span class={sub}>{t('cal.unknown')}</span>}</td>
+                <td role="cell" data-cell="status" class={`${cell} max-lg:col-start-2 max-lg:row-start-1 max-lg:justify-self-end`}>
                   <StatusBadge status={view.status} label={view.statusLabel} />
                 </td>
-                <td class="col-details">
-                  <button type="button" class="expand" data-expand aria-expanded="false" aria-controls={`${view.anchor}-details`} hidden>
+                <td role="cell" class={`${cell} whitespace-nowrap max-lg:col-span-full lg:text-right`}>
+                  <button type="button" class={`${rowControl} group`} data-expand aria-expanded="false" aria-controls={`${view.anchor}-details`} hidden>
                     {t('cal.showDetails')}
-                    <span class="visually-hidden">: {view.name}</span>
+                    <span class="sr-only">: {view.name}</span>
+                    <span class="ml-[0.4em] border-x-[5px] border-t-[5px] border-x-transparent border-t-current group-aria-expanded:rotate-180" aria-hidden="true" />
                   </button>
-                  <a class="page-link" href={view.path} data-page-link>
+                  <a class={rowControl} href={view.path} data-page-link>
                     {t('cal.showDetails')}
-                    <span class="visually-hidden">: {view.name}</span>
+                    <span class="sr-only">: {view.name}</span>
                   </a>
                 </td>
               </tr>
-              <tr class="detail" id={`${view.anchor}-details`} hidden>
-                <td colspan={columns.length}>
+              <tr role="row" data-detail class="max-lg:block" id={`${view.anchor}-details`} hidden>
+                <td role="cell" colspan={columns.length} class="border-l-4 border-accent bg-surface px-4 pt-4 pb-6 max-lg:mt-2 max-lg:block">
                   <EventDetails view={view} locale={locale} dataset={dataset} heading="h4">
                     <a slot="actions" href={view.path}>
                       {t('cal.eventPage')}
@@ -165,20 +173,20 @@ const strings = {
       );
       if (group.key === 'past') {
         return (
-          <details class="group past" data-group="past" hidden={group.views.length === 0}>
-            <summary>
-              <h3>{group.title}</h3> <span class="sub" data-group-count>({group.views.length})</span>
+          <details class="mb-6" data-group="past" hidden={group.views.length === 0}>
+            <summary class="min-h-11 cursor-pointer py-2">
+              <h3 class="m-0 inline text-xl">{group.title}</h3> <span class="text-sm text-ink-soft" data-group-count>({group.views.length})</span>
             </summary>
             {table}
           </details>
         );
       }
       return (
-        <section class="group" data-group={group.key} hidden={group.key === 'unconfirmed' && group.views.length === 0}>
-          <h3 class={group.key === 'upcoming' ? 'visually-hidden' : undefined}>{group.title}</h3>
+        <section class="mb-6" data-group={group.key} hidden={group.key === 'unconfirmed' && group.views.length === 0}>
+          <h3 class={group.key === 'upcoming' ? 'sr-only' : 'text-xl'}>{group.title}</h3>
           {table}
           {group.key === 'upcoming' && (
-            <p class="empty" data-empty hidden={group.views.length > 0} data-empty-default={t('cal.emptyUpcoming')} data-empty-filtered={t('cal.empty')}>
+            <p class="py-6 font-semibold" data-empty hidden={group.views.length > 0} data-empty-default={t('cal.emptyUpcoming')} data-empty-filtered={t('cal.empty')}>
               {t('cal.emptyUpcoming')}
             </p>
           )}
@@ -187,9 +195,9 @@ const strings = {
     })
   }
 
-  <p class="feed">
-    <a href={seasonFeedPath(site.activeSeason)}>{t('cal.subscribe')}</a>
-    <span class="sub">{t('cal.subscribeNote')}</span>
+  <p class="mt-6">
+    <a class="font-semibold" href={seasonFeedPath(site.activeSeason)}>{t('cal.subscribe')}</a>
+    <span class={sub}>{t('cal.subscribeNote')}</span>
   </p>
 </div>
 
@@ -197,142 +205,3 @@ const strings = {
   import { initCalendar } from '../scripts/calendar.ts';
   for (const root of document.querySelectorAll<HTMLElement>('[data-calendar]')) initCalendar(root);
 </script>
-
-<style>
-  .filters {
-    display: grid;
-    gap: var(--space-3);
-    margin-bottom: var(--space-4);
-    padding: var(--space-3);
-    background: var(--color-surface);
-    border: var(--border);
-    box-shadow: var(--shadow);
-  }
-  .fields {
-    display: grid;
-    gap: var(--space-2) var(--space-3);
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  @media (min-width: 60rem) {
-    .fields { grid-template-columns: minmax(0, 2fr) repeat(3, minmax(0, 1.1fr)) repeat(2, minmax(9.5rem, 1fr)); }
-    .fields .field.wide { grid-column: auto; }
-  }
-  .field { display: grid; gap: 2px; min-width: 0; font-size: var(--step--1); font-weight: 600; }
-  .field.wide { grid-column: span 2; }
-  .field input,
-  .field select {
-    width: 100%;
-    min-width: 0;
-    min-height: 2.75rem;
-    padding: 0 var(--space-2);
-    font: 400 var(--step-0) var(--font-body);
-    color: var(--color-ink);
-    background: #fff;
-    border: 2px solid var(--color-ink);
-    border-radius: 0;
-  }
-  .shortcuts { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
-  .chip {
-    min-height: 2.75rem;
-    padding: 0 var(--space-3);
-    font: 600 var(--step--1) var(--font-body);
-    color: var(--color-ink);
-    background: var(--color-paper);
-    border: 2px solid var(--color-ink);
-    cursor: pointer;
-  }
-  .chip[aria-pressed='true'] { background: var(--color-ink); color: var(--color-paper); }
-  .chip.reset { border-style: dashed; }
-  .count { margin: 0 0 0 auto; font-weight: 600; }
-
-  .group { margin-bottom: var(--space-4); }
-  .group h3 { font-size: var(--step-1); }
-  details.group > summary { cursor: pointer; padding-block: var(--space-2); min-height: 2.75rem; }
-  details.group > summary h3 { display: inline; margin: 0; }
-
-  table { width: 100%; border-collapse: collapse; }
-  thead th {
-    padding: var(--space-2);
-    text-align: left;
-    font-size: var(--step--1);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--color-ink-soft);
-    border-bottom: 2px solid var(--color-ink);
-  }
-  tbody { border-bottom: 1px solid var(--color-line); }
-  .main > * { padding: var(--space-3) var(--space-2); vertical-align: top; text-align: left; }
-  .col-date { white-space: nowrap; font-variant-numeric: tabular-nums; font-weight: 600; }
-  .year { font-weight: 400; color: var(--color-ink-soft); }
-  .col-event { font-weight: 400; }
-  @media (min-width: 60rem) {
-    .col-event { width: 27%; }
-    .col-place { width: 16%; }
-    .col-series { width: 16%; }
-    .col-who { width: 17%; }
-  }
-  .col-event a { font-weight: 700; color: var(--color-ink); overflow-wrap: anywhere; }
-  .col-series span { display: block; }
-  .sub { display: block; font-size: var(--step--1); color: var(--color-ink-soft); }
-  span.sub[data-group-count] { display: inline; }
-  .col-details { text-align: right; white-space: nowrap; }
-  .expand,
-  .page-link {
-    display: inline-flex;
-    align-items: center;
-    min-height: 2.75rem;
-    padding: 0 var(--space-2);
-    font: 600 var(--step--1) var(--font-body);
-    color: var(--color-accent);
-    background: none;
-    border: 0;
-    text-decoration: underline;
-    cursor: pointer;
-  }
-  .expand::after {
-    content: '';
-    margin-left: 0.4em;
-    border: 5px solid transparent;
-    border-top-color: currentColor;
-    border-bottom-width: 0;
-  }
-  .expand[aria-expanded='true']::after { transform: rotate(180deg); }
-  .expand[hidden],
-  .page-link[hidden] { display: none; }
-  .detail > td {
-    padding: var(--space-3) var(--space-3) var(--space-4);
-    background: var(--color-surface);
-    border-left: var(--pixel) solid var(--color-accent);
-  }
-  tbody.is-cancelled .col-event a { text-decoration: line-through; }
-  .empty { padding: var(--space-4) 0; font-weight: 600; }
-  .feed { margin-top: var(--space-4); }
-  .feed a { font-weight: 600; }
-
-  /* Phones and small tablets: each event becomes a card. Roles are set by the
-     script-free markup below so the table semantics survive display changes. */
-  @media (max-width: 59.99rem) {
-    table, tbody, tr, td, th { display: block; }
-    thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
-    tr[hidden] { display: none; }
-    tbody { padding-block: var(--space-3); }
-    .main {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 2px var(--space-3);
-    }
-    .main > * { padding: 0; }
-    .col-date { grid-column: 1; }
-    .col-status { grid-column: 2; grid-row: 1; justify-self: end; }
-    .col-event { grid-column: 1 / -1; font-size: 1.125rem; padding-block: 2px; }
-    .col-place, .col-series, .col-who { grid-column: 1 / -1; }
-    .col-place .sub, .col-series span { display: inline; }
-    .col-place .sub::before { content: ' · '; }
-    .col-series, .col-who { font-size: var(--step--1); color: var(--color-ink-soft); }
-    .col-details { grid-column: 1 / -1; text-align: left; }
-    .expand, .page-link { padding-inline: 0; }
-    .detail > td { margin-top: var(--space-2); }
-    .field.wide { grid-column: 1 / -1; }
-    .count { margin-left: 0; flex-basis: 100%; }
-  }
-</style>

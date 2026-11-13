@@ -14,56 +14,11 @@ const { locale } = Astro.props;
 const t = useTranslations(locale);
 ---
 
-<section class="hero" aria-labelledby="hero-title">
-  <div class="wrap intro">
+<section class="flex min-h-60 flex-col justify-between md:min-h-88" aria-labelledby="hero-title">
+  <div class="wrap pt-4 pb-6">
     <h1 id="hero-title">{t('hero.title')}</h1>
-    <p>{t('hero.lead')}</p>
+    <p class="max-w-136 text-xl leading-[1.45]">{t('hero.lead')}</p>
     <a class="button" href={sectionPath('calendar', locale)}>{t('hero.cta')}</a>
   </div>
   <div class="ground" aria-hidden="true"></div>
 </section>
-
-<style>
-  .hero {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    min-height: 15rem;
-  }
-  .intro { padding-block: var(--space-3) var(--space-4); }
-  .intro p {
-    max-width: 34rem;
-    font-size: var(--step-1);
-    line-height: 1.45;
-  }
-  /* Grass over a cutaway of soil that steps down into the page. */
-  .ground {
-    height: calc(var(--pixel) * 9);
-    background:
-      repeating-linear-gradient(
-          to right,
-          var(--color-paper) 0 calc(var(--pixel) * 2),
-          transparent calc(var(--pixel) * 2) calc(var(--pixel) * 5),
-          var(--color-paper) calc(var(--pixel) * 5) calc(var(--pixel) * 6),
-          transparent calc(var(--pixel) * 6) calc(var(--pixel) * 11)
-        )
-        bottom / 100% var(--pixel) no-repeat,
-      repeating-linear-gradient(
-          to right,
-          transparent 0 calc(var(--pixel) * 3),
-          var(--color-paper) calc(var(--pixel) * 3) calc(var(--pixel) * 4),
-          transparent calc(var(--pixel) * 4) calc(var(--pixel) * 13)
-        )
-        bottom var(--pixel) left 0 / 100% var(--pixel) no-repeat,
-      linear-gradient(
-        to bottom,
-        var(--grass-1) 0 calc(var(--pixel) * 2),
-        var(--grass-2) calc(var(--pixel) * 2) calc(var(--pixel) * 3),
-        var(--soil-1) calc(var(--pixel) * 3) calc(var(--pixel) * 6),
-        var(--soil-2) calc(var(--pixel) * 6) 100%
-      );
-  }
-  @media (min-width: 48rem) {
-    .hero { min-height: 22rem; }
-  }
-</style>

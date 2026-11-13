@@ -44,16 +44,16 @@ const alternates = translated
     <meta name="theme-color" content="#bfe0ea" />
     <script is:inline>document.documentElement.classList.add('js');</script>
   </head>
-  <body class={`variant-${variant}`}>
-    <a class="skip-link" href="#main">{t('skip.toContent')}</a>
+  <body>
+    <a class="absolute -top-24 left-2 z-10 bg-ink px-4 py-2 font-semibold text-paper focus:top-2" href="#main">{t('skip.toContent')}</a>
     {
       !site.indexable && (
-        <p class="env-notice" data-env={site.env}>
+        <p class="m-0 max-w-none bg-ink px-4 py-1 text-center text-sm text-paper" data-env={site.env}>
           {t('env.notice')}
         </p>
       )
     }
-    <div class="top">
+    <div class={`sky ${variant === 'page' ? 'border-b-4 border-grass-2' : ''}`}>
       <Header locale={locale} />
       <slot name="hero" />
     </div>
@@ -63,28 +63,3 @@ const alternates = translated
     <Footer locale={locale} />
   </body>
 </html>
-
-<style>
-  .env-notice {
-    margin: 0;
-    max-width: none;
-    padding: var(--space-1) var(--gutter);
-    background: var(--color-ink);
-    color: var(--color-paper);
-    font-size: var(--step--1);
-    text-align: center;
-  }
-  .top {
-    background: linear-gradient(
-      to bottom,
-      var(--sky-1) 0 25%,
-      var(--sky-2) 25% 50%,
-      var(--sky-3) 50% 75%,
-      var(--sky-4) 75% 100%
-    );
-  }
-  .variant-page .top {
-    border-bottom: var(--pixel) solid var(--grass-2);
-  }
-  main:focus { outline: none; }
-</style>

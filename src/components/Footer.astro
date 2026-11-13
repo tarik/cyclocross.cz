@@ -10,57 +10,23 @@ const { locale } = Astro.props;
 const t = useTranslations(locale);
 ---
 
-<footer class="site-footer">
-  <div class="wrap grid">
+<footer class="mt-16 bg-ink py-10 text-paper [&_:focus-visible]:outline-[#ffd866]">
+  <div class="wrap grid grid-cols-[repeat(auto-fit,minmax(16rem,1fr))] gap-x-16 gap-y-6">
     <div>
-      <p class="name">cyclocross.cz</p>
-      <p>{t('footer.independent')}</p>
+      <p class="font-display text-4xl leading-none">cyclocross.cz</p>
+      <p class="text-footer-text">{t('footer.independent')}</p>
     </div>
     <nav aria-label={t('footer.pages')}>
-      <ul>
+      <ul class="grid gap-1">
         {
           supportingPages.map((page) => (
             <li>
-              <a href={routePath(page, locale)}>{t(`page.${page}`)}</a>
+              <a class="inline-flex min-h-11 items-center text-paper" href={routePath(page, locale)}>{t(`page.${page}`)}</a>
             </li>
           ))
         }
-        <li><a href={site.repositoryUrl}>{t('footer.source')}</a></li>
+        <li><a class="inline-flex min-h-11 items-center text-paper" href={site.repositoryUrl}>{t('footer.source')}</a></li>
       </ul>
     </nav>
   </div>
 </footer>
-
-<style>
-  .site-footer {
-    margin-top: var(--space-6);
-    padding-block: var(--space-5);
-    background: var(--color-ink);
-    color: var(--color-paper);
-  }
-  .grid {
-    display: grid;
-    gap: var(--space-4) var(--space-6);
-    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
-  }
-  .name {
-    font-family: var(--font-display);
-    font-size: var(--step-2);
-    line-height: 1;
-  }
-  p { color: #e6dccb; }
-  ul {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    display: grid;
-    gap: var(--space-1);
-  }
-  a {
-    display: inline-flex;
-    align-items: center;
-    min-height: 2.75rem;
-    color: var(--color-paper);
-  }
-  :global(.site-footer :focus-visible) { outline-color: #ffd866; }
-</style>

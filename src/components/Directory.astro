@@ -16,14 +16,14 @@ const series = [...dataset.series.values()]
   .sort((a, b) => b.races - a.races);
 ---
 
-<ul class="directory">
+<ul class="mb-4 grid grid-cols-[repeat(auto-fit,minmax(min(100%,18rem),1fr))] gap-6">
   {
     series.map(({ item, races }) => (
-      <li>
-        <h3 lang={htmlLang.cs}>{item.name}</h3>
-        {item.scope && <p class="scope">{item.scope[locale] ?? item.scope.cs}</p>}
+      <li class="border-t-4 border-ink pt-4">
+        <h3 class="mb-1 text-[1.75rem]" lang={htmlLang.cs}>{item.name}</h3>
+        {item.scope && <p class="eyebrow">{item.scope[locale] ?? item.scope.cs}</p>}
         {item.description && <p>{item.description[locale] ?? item.description.cs}</p>}
-        <p class="links">
+        <p class="flex flex-wrap gap-x-4 [&>a]:inline-flex [&>a]:min-h-11 [&>a]:items-center [&>a]:font-semibold">
           <a href={`${sectionPath('calendar', locale).replace('#', `?series=${item.id}#`)}`}>
             {races} {t('dir.races')}
           </a>
@@ -34,20 +34,4 @@ const series = [...dataset.series.values()]
     ))
   }
 </ul>
-<p class="muted">{t('dir.editorial')}</p>
-
-<style>
-  .directory {
-    display: grid;
-    gap: var(--space-4);
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
-    margin: 0 0 var(--space-3);
-    padding: 0;
-    list-style: none;
-  }
-  li { padding-top: var(--space-3); border-top: var(--pixel) solid var(--color-ink); }
-  h3 { font-size: 1.75rem; margin-bottom: var(--space-1); }
-  .scope { font-size: var(--step--1); font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-ink-soft); }
-  .links { display: flex; flex-wrap: wrap; gap: 0 var(--space-3); }
-  .links a { display: inline-flex; align-items: center; min-height: 2.75rem; font-weight: 600; }
-</style>
+<p class="text-ink-soft">{t('dir.editorial')}</p>
