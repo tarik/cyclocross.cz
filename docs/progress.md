@@ -7,9 +7,9 @@ Read this after `SPEC.md`. Update it in every PR.
 | PR | Deliverable | Status |
 | --- | --- | --- |
 | 1 | Astro foundation, bilingual routes, schemas, CI, Playwright, deployment template | Merged |
-| 2 | Calendar, event pages, directory, feeds, contribution forms, researched season data | In review |
-| 3 | Typography, tokens, wordmark and cyclist proposals | Not started (font survey done, see decisions) |
-| 4 | Eight-direction riding study, track geometry, background, soil transition | Not started |
+| 2 | Calendar, event pages, directory, feeds, contribution forms, researched season data | Merged (plus GitHub Pages preview) |
+| 3 | Typography, tokens, wordmark and cyclist proposals | Merged. Cyclists approved; fonts and wordmark still to be chosen by the owner |
+| 4 | Eight-direction riding study, track geometry, background, soil transition | Part 1 in review: riding cycle and route proposal (`/review/riding/`, `/review/route/`). Scenery and soil follow after route approval |
 | 5 | Supporting content, advertising placements, metadata | Not started |
 | 6 | Animation controller and action modules | Not started |
 | 7 | Full choreography, refined art, kits, responsive scenes | Not started |
@@ -30,7 +30,7 @@ Read this after `SPEC.md`. Update it in every PR.
 - Event pages in both languages, per-event `.ics` files and a season feed under `/ics/`.
 - Issue Forms for adding and correcting a race and reporting a site problem.
 - Styling is Tailwind 4.
-- Art track PR 3 (in review): art pipeline in `art/`, review pages `/review/typography/` and `/review/art/`. Waiting for the owner to pick fonts, a wordmark direction and to approve the cyclist direction.
+- Art pipeline in `art/` (posable rider model, palette-swap kits, `npm run art`). Review pages: `/review/typography/`, `/review/art/`, `/review/riding/`, `/review/route/`. Course data in `src/hero/scene.ts`.
 - GitHub Pages preview workflow (runs on pushes to `main`; the owner must set Settings > Pages > Source to GitHub Actions once).
 - After the owner's screenshot review: collapsed filter, button-style actions, two-column details, sticky header, slim turf footer. See `docs/decisions.md`.
 

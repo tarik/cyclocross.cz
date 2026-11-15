@@ -1,0 +1,106 @@
+---
+/**
+ * The eight-direction riding study (SPEC.md 5.3 and 5.7): every direction as a
+ * looping pedalling cycle, plus the full sheet. Frames come from `art/build.mjs`.
+ */
+import { withBase } from '../../i18n/routes.ts';
+import sheets from '../../../public/art/sheets.json';
+
+const names: Record<string, string> = {
+  N: 'North, away from the viewer', NE: 'North-east', E: 'East', SE: 'South-east',
+  S: 'South, towards the viewer', SW: 'South-west', W: 'West', NW: 'North-west',
+};
+const compass = ['NW', 'N', 'NE', 'W', null, 'E', 'SW', 'S', 'SE'];
+const variants = [
+  { file: 'cycle-female-club.png', label: 'Rider A · Club kit' },
+  { file: 'cycle-male-national.png', label: 'Rider B · Czech colours' },
+] as const;
+const zoom = 3;
+---
+
+<div class="prose mb-6">
+  <p>
+    Every direction is drawn, none is mirrored. The same model is turned in steps of 45 degrees, so wheel centres, the ground
+    contact point and the rider's position on the bike stay fixed while the bike foreshortens.
+  </p>
+  <p>One crank turn is eight frames. Please look at proportions, the turn between neighbouring directions and the pedalling.</p>
+</div>
+
+<p class="mb-6">
+  <button type="button" class="pill" data-cycle-toggle aria-pressed="true">Pause the animation</button>
+</p>
+
+{variants.map((variant) => {
+  const sheet = sheets[variant.file];
+  const { cell } = sheet;
+  const rows = sheet.directions as string[];
+  return (
+    <figure class="mb-10">
+      <figcaption class="mb-2 font-semibold">{variant.label}</figcaption>
+      <div class="overflow-x-auto border-2 border-ink bg-sky-2 p-2">
+        <div class="mx-auto grid w-max grid-cols-3 gap-1">
+          {compass.map((direction) => direction === null ? (
+            <div class="flex items-center justify-center text-sm text-ink-soft">compass</div>
+          ) : (
+            <div>
+              <div
+                class="cycle"
+                role="img"
+                aria-label={`${variant.label}, riding ${names[direction]}`}
+                style={`width:${cell.width * zoom}px;height:${cell.height * zoom}px;background-image:url(${withBase(`/art/${variant.file}`)});background-size:${cell.width * sheet.columns * zoom}px ${cell.height * sheet.rows * zoom}px;background-position-y:-${rows.indexOf(direction) * cell.height * zoom}px;--travel:-${cell.width * sheet.columns * zoom}px`}
+              />
+              <p class="max-w-none pb-1 text-center text-sm">{direction}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </figure>
+  );
+})}
+
+<h2>Full sheet</h2>
+<p class="mb-4 text-ink-soft">Rows are directions (E, SE, S, SW, W, NW, N, NE), columns are the eight crank positions. Two screen pixels per art pixel.</p>
+<div class="overflow-x-auto border-2 border-ink bg-sky-2">
+  <img
+    src={withBase('/art/cycle-female-club.png')}
+    alt="Riding sheet: eight directions by eight crank positions"
+    width={sheets['cycle-female-club.png'].cell.width * 8 * 2}
+    height={sheets['cycle-female-club.png'].cell.height * 8 * 2}
+    class="max-w-none [image-rendering:pixelated]"
+    loading="lazy"
+  />
+</div>
+
+<style>
+  .cycle {
+    image-rendering: pixelated;
+    background-repeat: no-repeat;
+    animation: pedal 0.72s steps(8) infinite;
+  }
+  @keyframes pedal {
+    to { background-position-x: var(--travel); }
+  }
+  :global([data-cycles-paused]) .cycle { animation-play-state: paused; }
+  @media (prefers-reduced-motion: reduce) {
+    :global(html:not([data-cycles-play])) .cycle { animation-play-state: paused; }
+  }
+</style>
+
+<script>
+  const button = document.querySelector<HTMLButtonElement>('[data-cycle-toggle]');
+  if (button) {
+    const root = document.documentElement;
+    let playing = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const render = () => {
+      root.toggleAttribute('data-cycles-paused', !playing);
+      root.toggleAttribute('data-cycles-play', playing);
+      button.setAttribute('aria-pressed', String(playing));
+      button.textContent = playing ? 'Pause the animation' : 'Play the animation';
+    };
+    button.addEventListener('click', () => {
+      playing = !playing;
+      render();
+    });
+    render();
+  }
+</script>

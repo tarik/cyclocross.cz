@@ -8,8 +8,8 @@ import { palette } from '../../art/palettes.mjs';
 
 describe('art pipeline', () => {
   it('draws every direction inside the cell with a resolvable palette', () => {
-    for (const direction of Object.keys(DIRECTIONS)) {
-      const sprite = drawRider({ direction, body: 'female' });
+    for (const direction of Object.keys(DIRECTIONS)) for (const crank of [0, 45, 90, 135, 180, 225, 270, 315]) {
+      const sprite = drawRider({ direction, body: 'male', crank });
       const rgba = sprite.toRgba(palette('club', 'female'));
       const touchesEdge = sprite.material.some((material: string | null, i: number) => {
         const x = i % sprite.width;

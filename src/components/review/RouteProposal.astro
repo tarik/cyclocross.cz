@@ -1,0 +1,159 @@
+---
+/**
+ * Route drawing for the owner's track approval (SPEC.md 5.2 and 5.7): the
+ * course in the scene projection, with heights and the under and over
+ * crossing. It is drawn from `src/hero/scene.ts`, the data the animation
+ * will use.
+ */
+import { along, canvas, DECK, DECK_THICKNESS, pitchDegrees, project, route, structures, SUMMIT, type Point } from '../../hero/scene.ts';
+import { withBase } from '../../i18n/routes.ts';
+import sheets from '../../../public/art/sheets.json';
+
+const sheet = sheets['cycle-female-club.png'];
+const { cell } = sheet;
+const xy = (point: Point) => {
+  const { x, y } = project(point);
+  return `${x.toFixed(1)},${y.toFixed(1)}`;
+};
+const line = (points: Point[]) => points.map(xy).join(' ');
+const ground = (point: Point): Point => ({ ...point, h: 0 });
+const pt = (e: number, s: number, h = 0): Point => ({ e, s, h });
+
+const { bridge, hill, barriers, poseArea } = structures;
+const half = bridge.width / 2;
+const deck = [pt(bridge.west.e, bridge.west.s - half, DECK), pt(bridge.east.e, bridge.east.s - half, DECK), pt(bridge.east.e, bridge.east.s + half, DECK), pt(bridge.west.e, bridge.west.s + half, DECK)];
+const fascia = [deck[3], deck[2], { ...deck[2], h: DECK - DECK_THICKNESS }, { ...deck[3], h: DECK - DECK_THICKNESS }];
+const ramp = [pt(bridge.west.e, bridge.west.s - half, DECK), pt(bridge.west.e, bridge.west.s + half, DECK), pt(bridge.rampFoot.e, bridge.rampFoot.s + half, 0), pt(bridge.rampFoot.e, bridge.rampFoot.s - half, 0)];
+const rampSide = [pt(bridge.west.e, bridge.west.s + half, DECK), pt(bridge.rampFoot.e, bridge.rampFoot.s + half, 0), pt(bridge.west.e, bridge.west.s + half, 0)];
+const pillars = bridge.pillars;
+const hillShape = [pt(548, -34, 0), pt(606, -34, SUMMIT), pt(760, -34, SUMMIT), pt(760, 96, 0), pt(520, 96, 0), pt(500, 80 + half, DECK - DECK_THICKNESS), pt(500, 80 - half, DECK), pt(600, 44, 96), pt(640, 22, SUMMIT), pt(700, 22, SUMMIT), pt(700, -34, SUMMIT)];
+const steps = Array.from({ length: hill.steps + 1 }, (_, i) => {
+  const t = i / hill.steps;
+  return pt(hill.stairsFoot.e + (hill.stairsTop.e - hill.stairsFoot.e) * t, hill.stairsFoot.s + (hill.stairsTop.s - hill.stairsFoot.s) * t, SUMMIT * t);
+});
+
+const rows = sheet.directions as string[];
+const markers = route.map((segment, index) => {
+  const point = along(segment.path, segment.marker);
+  const screen = project(point);
+  return { segment, number: index + 1, point, screen, row: rows.indexOf(segment.facing) };
+});
+// Riders on the ground behind the bridge are drawn before it, everything else after.
+const behind = markers.filter((m) => m.point.h === 0 && m.point.s < bridge.west.s - half);
+const front = markers.filter((m) => !behind.includes(m)).sort((a, b) => a.point.s - b.point.s);
+const elevated = route.filter((segment) => segment.path.some((point) => point.h > 0));
+const horizon = project(pt(0, -60, 0)).y;
+const sheetUrl = withBase('/art/cycle-female-club.png');
+---
+
+<div class="prose mb-8">
+  <p>
+    This is the course I propose for the desktop scene, drawn from the same data the animation will use. It is a route drawing,
+    not scenery: flat colours stand in for grass, track, bridge and hill. Riders are placed at the real size, two screen pixels
+    per art pixel on a 1440 px wide screen.
+  </p>
+  <p>
+    The camera is fixed and looks down by {pitchDegrees} degrees. The underside of the bridge deck is {DECK - DECK_THICKNESS} art pixels above the ground
+    and a mounted rider is 66 tall, so the rider passes underneath. The summit is at {SUMMIT}.
+  </p>
+</div>
+
+<div class="mb-4 overflow-x-auto border-2 border-ink">
+  <svg viewBox={`0 0 ${canvas.width} ${canvas.height}`} class="block w-full min-w-[720px]" role="img" aria-label="Course route drawing with numbered segments">
+    <rect width={canvas.width} height={canvas.height} fill="#d3e9ea" />
+    <rect y={horizon} width={canvas.width} height={canvas.height - horizon} fill="#8fae4a" />
+    <rect y={canvas.height - 22} width={canvas.width} height="22" fill="#7a5433" />
+
+    <!-- Hill and the descent ridge down to the bridge -->
+    <polygon points={line(hillShape)} fill="#6f8f36" stroke="#2a2520" stroke-width="1" />
+    <polygon points={line([pt(606, -34, SUMMIT), pt(760, -34, SUMMIT), pt(760, 22, SUMMIT), pt(640, 22, SUMMIT)])} fill="#a5c25e" />
+    <polyline points={line(steps)} fill="none" stroke="#e9e4d8" stroke-width="9" stroke-dasharray="2 2.6" />
+
+    <!-- Ground track -->
+    {route.filter((segment) => !elevated.includes(segment)).map((segment) => (
+      <polyline points={line(segment.path)} fill="none" stroke="#b08a5a" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" />
+    ))}
+    <circle cx={project(poseArea).x} cy={project(poseArea).y} r="16" fill="#c9a877" />
+    {barriers.map((barrier) => (
+      <rect x={project(barrier).x - 1.5} y={project(barrier).y - 12} width="3" height="14" fill="#fffdf8" stroke="#2a2520" stroke-width="1" />
+    ))}
+
+    {behind.map((m) => (
+      <svg x={m.screen.x - cell.anchor.x} y={m.screen.y - cell.anchor.y} width={cell.width} height={cell.height} viewBox={`${cell.width} ${m.row * cell.height} ${cell.width} ${cell.height}`}>
+        <image href={sheetUrl} width={cell.width * sheet.columns} height={cell.height * sheet.rows} style="image-rendering:pixelated" />
+      </svg>
+    ))}
+
+    <!-- Bridge: pillars, ramp, deck and fascia -->
+    {pillars.map((e) => (
+      <rect x={project(pt(e, bridge.west.s + half, 0)).x - 4} y={project(pt(e, bridge.west.s + half, DECK - DECK_THICKNESS)).y} width="8" height={project(pt(e, bridge.west.s + half, 0)).y - project(pt(e, bridge.west.s + half, DECK - DECK_THICKNESS)).y} fill="#8d887d" stroke="#2a2520" stroke-width="1" />
+    ))}
+    <polygon points={line(rampSide)} fill="#a39878" stroke="#2a2520" stroke-width="1" />
+    <polygon points={line(ramp)} fill="#c9a877" stroke="#2a2520" stroke-width="1" />
+    <polygon points={line(deck)} fill="#c9a877" stroke="#2a2520" stroke-width="1" />
+    <polygon points={line(fascia)} fill="#a39878" stroke="#2a2520" stroke-width="1" />
+
+    <!-- Elevated route with drop lines to the ground -->
+    {elevated.map((segment) => (
+      <>
+        <polyline points={line(segment.path)} fill="none" stroke="#a63d14" stroke-width="1.5" stroke-dasharray="5 3" />
+        {segment.path.filter((point) => point.h > 0).map((point) => (
+          <line x1={project(point).x} y1={project(point).y} x2={project(ground(point)).x} y2={project(ground(point)).y} stroke="#2a2520" stroke-width="0.6" stroke-dasharray="2 2" />
+        ))}
+      </>
+    ))}
+
+    {front.map((m) => (
+      <svg x={m.screen.x - cell.anchor.x} y={m.screen.y - cell.anchor.y} width={cell.width} height={cell.height} viewBox={`${cell.width} ${m.row * cell.height} ${cell.width} ${cell.height}`}>
+        <image href={sheetUrl} width={cell.width * sheet.columns} height={cell.height * sheet.rows} style="image-rendering:pixelated" />
+      </svg>
+    ))}
+
+    {markers.map((m) => (
+      <g transform={`translate(${m.screen.x - 30} ${m.screen.y - 56})`}>
+        <circle r="7.5" fill="#2a2520" />
+        <text text-anchor="middle" y="3" font-size="9" font-weight="700" fill="#fffdf8" font-family="system-ui, sans-serif">{m.number}</text>
+      </g>
+    ))}
+  </svg>
+</div>
+<p class="mb-8 text-sm text-ink-soft">
+  Red dashes mark the route above the ground, thin dashed lines drop from it to the ground below. All riders show the riding pose
+  for now, including on the stairs, where the final sprite runs with the bike on the shoulder.
+</p>
+
+<h2>Segments</h2>
+<div class="mb-10 overflow-x-auto">
+  <table class="w-full min-w-[36rem] border-collapse text-left">
+    <thead>
+      <tr class="border-b-2 border-ink">
+        <th class="p-2">No.</th><th class="p-2">Segment</th><th class="p-2">Action</th><th class="p-2">Facing</th><th class="p-2">Height</th>
+      </tr>
+    </thead>
+    <tbody>
+      {route.map((segment, index) => {
+        const heights = segment.path.map((point) => point.h);
+        const from = heights[0];
+        const to = heights[heights.length - 1];
+        return (
+          <tr class="border-b border-line">
+            <td class="p-2 font-semibold">{index + 1}</td>
+            <td class="p-2">{segment.label}</td>
+            <td class="p-2">{segment.action}</td>
+            <td class="p-2">{segment.facing}</td>
+            <td class="p-2">{from === to ? from : `${from} to ${to}`}</td>
+          </tr>
+        );
+      })}
+    </tbody>
+  </table>
+</div>
+
+<h2>How it connects</h2>
+<ul class="prose">
+  <li>The rider enters from the left on the front lane, hops two barriers, then turns away from the viewer and passes under the bridge.</li>
+  <li>Behind the bridge the rider dismounts and runs up the stairs to the summit on the right.</li>
+  <li>From the summit the rider remounts, descends towards the viewer onto the east end of the bridge, and crosses it to the left, above the lane used earlier.</li>
+  <li>The ramp at the west end returns to the ground. A loop leads to the pose area at the front, and the exit runs off to the right.</li>
+  <li>Every segment starts where the previous one ends. A test fails if a gap appears.</li>
+</ul>

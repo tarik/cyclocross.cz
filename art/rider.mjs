@@ -148,7 +148,9 @@ export function drawRider({
         }
       };
       for (let i = 0; i < 6; i += 1) {
-        const a = (i / 6) * Math.PI * 2 + crank * 0.02;
+        // The wheel turns 15 degrees per 45 degrees of crank. With six spokes that
+        // reads as steady forward rolling and loops cleanly over a crank turn.
+        const a = (i / 6) * Math.PI * 2 - ((crank / 3) * Math.PI) / 180;
         sprite.capsule(project(hub), project(P(hub.x + Math.cos(a) * 8, hub.y + Math.sin(a) * 8)), 0.3, 0.3, 'spoke', id, thin);
       }
       ring(7.9, 0.45, 'rim');

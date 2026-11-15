@@ -2,6 +2,14 @@
 
 Newest first. Each entry says what was decided, by whom and why. Owner decisions are binding; agent decisions are defaults that the owner can overturn.
 
+## 2026-11-15, riding study and route PR
+
+- **Owner: cyclist direction approved** by merging the proposals PR. Fonts and the wordmark are still open.
+- **Agent: the riding cycle is eight frames per crank turn in all eight directions**, none mirrored. Sheets are `public/art/cycle-{rider}-{kit}.png`, rows in the order of `DIRECTIONS`, columns are crank positions. The wheels turn 15 degrees per frame, which loops cleanly with six spokes.
+- **Agent: the desktop scene is 720 by 300 art pixels at two screen pixels each.** A mounted rider is 66 units tall, so riders are large in the scene. The alternative, a smaller sprite, loses the detail the owner approved.
+- **Agent: the course is data in `src/hero/scene.ts`**: one projection (18 degree pitch, shared with the sprites), structures and twelve route segments. Tests fail if segments do not connect, if the bridge underside does not clear a mounted rider, or if the route leaves the ground outside the stairs, hill, bridge and ramp.
+- **Agent: proposed route.** Enter left on the front lane, two barriers, turn away and pass under the bridge, dismount behind it, stairs up the hill on the right, remount, descend towards the viewer onto the east end of the bridge, cross it to the left, ramp down, loop to the pose area at the front, exit right. Awaiting the owner's approval before any scenery is drawn.
+
 ## 2026-11-13, art proposals PR
 
 - **Agent: sprites are drawn from a posable model, not frame by frame.** `art/rider.mjs` describes bicycle and rider in model units; `art/lib/raster.mjs` projects it for a facing direction and rasterises it with a depth buffer, a three-step shade and an outside-only outline. One model gives every direction the same proportions, wheel centres and ground anchor (SPEC.md 5.3). Hand-finished pixels can be layered on after the direction is approved.
