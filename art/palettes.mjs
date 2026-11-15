@@ -20,7 +20,6 @@ const COMMON = {
   chain: ramp('#6f6b63', '#6f6b63', '#55514b', '#55514b'),
   shoe: ramp('#f4efe4', '#d9d2c2', '#aba392', '#8a8375'),
   lens: ramp('#5fa3b5', '#2f6f85', '#234f60', '#1a3a47'),
-  glove: ramp('#4a4440', '#2f2a27', '#231d1a', '#231d1a'),
 };
 
 export const KITS = {
@@ -32,6 +31,7 @@ export const KITS = {
     armBand: ramp('#fbf4e2', '#ece1c6', '#c9bd9f', '#a39878'),
     cuff: ramp('#933c15', '#7a3111', '#5e260d', '#4a1e0a'),
     shorts: ramp('#3b4046', '#2b2f34', '#202327', '#18191c'),
+    glove: ramp('#4a4440', '#2f2a27', '#231d1a', '#231d1a'),
     sock: ramp('#fbf4e2', '#ece1c6', '#c9bd9f', '#a39878'),
     helmet: ramp('#ffffff', '#f3f2ee', '#cfcec8', '#a9a8a2'),
     vent: ramp('#d3d2cc', '#d3d2cc', '#bdbcb6', '#bdbcb6'),
@@ -47,6 +47,7 @@ export const KITS = {
     bandC: ramp('#3566b8', '#1f4a97', '#173874', '#112a57'),
     bandD: ramp('#8cc6ea', '#62a9d6', '#4686b0', '#35678a'),
     shorts: ramp('#2c4a85', '#1d3566', '#16284e', '#101d3a'),
+    glove: ramp('#ffffff', '#f1f0eb', '#cbcac4', '#a4a39d'),
     sock: ramp('#ffffff', '#f1f0eb', '#cbcac4', '#a4a39d'),
     helmet: ramp('#ffffff', '#f3f2ee', '#cfcec8', '#a9a8a2'),
     vent: ramp('#d3d2cc', '#d3d2cc', '#bdbcb6', '#bdbcb6'),
@@ -56,12 +57,6 @@ export const KITS = {
   },
 };
 
-/** Glove options, shown side by side for the owner's choice. */
-export const GLOVES = {
-  dark: COMMON.glove,
-  white: ramp('#ffffff', '#f1f0eb', '#cbcac4', '#a4a39d'),
-};
-
-export function palette(kit, body, { gloves = 'dark' } = {}) {
-  return { ...KITS[kit], ...SKIN[body], glove: GLOVES[gloves] };
+export function palette(kit, body) {
+  return { ...KITS[kit], ...SKIN[body] };
 }

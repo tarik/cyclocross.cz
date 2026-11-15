@@ -13,20 +13,6 @@
     },
     "frames": 4
   },
-  "ride-female-club-white-gloves.png": {
-    "cell": {
-      "width": 76,
-      "height": 78
-    },
-    "frames": 4
-  },
-  "stand-female-club-white-gloves.png": {
-    "cell": {
-      "width": 36,
-      "height": 84
-    },
-    "frames": 4
-  },
   "ride-female-national.png": {
     "cell": {
       "width": 76,
@@ -35,20 +21,6 @@
     "frames": 4
   },
   "stand-female-national.png": {
-    "cell": {
-      "width": 36,
-      "height": 84
-    },
-    "frames": 4
-  },
-  "ride-female-national-white-gloves.png": {
-    "cell": {
-      "width": 76,
-      "height": 78
-    },
-    "frames": 4
-  },
-  "stand-female-national-white-gloves.png": {
     "cell": {
       "width": 36,
       "height": 84
@@ -69,20 +41,6 @@
     },
     "frames": 4
   },
-  "ride-male-club-white-gloves.png": {
-    "cell": {
-      "width": 76,
-      "height": 78
-    },
-    "frames": 4
-  },
-  "stand-male-club-white-gloves.png": {
-    "cell": {
-      "width": 36,
-      "height": 84
-    },
-    "frames": 4
-  },
   "ride-male-national.png": {
     "cell": {
       "width": 76,
@@ -91,20 +49,6 @@
     "frames": 4
   },
   "stand-male-national.png": {
-    "cell": {
-      "width": 36,
-      "height": 84
-    },
-    "frames": 4
-  },
-  "ride-male-national-white-gloves.png": {
-    "cell": {
-      "width": 76,
-      "height": 78
-    },
-    "frames": 4
-  },
-  "stand-male-national-white-gloves.png": {
     "cell": {
       "width": 36,
       "height": 84
