@@ -2,10 +2,10 @@
   "ride-female-club.png": {
     "cell": {
       "width": 76,
-      "height": 78,
+      "height": 88,
       "anchor": {
         "x": 38,
-        "y": 69
+        "y": 71
       }
     },
     "frames": 4,
@@ -28,10 +28,10 @@
   "ride-female-national.png": {
     "cell": {
       "width": 76,
-      "height": 78,
+      "height": 88,
       "anchor": {
         "x": 38,
-        "y": 69
+        "y": 71
       }
     },
     "frames": 4,
@@ -54,10 +54,10 @@
   "ride-male-club.png": {
     "cell": {
       "width": 76,
-      "height": 78,
+      "height": 88,
       "anchor": {
         "x": 38,
-        "y": 69
+        "y": 71
       }
     },
     "frames": 4,
@@ -80,10 +80,10 @@
   "ride-male-national.png": {
     "cell": {
       "width": 76,
-      "height": 78,
+      "height": 88,
       "anchor": {
         "x": 38,
-        "y": 69
+        "y": 71
       }
     },
     "frames": 4,
@@ -106,10 +106,10 @@
   "cycle-female-club.png": {
     "cell": {
       "width": 76,
-      "height": 78,
+      "height": 88,
       "anchor": {
         "x": 38,
-        "y": 69
+        "y": 71
       }
     },
     "frames": 64,
@@ -129,10 +129,10 @@
   "cycle-female-national.png": {
     "cell": {
       "width": 76,
-      "height": 78,
+      "height": 88,
       "anchor": {
         "x": 38,
-        "y": 69
+        "y": 71
       }
     },
     "frames": 64,
@@ -152,10 +152,10 @@
   "cycle-male-club.png": {
     "cell": {
       "width": 76,
-      "height": 78,
+      "height": 88,
       "anchor": {
         "x": 38,
-        "y": 69
+        "y": 71
       }
     },
     "frames": 64,
@@ -175,10 +175,10 @@
   "cycle-male-national.png": {
     "cell": {
       "width": 76,
-      "height": 78,
+      "height": 88,
       "anchor": {
         "x": 38,
-        "y": 69
+        "y": 71
       }
     },
     "frames": 64,
@@ -198,10 +198,10 @@
   "parts-club.png": {
     "cell": {
       "width": 76,
-      "height": 78,
+      "height": 88,
       "anchor": {
         "x": 38,
-        "y": 69
+        "y": 71
       }
     },
     "frames": 6,
@@ -220,10 +220,10 @@
   "parts-national.png": {
     "cell": {
       "width": 76,
-      "height": 78,
+      "height": 88,
       "anchor": {
         "x": 38,
-        "y": 69
+        "y": 71
       }
     },
     "frames": 6,

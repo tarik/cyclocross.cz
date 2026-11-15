@@ -25,13 +25,13 @@ export interface Segment {
 }
 
 /** Design canvas of the desktop scene, in art pixels. Shown at two screen pixels per art pixel. */
-export const canvas = { width: 720, height: 300 } as const;
+export const canvas = { width: 720, height: 320 } as const;
 
 /** The camera looks down by this angle; the same value is used to draw the sprites. */
-export const pitchDegrees = 18;
+export const pitchDegrees = 28;
 const pitch = (pitchDegrees * Math.PI) / 180;
 /** Screen position of the ground origin (e = 0, s = 0, h = 0). */
-const origin = { x: 0, y: 188 };
+const origin = { x: 0, y: 150 };
 
 export function project(point: Point): { x: number; y: number } {
   return {
@@ -44,33 +44,47 @@ const p = (e: number, s: number, h = 0): Point => ({ e, s, h });
 
 /** A mounted rider is this tall in ground units, helmet included. */
 export const RIDER_HEIGHT = 66;
-export const DECK = 84; // top of the bridge deck
+export const DECK = 84; // top of the flyover
 export const DECK_THICKNESS = 8; // the underside must clear a mounted rider
 export const SUMMIT = 112;
 
 export const structures = {
-  /** The flyover: a level deck with a ramp down at its west end. */
-  bridge: { west: p(250, 80, DECK), east: p(500, 80, DECK), width: 26, rampFoot: p(100, 92, 0), pillars: [256, 330, 440, 494] },
-  /** The hill on the right, reached by stairs and left by a descent onto the deck. */
-  hill: { summit: p(655, -6, SUMMIT), stairsFoot: p(560, 44, 0), stairsTop: p(632, -8, SUMMIT), steps: 14 },
-  barriers: [p(112, 150, 0), p(222, 150, 0)],
-  poseArea: p(300, 176, 0),
+  /**
+   * The flyover: a steep ramp up, a flat top and a steep ramp down, ridden
+   * towards the north-west. Two lanes pass under the flat top: the entry
+   * lane (south) and the way out (north).
+   */
+  flyover: { footIn: p(453, 203, 0), topIn: p(400, 150, DECK), topOut: p(341, 91, DECK), footOut: p(288, 38, 0), width: 26 },
+  /** The hill on the right: stairs up its north-east face, a steep drop down the south-east face. */
+  hill: { stairsFoot: p(500, 140, 0), stairsTop: p(570, 70, SUMMIT), dropTop: p(592, 72, SUMMIT), dropFoot: p(667, 147, 0), steps: 14 },
+  barriers: [p(112, 140, 0), p(222, 140, 0)],
+  poseArea: p(130, 104, 0),
 };
 
 export const route: Segment[] = [
-  { id: 'entry', label: 'Entry', action: 'ride', facing: 'E', marker: 0.85, path: [p(-40, 150), p(60, 150)] },
-  { id: 'barriers', label: 'Barriers', action: 'hop', facing: 'E', marker: 0.62, path: [p(60, 150), p(262, 150)] },
-  { id: 'underpass', label: 'Underpass', action: 'ride', facing: 'NE', marker: 0.8, path: [p(262, 150), p(336, 140), p(380, 104), p(396, 52), p(430, 34)] },
-  { id: 'dismount', label: 'Dismount', action: 'dismount', facing: 'E', marker: 0.8, path: [p(430, 34), p(560, 44)] },
-  { id: 'stairs', label: 'Stairs', action: 'run', facing: 'NE', marker: 0.5, path: [p(560, 44), p(632, -8, SUMMIT)] },
-  { id: 'summit', label: 'Summit', action: 'remount', facing: 'S', marker: 0.6, path: [p(632, -8, SUMMIT), p(655, -6, SUMMIT), p(662, 8, SUMMIT)] },
-  { id: 'descent', label: 'Descent', action: 'ride', facing: 'SW', marker: 0.5, path: [p(662, 8, SUMMIT), p(600, 58, 96), p(500, 80, DECK)] },
-  { id: 'bridge', label: 'Bridge', action: 'ride', facing: 'W', marker: 0.45, path: [p(500, 80, DECK), p(250, 80, DECK)] },
-  { id: 'ramp', label: 'Ramp', action: 'ride', facing: 'W', marker: 0.5, path: [p(250, 80, DECK), p(100, 92, 0)] },
-  { id: 'turn', label: 'To the pose area', action: 'ride', facing: 'SE', marker: 0.2, path: [p(100, 92), p(70, 120), p(96, 162), p(300, 176)] },
-  { id: 'pose', label: 'Pose and idle', action: 'pose', facing: 'S', marker: 0, path: [p(300, 176), p(300, 176)] },
-  { id: 'exit', label: 'Exit', action: 'ride', facing: 'E', marker: 0.75, path: [p(300, 176), p(760, 176)] },
+  { id: 'entry', label: 'Entry', action: 'ride', facing: 'E', marker: 0.85, path: [p(-40, 140), p(60, 140)] },
+  { id: 'barriers', label: 'Barriers', action: 'hop', facing: 'E', marker: 0.85, path: [p(60, 140), p(262, 140)] },
+  { id: 'underpass', label: 'Under the flyover', action: 'ride', facing: 'E', marker: 0.45, path: [p(262, 140), p(420, 140)] },
+  { id: 'dismount', label: 'Dismount', action: 'dismount', facing: 'E', marker: 0.6, path: [p(420, 140), p(500, 140)] },
+  { id: 'stairs', label: 'Stairs', action: 'run', facing: 'NE', marker: 0.5, path: [p(500, 140), p(570, 70, SUMMIT)] },
+  { id: 'summit', label: 'Summit', action: 'remount', facing: 'SE', marker: 0.5, path: [p(570, 70, SUMMIT), p(592, 72, SUMMIT)] },
+  { id: 'downhill', label: 'Steep downhill', action: 'ride', facing: 'SE', marker: 0.55, path: [p(592, 72, SUMMIT), p(667, 147, 0)] },
+  { id: 'return', label: 'Back to the flyover', action: 'ride', facing: 'W', marker: 0.72, path: [p(667, 147), p(692, 172), p(676, 198), p(620, 203), p(453, 203)] },
+  { id: 'flyover-up', label: 'Flyover, steep up', action: 'ride', facing: 'NW', marker: 0.5, path: [p(453, 203), p(400, 150, DECK)] },
+  { id: 'flyover-top', label: 'Flyover, flat top', action: 'ride', facing: 'NW', marker: 0.5, path: [p(400, 150, DECK), p(341, 91, DECK)] },
+  { id: 'flyover-down', label: 'Flyover, steep down', action: 'ride', facing: 'NW', marker: 0.6, path: [p(341, 91, DECK), p(288, 38, 0)] },
+  { id: 'loop', label: 'Round the end of the flyover', action: 'ride', facing: 'E', marker: 0.25, path: [p(288, 38), p(272, 22), p(290, 6), p(340, 10), p(396, 50), p(420, 90), p(404, 104)] },
+  { id: 'under-return', label: 'Under the flyover again', action: 'ride', facing: 'W', marker: 0.32, path: [p(404, 104), p(250, 104)] },
+  { id: 'to-pose', label: 'To the pose area', action: 'ride', facing: 'W', marker: 0.6, path: [p(250, 104), p(130, 104)] },
+  { id: 'pose', label: 'Pose and idle', action: 'pose', facing: 'S', marker: 0, path: [p(130, 104), p(130, 104)] },
+  { id: 'exit', label: 'Exit', action: 'ride', facing: 'W', marker: 0.6, path: [p(130, 104), p(-60, 104)] },
 ];
+
+/** The two lanes that pass under the flat top of the flyover. */
+export const underpasses = ['underpass', 'under-return'];
+
+/** Segments that are allowed to leave the ground. */
+export const elevatedSegments = ['stairs', 'summit', 'downhill', 'flyover-up', 'flyover-top', 'flyover-down'];
 
 /** A point part of the way along a polyline, by length. */
 export function along(path: Point[], t: number): Point {

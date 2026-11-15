@@ -6,9 +6,11 @@ Newest first. Each entry says what was decided, by whom and why. Owner decisions
 
 - **Owner: cyclist direction approved** by merging the proposals PR. Fonts and the wordmark are still open.
 - **Agent: the riding cycle is eight frames per crank turn in all eight directions**, none mirrored. Sheets are `public/art/cycle-{rider}-{kit}.png`, rows in the order of `DIRECTIONS`, columns are crank positions. The wheels turn 15 degrees per frame, which loops cleanly with six spokes.
-- **Agent: the desktop scene is 720 by 300 art pixels at two screen pixels each.** A mounted rider is 66 units tall, so riders are large in the scene. The alternative, a smaller sprite, loses the detail the owner approved.
-- **Agent: the course is data in `src/hero/scene.ts`**: one projection (18 degree pitch, shared with the sprites), structures and twelve route segments. Tests fail if segments do not connect, if the bridge underside does not clear a mounted rider, or if the route leaves the ground outside the stairs, hill, bridge and ramp.
-- **Agent: proposed route.** Enter left on the front lane, two barriers, turn away and pass under the bridge, dismount behind it, stairs up the hill on the right, remount, descend towards the viewer onto the east end of the bridge, cross it to the left, ramp down, loop to the pose area at the front, exit right. Awaiting the owner's approval before any scenery is drawn.
+- **Agent: the desktop scene is 720 by 320 art pixels at two screen pixels each.** A mounted rider is 66 units tall, so riders are large in the scene. The alternative, a smaller sprite, loses the detail the owner approved.
+- **Agent: the course is data in `src/hero/scene.ts`**: one projection (28 degree pitch, shared with the sprites and checked by a test), structures and sixteen route segments. Tests fail if segments do not connect, if the underside of the flyover's flat top does not clear a mounted rider on either lane, or if the route leaves the ground outside the stairs, hill and flyover.
+- **Owner: route.** Enter left, two barriers, pass under the flyover, dismount, stairs up the hill heading north-east, remount, steep downhill heading south-east, back along the front, over the flyover heading north-west (steep up, short flat top, steep down), round its far end, under the flyover again, then stop and pose on the left before leaving the screen to the left. The flyover replaces the earlier long bridge. The revised drawing awaits the owner's approval before any scenery is drawn.
+- **Owner: the route drawing is not the graphics.** It is a flat-colour diagram; grass, track, flyover and hill will be pixel art in the riders' style.
+- **Agent: the camera pitch is raised from 18 to 28 degrees.** At 18 degrees the two lanes under the flyover were 8 screen pixels apart and the diagonal headings looked almost side-on. The approved riders are redrawn at the new angle (rider cell 76 by 88, anchor 38, 71); the owner is asked to confirm they still look right.
 
 ## 2026-11-13, art proposals PR
 
@@ -22,7 +24,7 @@ Newest first. Each entry says what was decided, by whom and why. Owner decisions
 - **Owner (2026-11-15): gloves are white with the Czech kit and black with the club kit.**
 - **Agent: jersey designs are functions** (`DESIGNS` in `art/rider.mjs`) of the position along and around a body part, so stripes stay vertical on the body in every direction. Components can be drawn alone through `parts`, and `stance: 'stand'` gives the off-bike figure.
 - **Agent: kits are palette swaps** (`art/palettes.mjs`). Materials are named ramps, a kit replaces jersey, helmet and frame ramps.
-- **Agent: the camera pitch is 18 degrees** for the proposals. To be confirmed with the track study.
+- **Agent: the camera pitch is 18 degrees** for the proposals. Superseded by 28 degrees in the route PR.
 - **Agent: generated sheets are committed in `public/art/`** because the site serves them. A unit test regenerates them and fails if they differ from the source.
 - **Agent: review pages live under `/review/`** and are not built for production. They are also left out of the sitemap.
 - **Agent: Czech race photographs are not yet on the reference board.** Wikimedia Commons could not be reached from the build environment and no link was guessed. See `docs/art-references.md`.

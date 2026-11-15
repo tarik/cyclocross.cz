@@ -3,13 +3,18 @@ import { mkdtempSync, readdirSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { DIRECTIONS, drawRider } from '../../art/rider.mjs';
+import { DIRECTIONS, drawRider, PITCH_DEGREES } from '../../art/rider.mjs';
+import { pitchDegrees } from '../../src/hero/scene.ts';
 import { palette } from '../../art/palettes.mjs';
 
 describe('art pipeline', () => {
+  it('draws sprites with the camera pitch of the scene', () => {
+    expect(PITCH_DEGREES).toBe(pitchDegrees);
+  });
+
   it('draws every direction inside the cell with a resolvable palette', () => {
     for (const direction of Object.keys(DIRECTIONS)) for (const crank of [0, 45, 90, 135, 180, 225, 270, 315]) {
-      const sprite = drawRider({ direction, body: 'male', crank });
+      const sprite = drawRider({ direction, body: 'male', crank, width: 76, height: 88, anchor: { x: 38, y: 71 } });
       const rgba = sprite.toRgba(palette('club', 'female'));
       const touchesEdge = sprite.material.some((material: string | null, i: number) => {
         const x = i % sprite.width;

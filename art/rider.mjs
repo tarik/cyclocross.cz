@@ -10,7 +10,9 @@ import { Sprite } from './lib/raster.mjs';
 export const DIRECTIONS = { E: 0, SE: 45, S: 90, SW: 135, W: 180, NW: 225, N: 270, NE: 315 };
 export const PARTS = ['bike', 'legs', 'torso', 'arms', 'head'];
 
-const PITCH = (18 * Math.PI) / 180; // the camera looks slightly down
+/** The camera looks down by this angle. `src/hero/scene.ts` must use the same value. */
+export const PITCH_DEGREES = 28;
+const PITCH = (PITCH_DEGREES * Math.PI) / 180;
 
 /** Solves a two-bone joint in the X/Y plane; `bend` picks the side (+1 forward). */
 function joint(a, b, la, lb, bend) {

@@ -28,7 +28,7 @@ function sheet(name, cell, frames, extra = {}) {
   meta[name] = { cell: { width: cell.width, height: cell.height, anchor: cell.anchor }, frames: frames.length, columns, rows, ...extra };
 }
 
-const RIDE = { width: 76, height: 78, anchor: { x: 38, y: 69 } };
+const RIDE = { width: 76, height: 88, anchor: { x: 38, y: 71 } };
 const STAND = { width: 36, height: 84, anchor: { x: 18, y: 78 } };
 const BODY_ONLY = ['legs', 'torso', 'arms', 'head'];
 
