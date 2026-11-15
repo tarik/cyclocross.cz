@@ -65,7 +65,7 @@
   "head-club.png": {
     "cell": {
       "width": 44,
-      "height": 38
+      "height": 40
     },
     "frames": 8
   },
@@ -79,7 +79,7 @@
   "head-national.png": {
     "cell": {
       "width": 44,
-      "height": 38
+      "height": 40
     },
     "frames": 8
   }

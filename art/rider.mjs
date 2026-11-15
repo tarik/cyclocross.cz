@@ -32,7 +32,9 @@ export const BODIES = {
 
 /**
  * Jersey designs. Each returns a material for a point on the torso or an arm.
- * `lateral` runs from -1 (rider's left) to 1 (rider's right) around the body.
+ * `t` runs from the hem (0) to the shoulders (1) on the torso and from the
+ * shoulder (0) down each arm bone. `lateral` runs from -1 (rider's left) to 1
+ * (rider's right) around the body, for designs with vertical panels.
  */
 export const DESIGNS = {
   // One colour, long sleeves, a single band on the right upper arm.
@@ -41,10 +43,11 @@ export const DESIGNS = {
     upperArm: (t, side) => (side === 1 && t > 0.42 && t < 0.72 ? 'armBand' : 'jersey'),
     forearm: (t) => (t > 0.88 ? 'cuff' : 'jersey'),
   },
-  // Four vertical panels from collar to hem, short sleeves.
+  // Four horizontal bands, white at the shoulders, then red, blue and light
+  // blue down to the hem. Short white sleeves.
   national: {
-    torso: (t, lateral) => (lateral > 0.5 ? 'panelA' : lateral > 0 ? 'panelB' : lateral > -0.5 ? 'panelC' : 'panelD'),
-    upperArm: (t, side) => (t > 0.74 ? 'skin' : side === 1 ? 'panelA' : 'panelD'),
+    torso: (t) => (t > 0.7 ? 'bandA' : t > 0.52 ? 'bandB' : t > 0.34 ? 'bandC' : 'bandD'),
+    upperArm: (t) => (t > 0.74 ? 'skin' : 'bandA'),
     forearm: () => 'skin',
   },
 };
@@ -225,26 +228,29 @@ export function drawRider({
   if (show('head')) {
     const lean = stance === 'stand' ? 0 : 1; // the riding head sits forward of the chest
     tube(P(chest.x + 0.6 * lean, chest.y + 0.8), P(head.x - 0.6 * lean, head.y - 1.2), 1.5, 1.35, 'skin', { part: 799 });
-    tube(P(head.x, head.y - 1.0), P(head.x, head.y + 0.8), 2.8, 2.9, 'skin', { part: 800 }); // a face longer than it is wide
+    // A face longer than it is wide, with a small nose.
+    tube(P(head.x, head.y - 1.9), P(head.x, head.y + 0.7), 2.4, 2.7, 'skin', { part: 800 });
+    ball(P(head.x + 2.65, head.y - 1.2), 0.6, 'skin', { part: 800 });
     if (build.ponytail) {
       tube(P(head.x - 2.8, head.y + 0.4), P(head.x - 6.2, head.y - 3.8), 1.4, 0.8, 'hair', { part: 801 });
     } else {
-      tube(P(head.x - 2.0, head.y - 0.4, -1.8), P(head.x - 2.0, head.y - 0.4, 1.8), 1.5, 1.5, 'hair', { part: 800 });
+      tube(P(head.x - 2.0, head.y - 0.6, -1.8), P(head.x - 2.0, head.y - 0.6, 1.8), 1.5, 1.5, 'hair', { part: 800 });
     }
-    // Helmet: a low shell built from ribs that follow the skull, longer than
-    // it is tall, with dark vents between the ribs.
-    const arc = [P(-2.9, 1.6), P(-2.2, 3.0), P(-0.4, 3.7), P(1.5, 3.4), P(2.6, 2.6)];
-    for (const z of [-2.0, -0.7, 0.7, 2.0]) {
-      const drop = Math.abs(z) > 1 ? 0.55 : 0; // the outer ribs sit lower, so the top is rounded
-      for (let i = 0; i < arc.length - 1; i += 1) {
-        tube(P(head.x + arc[i].x, head.y + arc[i].y - drop, z), P(head.x + arc[i + 1].x, head.y + arc[i + 1].y - drop, z), 1.1, 1.1, 'helmet', { part: 802 });
+    // Helmet: a smooth aero shell. The profile is low and rounded at the
+    // front, long and nearly flat on top, and ends in a blunt tail.
+    const profile = [P(3.0, 2.0), P(2.2, 3.1), P(0.4, 3.7), P(-2.0, 3.5), P(-3.5, 2.7), P(-3.3, 1.7)];
+    for (const z of [-2.0, -1.0, 0, 1.0, 2.0]) {
+      const drop = Math.abs(z) > 1.5 ? 0.7 : Math.abs(z) > 0.5 ? 0.2 : 0; // rounded across the top
+      for (let i = 0; i < profile.length - 1; i += 1) {
+        tube(P(head.x + profile[i].x, head.y + profile[i].y - drop, z), P(head.x + profile[i + 1].x, head.y + profile[i + 1].y - drop, z), 0.9, 0.9, 'helmet', { part: 802 });
       }
     }
-    for (const z of [-1.35, 0, 1.35]) {
-      tube(P(head.x - 1.4, head.y + 4.4, z), P(head.x + 1.2, head.y + 4.2, z), 0.36, 0.36, 'vent', { part: 802, flat: true });
+    // Two intake slots low on each side near the front.
+    for (const side of [-1, 1]) {
+      tube(P(head.x + 0.8, head.y + 2.2, side * 2.75), P(head.x + 2.1, head.y + 1.9, side * 2.65), 0.36, 0.36, 'vent', { part: 802, flat: true });
     }
     // Glasses across the face.
-    tube(P(head.x + 2.6, head.y + 0.5, -1.8), P(head.x + 2.6, head.y + 0.5, 1.8), 0.7, 0.7, 'black', { part: 803, flat: true });
+    tube(P(head.x + 2.3, head.y - 0.1, -1.6), P(head.x + 2.3, head.y - 0.1, 1.6), 0.6, 0.6, 'black', { part: 803, flat: true });
   }
 
   return sprite.finish();

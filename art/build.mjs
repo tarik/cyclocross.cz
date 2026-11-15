@@ -51,9 +51,9 @@ for (const kit of ['club', 'national']) {
     { body, kit, direction: 'E', parts: ['legs'] },
   ]);
   // Head and helmet at double scale, from four sides.
-  const HEAD = { width: 44, height: 38, scale: 2.6 };
+  const HEAD = { width: 44, height: 40, scale: 2.6 };
   sheet(`head-${kit}.png`, HEAD, ['E', 'SE', 'S', 'N'].flatMap((direction) =>
-    ['female', 'male'].map((who) => ({ body: who, kit, direction, stance: 'stand', parts: ['head'], anchor: { x: 22, y: 139 } }))));
+    ['female', 'male'].map((who) => ({ body: who, kit, direction, stance: 'stand', parts: ['head'], anchor: { x: 22, y: 141 } }))));
 }
 
 // Wordmark proposal: a small wheel that can sit beside the name.
