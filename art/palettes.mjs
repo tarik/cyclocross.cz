@@ -19,6 +19,7 @@ const COMMON = {
   metal: ramp('#d6d2c6', '#aaa69b', '#7f7b72', '#5f5c55'),
   chain: ramp('#6f6b63', '#6f6b63', '#55514b', '#55514b'),
   shoe: ramp('#f4efe4', '#d9d2c2', '#aba392', '#8a8375'),
+  lens: ramp('#5fa3b5', '#2f6f85', '#234f60', '#1a3a47'),
   glove: ramp('#4a4440', '#2f2a27', '#231d1a', '#231d1a'),
 };
 
@@ -33,7 +34,7 @@ export const KITS = {
     shorts: ramp('#3b4046', '#2b2f34', '#202327', '#18191c'),
     sock: ramp('#fbf4e2', '#ece1c6', '#c9bd9f', '#a39878'),
     helmet: ramp('#ffffff', '#f3f2ee', '#cfcec8', '#a9a8a2'),
-    vent: ramp('#8f8e88', '#8f8e88', '#8f8e88', '#8f8e88'),
+    vent: ramp('#d3d2cc', '#d3d2cc', '#bdbcb6', '#bdbcb6'),
     frame: ramp('#fbf8f0', '#e9e4d8', '#c4bfb2', '#a09b8f'),
     fork: ramp('#fbf8f0', '#e9e4d8', '#c4bfb2', '#a09b8f'),
   },
@@ -48,13 +49,19 @@ export const KITS = {
     shorts: ramp('#2c4a85', '#1d3566', '#16284e', '#101d3a'),
     sock: ramp('#ffffff', '#f1f0eb', '#cbcac4', '#a4a39d'),
     helmet: ramp('#ffffff', '#f3f2ee', '#cfcec8', '#a9a8a2'),
-    vent: ramp('#8f8e88', '#8f8e88', '#8f8e88', '#8f8e88'),
+    vent: ramp('#d3d2cc', '#d3d2cc', '#bdbcb6', '#bdbcb6'),
     // A deeper, wine red, so the frame does not match the jersey band.
     frame: ramp('#b5303b', '#981d2b', '#761622', '#58101a'),
     fork: ramp('#b5303b', '#981d2b', '#761622', '#58101a'),
   },
 };
 
-export function palette(kit, body) {
-  return { ...KITS[kit], ...SKIN[body] };
+/** Glove options, shown side by side for the owner's choice. */
+export const GLOVES = {
+  dark: COMMON.glove,
+  white: ramp('#ffffff', '#f1f0eb', '#cbcac4', '#a4a39d'),
+};
+
+export function palette(kit, body, { gloves = 'dark' } = {}) {
+  return { ...KITS[kit], ...SKIN[body], glove: GLOVES[gloves] };
 }

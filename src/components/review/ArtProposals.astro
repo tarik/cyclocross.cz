@@ -31,16 +31,34 @@ const headViews = ['Side', 'Three-quarter', 'Front', 'Back'];
 
 <div class="prose mb-10">
   <p>
-    Third round. These are still direction proposals. I draw the riders from one posable model, so every view shares the same
+    Fourth round. These are still direction proposals. I draw the riders from one posable model, so every view shares the same
     proportions and anchors, and each component below can be tuned on its own.
   </p>
   <p>Changed in this round:</p>
   <ul>
-    <li><strong>Czech colours:</strong> horizontal bands, white at the top, then red, blue and light blue. White sleeves.</li>
-    <li><strong>Helmet:</strong> a smooth aero profile, rounded at the front with a blunt tail, completely white in both kits.</li>
-    <li><strong>Head:</strong> a longer face with more of it visible under the helmet.</li>
+    <li><strong>Helmet:</strong> a flat lower edge, the shell comes down over the top of the ear, and faint vent shading on the sides.</li>
+    <li><strong>Glasses:</strong> two tinted lenses with a bridge and thin arms, instead of a black bar.</li>
+    <li><strong>Gloves:</strong> a white option next to the dark one, in its own section below.</li>
   </ul>
-  <p>The Czech-kit bike is red again, in a deeper tone than the jersey band. Unchanged, as approved: the club jersey, the shorts and the club bike.</p>
+  <p>Approved so far: the club jersey, the shorts, the white club bike, the Czech bands and the deeper red Czech-kit bike.</p>
+</div>
+
+<h2>Gloves: dark or white</h2>
+<p class="mb-4 text-ink-soft">The same frames with each glove colour. Three screen pixels per art pixel.</p>
+<div class="mb-12 grid gap-6 lg:grid-cols-2">
+  {combos.map(({ rider, kit, label }) => (
+    <figure class="border-2 border-ink bg-sky-2">
+      {(['', '-white-gloves'] as const).map((suffix) => (
+        <div class="flex flex-wrap items-end justify-around px-2 pt-2">
+          <div role="img" aria-label={`${label}, ${suffix ? 'white' : 'dark'} gloves, riding, right side`} style={frame(`ride-${rider.id}-${kit.id}${suffix}.png`, 0, 3)} />
+          <div role="img" aria-label={`${label}, ${suffix ? 'white' : 'dark'} gloves, riding, front three-quarter`} style={frame(`ride-${rider.id}-${kit.id}${suffix}.png`, 1, 3)} />
+          <div role="img" aria-label={`${label}, ${suffix ? 'white' : 'dark'} gloves, standing, front`} style={frame(`stand-${rider.id}-${kit.id}${suffix}.png`, 0, 3)} />
+          <p class="max-w-none basis-full pb-2 text-center text-sm">{suffix ? 'White gloves' : 'Dark gloves'}</p>
+        </div>
+      ))}
+      <figcaption class="border-t-2 border-ink bg-surface px-3 py-1 text-sm font-semibold">{label}</figcaption>
+    </figure>
+  ))}
 </div>
 
 <h2>Riding, at display size</h2>

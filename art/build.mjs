@@ -18,9 +18,9 @@ const meta = {};
 function sheet(name, cell, frames) {
   const pixels = new Uint8Array(cell.width * frames.length * cell.height * 4);
   frames.forEach((frame, index) => {
-    const { body, kit, ...options } = frame;
+    const { body, kit, gloves, ...options } = frame;
     const sprite = drawRider({ body, design: kit, ...cell, ...options });
-    blit(pixels, cell.width * frames.length, sprite.toRgba(palette(kit, body)), cell.width, cell.height, index * cell.width, 0);
+    blit(pixels, cell.width * frames.length, sprite.toRgba(palette(kit, body, { gloves })), cell.width, cell.height, index * cell.width, 0);
   });
   writeFileSync(join(out, name), encodePng(cell.width * frames.length, cell.height, pixels));
   meta[name] = { cell: { width: cell.width, height: cell.height }, frames: frames.length };
@@ -32,10 +32,13 @@ const BODY_ONLY = ['legs', 'torso', 'arms', 'head'];
 
 for (const body of ['female', 'male']) {
   for (const kit of ['club', 'national']) {
-    // Riding: side, front three-quarter, rear three-quarter, and the other side.
-    sheet(`ride-${body}-${kit}.png`, RIDE, ['E', 'SE', 'NE', 'W'].map((direction) => ({ body, kit, direction })));
-    // Standing off the bike: front, side, three-quarter, back.
-    sheet(`stand-${body}-${kit}.png`, STAND, ['S', 'E', 'SE', 'N'].map((direction) => ({ body, kit, direction, stance: 'stand', parts: BODY_ONLY })));
+    for (const gloves of ['dark', 'white']) {
+      const suffix = gloves === 'dark' ? '' : '-white-gloves';
+      // Riding: side, front three-quarter, rear three-quarter, and the other side.
+      sheet(`ride-${body}-${kit}${suffix}.png`, RIDE, ['E', 'SE', 'NE', 'W'].map((direction) => ({ body, kit, gloves, direction })));
+      // Standing off the bike: front, side, three-quarter, back.
+      sheet(`stand-${body}-${kit}${suffix}.png`, STAND, ['S', 'E', 'SE', 'N'].map((direction) => ({ body, kit, gloves, direction, stance: 'stand', parts: BODY_ONLY })));
+    }
   }
 }
 

@@ -10,6 +10,8 @@ Newest first. Each entry says what was decided, by whom and why. Owner decisions
 - **Owner (2026-11-15): no logos or logo-like pixels on the bikes.** Frames are one colour.
 - **Owner (2026-11-15): the helmet is completely white with a smooth aero profile**, after a reference photo the owner supplied for the shape only. No stripe, no maker's mark. The face is longer and more visible.
 - **Owner (2026-11-15): approved** the club jersey, the shorts and the white club bike. The Czech-kit bike is red, in a deeper tone than the jersey band.
+- **Owner (2026-11-15): helmet details.** Flat lower edge, a less dominant ear cutout, faint vent shading only. Glasses are two tinted lenses, not a black bar.
+- **Open: glove colour.** Dark and white are both generated (`GLOVES` in `art/palettes.mjs`) until the owner picks one.
 - **Agent: jersey designs are functions** (`DESIGNS` in `art/rider.mjs`) of the position along and around a body part, so stripes stay vertical on the body in every direction. Components can be drawn alone through `parts`, and `stance: 'stand'` gives the off-bike figure.
 - **Agent: kits are palette swaps** (`art/palettes.mjs`). Materials are named ramps, a kit replaces jersey, helmet and frame ramps.
 - **Agent: the camera pitch is 18 degrees** for the proposals. To be confirmed with the track study.

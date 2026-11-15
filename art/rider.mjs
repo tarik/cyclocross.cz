@@ -237,20 +237,29 @@ export function drawRider({
       tube(P(head.x - 2.0, head.y - 0.6, -1.8), P(head.x - 2.0, head.y - 0.6, 1.8), 1.5, 1.5, 'hair', { part: 800 });
     }
     // Helmet: a smooth aero shell. The profile is low and rounded at the
-    // front, long and nearly flat on top, and ends in a blunt tail.
-    const profile = [P(3.0, 2.0), P(2.2, 3.1), P(0.4, 3.7), P(-2.0, 3.5), P(-3.5, 2.7), P(-3.3, 1.7)];
+    // front, long and nearly flat on top, and ends in a blunt tail. Every rib
+    // starts from the same rim height, so the lower edge is flat from the
+    // front; the outer ribs are only less tall, which rounds the top.
+    const rim = 1.9;
+    const profile = [P(3.0, rim), P(2.3, 3.1), P(0.4, 3.75), P(-2.0, 3.55), P(-3.5, 2.8), P(-3.4, rim)];
     for (const z of [-2.0, -1.0, 0, 1.0, 2.0]) {
-      const drop = Math.abs(z) > 1.5 ? 0.7 : Math.abs(z) > 0.5 ? 0.2 : 0; // rounded across the top
+      const squash = Math.abs(z) > 1.5 ? 0.72 : Math.abs(z) > 0.5 ? 0.94 : 1;
+      const at = (p) => P(head.x + p.x, head.y + rim + (p.y - rim) * squash, z);
       for (let i = 0; i < profile.length - 1; i += 1) {
-        tube(P(head.x + profile[i].x, head.y + profile[i].y - drop, z), P(head.x + profile[i + 1].x, head.y + profile[i + 1].y - drop, z), 0.9, 0.9, 'helmet', { part: 802 });
+        tube(at(profile[i]), at(profile[i + 1]), 0.9, 0.9, 'helmet', { part: 802 });
       }
     }
-    // Two intake slots low on each side near the front.
     for (const side of [-1, 1]) {
-      tube(P(head.x + 0.8, head.y + 2.2, side * 2.75), P(head.x + 2.1, head.y + 1.9, side * 2.65), 0.36, 0.36, 'vent', { part: 802, flat: true });
+      // The shell comes down over the top of the ear, level with the rim.
+      tube(P(head.x + 1.4, head.y + rim - 0.1, side * 2.0), P(head.x - 3.0, head.y + rim - 0.1, side * 2.0), 0.9, 0.9, 'helmet', { part: 802 });
+      // Faint vent shading: one intake near the front and one slot further back.
+      tube(P(head.x + 0.9, head.y + 2.5, side * 2.9), P(head.x + 2.1, head.y + 2.25, side * 2.8), 0.34, 0.34, 'vent', { part: 802, flat: true });
+      tube(P(head.x - 2.3, head.y + 2.75, side * 2.9), P(head.x - 0.4, head.y + 3.0, side * 2.9), 0.34, 0.34, 'vent', { part: 802, flat: true });
+      // Glasses: two tinted lenses with a thin frame arm to the ear.
+      tube(P(head.x + 2.3, head.y - 0.35, side * 0.95), P(head.x + 2.15, head.y - 0.35, side * 1.8), 0.68, 0.62, 'lens', { part: 803, flat: true });
+      tube(P(head.x + 1.9, head.y - 0.1, side * 2.35), P(head.x - 0.2, head.y + 0.4, side * 2.7), 0.28, 0.28, 'black', { part: 803, flat: true });
     }
-    // Glasses across the face.
-    tube(P(head.x + 2.3, head.y - 0.1, -1.6), P(head.x + 2.3, head.y - 0.1, 1.6), 0.6, 0.6, 'black', { part: 803, flat: true });
+    tube(P(head.x + 2.45, head.y - 0.1, -0.6), P(head.x + 2.45, head.y - 0.1, 0.6), 0.28, 0.28, 'black', { part: 803, flat: true }); // bridge
   }
 
   return sprite.finish();
