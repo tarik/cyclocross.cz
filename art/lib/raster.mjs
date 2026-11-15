@@ -30,7 +30,8 @@ export class Sprite {
 
   /**
    * A thick segment with round ends. `a` and `b` are {x, y, z}; `material`
-   * is a name or a function of t (0 at a, 1 at b). `flat` disables shading and
+   * is a name or a function of t (0 at a, 1 at b) and the surface normal in
+   * screen space (z towards the viewer). `flat` disables shading and
    * `dim` darkens the whole shape by that many steps (far-side limbs).
    */
   capsule(a, b, ra, rb, material, part, { flat = false, dim = 0 } = {}) {
@@ -61,7 +62,7 @@ export class Sprite {
           shade = lit > 0.5 ? -1 : lit < -0.45 ? 1 : 0;
         }
         shade += dim;
-        const name = typeof material === 'function' ? material(t) : material;
+        const name = typeof material === 'function' ? material(t, { x: ox / radius, y: oy / radius, z: bulge / radius }) : material;
         this.put(px, py, depth, name, shade, part);
       }
     }

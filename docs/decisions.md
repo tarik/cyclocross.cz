@@ -5,6 +5,11 @@ Newest first. Each entry says what was decided, by whom and why. Owner decisions
 ## 2026-11-13, art proposals PR
 
 - **Agent: sprites are drawn from a posable model, not frame by frame.** `art/rider.mjs` describes bicycle and rider in model units; `art/lib/raster.mjs` projects it for a facing direction and rasterises it with a depth buffer, a three-step shade and an outside-only outline. One model gives every direction the same proportions, wheel centres and ground anchor (SPEC.md 5.3). Hand-finished pixels can be layered on after the direction is approved.
+- **Owner (2026-11-15): Czech jersey in vertical stripes** of white, red, blue and light blue, shorts dark blue. Drawn as four vertical panels. The reference picture did not arrive, so shades and order await confirmation.
+- **Owner (2026-11-15): club kit is a single brown-orange long-sleeve jersey with one stripe on an arm**, in the spirit of classic single-colour jerseys. The band is on the right arm. The club bike is white.
+- **Owner (2026-11-15): no logos or logo-like pixels on the bikes.** Frames are one colour.
+- **Owner (2026-11-15): the helmet stripe is gone and the helmet is redrawn** as a low ribbed shell with vents, longer than it is tall.
+- **Agent: jersey designs are functions** (`DESIGNS` in `art/rider.mjs`) of the position along and around a body part, so stripes stay vertical on the body in every direction. Components can be drawn alone through `parts`, and `stance: 'stand'` gives the off-bike figure.
 - **Agent: kits are palette swaps** (`art/palettes.mjs`). Materials are named ramps, a kit replaces jersey, helmet and frame ramps.
 - **Agent: the camera pitch is 18 degrees** for the proposals. To be confirmed with the track study.
 - **Agent: generated sheets are committed in `public/art/`** because the site serves them. A unit test regenerates them and fails if they differ from the source.

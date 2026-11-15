@@ -1,6 +1,7 @@
 /**
- * Colours. Every material is a ramp [light, base, dark, darker]. A kit only
- * replaces the jersey, helmet and bicycle ramps, so both riders wear both kits.
+ * Colours. Every material is a ramp [light, base, dark, darker]. A kit is a
+ * set of ramps plus the jersey design of the same name in `rider.mjs`, so
+ * both riders wear both kits.
  */
 const ramp = (light, base, dark, darker) => [light, base, dark, darker];
 
@@ -22,35 +23,34 @@ const COMMON = {
 };
 
 export const KITS = {
-  // Original club kit: burnt orange and deep teal, taken from the site palette.
+  // Original club kit: one burnt orange, long sleeves, a cream band on the
+  // right arm. White bicycle. The orange comes from the site palette.
   club: {
     ...COMMON,
-    jersey: ramp('#e0703a', '#c4521f', '#9c3d14', '#77300f'),
-    jerseyBand: ramp('#fbf4e2', '#ece1c6', '#c9bd9f', '#a39878'),
-    jerseyTrim: ramp('#2f7f7b', '#1f6562', '#174d4b', '#113a39'),
-    jerseyTop: ramp('#2f7f7b', '#1f6562', '#174d4b', '#113a39'),
+    jersey: ramp('#d9682f', '#b9501f', '#933c15', '#6f2d10'),
+    armBand: ramp('#fbf4e2', '#ece1c6', '#c9bd9f', '#a39878'),
+    cuff: ramp('#933c15', '#7a3111', '#5e260d', '#4a1e0a'),
     shorts: ramp('#3b4046', '#2b2f34', '#202327', '#18191c'),
     sock: ramp('#fbf4e2', '#ece1c6', '#c9bd9f', '#a39878'),
     helmet: ramp('#fbf4e2', '#ece1c6', '#c2b697', '#9a8f73'),
-    helmetMark: ramp('#e0703a', '#c4521f', '#9c3d14', '#77300f'),
-    frame: ramp('#2f7f7b', '#1f6562', '#174d4b', '#113a39'),
-    frameMark: ramp('#fbf4e2', '#ece1c6', '#c9bd9f', '#a39878'),
-    fork: ramp('#3a3431', '#2b2623', '#231d1a', '#231d1a'),
+    vent: ramp('#4a4440', '#4a4440', '#4a4440', '#4a4440'),
+    frame: ramp('#fbf8f0', '#e9e4d8', '#c4bfb2', '#a09b8f'),
+    fork: ramp('#fbf8f0', '#e9e4d8', '#c4bfb2', '#a09b8f'),
   },
-  // Czech colours: an original white, red and blue design, no team marks.
+  // Czech colours: an original design of four vertical panels in white, red,
+  // blue and light blue, dark blue shorts. No team or federation marks.
   national: {
     ...COMMON,
-    jersey: ramp('#ffffff', '#efeee9', '#c9c8c2', '#a2a19b'),
-    jerseyBand: ramp('#e24a44', '#c9302c', '#a02320', '#7a1a18'),
-    jerseyTrim: ramp('#ffffff', '#efeee9', '#c9c8c2', '#a2a19b'),
-    jerseyTop: ramp('#3d6fc0', '#24509d', '#1a3c79', '#132c5a'),
+    panelA: ramp('#ffffff', '#f1f0eb', '#cbcac4', '#a4a39d'),
+    panelB: ramp('#e4514a', '#cc332e', '#a32421', '#7c1b19'),
+    panelC: ramp('#3566b8', '#1f4a97', '#173874', '#112a57'),
+    panelD: ramp('#8cc6ea', '#62a9d6', '#4686b0', '#35678a'),
     shorts: ramp('#2c4a85', '#1d3566', '#16284e', '#101d3a'),
-    sock: ramp('#ffffff', '#efeee9', '#c9c8c2', '#a2a19b'),
-    helmet: ramp('#ffffff', '#efeee9', '#c4c3bd', '#9d9c96'),
-    helmetMark: ramp('#e24a44', '#c9302c', '#a02320', '#7a1a18'),
-    frame: ramp('#e24a44', '#c9302c', '#a02320', '#7a1a18'),
-    frameMark: ramp('#ffffff', '#efeee9', '#c9c8c2', '#a2a19b'),
-    fork: ramp('#ffffff', '#efeee9', '#c9c8c2', '#a2a19b'),
+    sock: ramp('#ffffff', '#f1f0eb', '#cbcac4', '#a4a39d'),
+    helmet: ramp('#ffffff', '#f1f0eb', '#c6c5bf', '#9f9e98'),
+    vent: ramp('#4a4f55', '#4a4f55', '#4a4f55', '#4a4f55'),
+    frame: ramp('#3566b8', '#1f4a97', '#173874', '#112a57'),
+    fork: ramp('#3566b8', '#1f4a97', '#173874', '#112a57'),
   },
 };
 
