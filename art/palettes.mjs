@@ -49,8 +49,9 @@ export const KITS = {
     sock: ramp('#ffffff', '#f1f0eb', '#cbcac4', '#a4a39d'),
     helmet: ramp('#ffffff', '#f3f2ee', '#cfcec8', '#a9a8a2'),
     vent: ramp('#8f8e88', '#8f8e88', '#8f8e88', '#8f8e88'),
-    frame: ramp('#3566b8', '#1f4a97', '#173874', '#112a57'),
-    fork: ramp('#3566b8', '#1f4a97', '#173874', '#112a57'),
+    // A deeper, wine red, so the frame does not match the jersey band.
+    frame: ramp('#b5303b', '#981d2b', '#761622', '#58101a'),
+    fork: ramp('#b5303b', '#981d2b', '#761622', '#58101a'),
   },
 };
 
