@@ -1,0 +1,138 @@
+---
+/**
+ * Cyclist direction proposals: both riders, both kits, riding and standing,
+ * plus every component on its own. The sheets come from `art/build.mjs`.
+ */
+import { withBase } from '../../i18n/routes.ts';
+import sheets from '../../../public/art/sheets.json';
+
+type SheetName = keyof typeof sheets;
+
+/** One frame of a sheet as a CSS background, `zoom` screen pixels per art pixel. */
+const frame = (file: SheetName, index: number, zoom: number) => {
+  const { cell, frames } = sheets[file];
+  return `width:${cell.width * zoom}px;height:${cell.height * zoom}px;background:url(${withBase(`/art/${file}`)}) -${index * cell.width * zoom}px 0 / ${cell.width * frames * zoom}px ${cell.height * zoom}px no-repeat;image-rendering:pixelated`;
+};
+
+const riders = [
+  { id: 'female', name: 'Rider A' },
+  { id: 'male', name: 'Rider B' },
+] as const;
+const kits = [
+  { id: 'club', name: 'Club kit' },
+  { id: 'national', name: 'Czech colours' },
+] as const;
+const combos = riders.flatMap((rider) => kits.map((kit) => ({ rider, kit, label: `${rider.name} · ${kit.name}` })));
+const rideViews = ['Right side', 'Front three-quarter', 'Rear three-quarter', 'Left side'];
+const standViews = ['Front', 'Side', 'Three-quarter', 'Back'];
+const partNames = ['Bike, side', 'Bike, three-quarter', 'Rider without bike', 'Jersey, side', 'Jersey, front', 'Legs and shoes'];
+const headViews = ['Side', 'Three-quarter', 'Front', 'Back'];
+---
+
+<div class="prose mb-10">
+  <p>
+    Fourth round. These are still direction proposals. I draw the riders from one posable model, so every view shares the same
+    proportions and anchors, and each component below can be tuned on its own.
+  </p>
+  <p>Changed in this round:</p>
+  <ul>
+    <li><strong>Helmet:</strong> a flat lower edge, the shell comes down over the top of the ear, and faint vent shading on the sides.</li>
+    <li><strong>Glasses:</strong> two tinted lenses with a bridge and thin arms, instead of a black bar.</li>
+    <li><strong>Gloves:</strong> white with the Czech kit, black with the club kit, as you chose.</li>
+  </ul>
+  <p>Approved so far: the club jersey, the shorts, the white club bike, the Czech bands and the deeper red Czech-kit bike.</p>
+</div>
+
+<h2>Riding, at display size</h2>
+<p class="mb-4 text-ink-soft">Three screen pixels per art pixel, on the hero sky and grass colours.</p>
+<div class="mb-12 overflow-x-auto border-2 border-ink">
+  <div class="min-w-max bg-sky-2">
+    {combos.map(({ rider, kit, label }) => (
+      <div class="px-4 pt-3">
+        <p class="max-w-none text-sm font-semibold">{label}</p>
+        <div class="flex items-end gap-2">
+          {rideViews.map((view, index) => <div role="img" aria-label={`${label}, ${view}`} style={frame(`ride-${rider.id}-${kit.id}.png`, index, 3)} />)}
+        </div>
+      </div>
+    ))}
+    <div class="h-6 bg-grass-1"></div>
+  </div>
+</div>
+
+<h2>Standing</h2>
+<p class="mb-4 text-ink-soft">Front, side, three-quarter and back. Three screen pixels per art pixel.</p>
+<div class="mb-12 grid gap-6 sm:grid-cols-2">
+  {combos.map(({ rider, kit, label }) => (
+    <figure class="border-2 border-ink bg-sky-2">
+      <div class="flex flex-wrap justify-around px-2 pt-3">
+        {standViews.map((view, index) => (
+          <div>
+            <div role="img" aria-label={`${label}, standing, ${view}`} style={frame(`stand-${rider.id}-${kit.id}.png`, index, 3)} />
+            <p class="max-w-none pb-2 text-center text-sm">{view}</p>
+          </div>
+        ))}
+      </div>
+      <figcaption class="border-t-2 border-ink bg-surface px-3 py-1 text-sm font-semibold">{label}</figcaption>
+    </figure>
+  ))}
+</div>
+
+<h2>Riding, enlarged</h2>
+<p class="mb-4 text-ink-soft">Six screen pixels per art pixel.</p>
+{[combos[0], combos[3]].map(({ rider, kit, label }) => (
+  <figure class="mb-8">
+    <figcaption class="mb-2 font-semibold">{label}</figcaption>
+    <div class="border-2 border-ink bg-sky-2">
+      <div class="flex flex-wrap justify-around">
+        {rideViews.slice(0, 2).map((view, index) => (
+          <div>
+            <div role="img" aria-label={`${label}, ${view}, enlarged`} style={frame(`ride-${rider.id}-${kit.id}.png`, index, 6)} class="max-w-full" />
+            <p class="max-w-none pb-2 text-center text-sm">{view}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </figure>
+))}
+
+<h2>Components</h2>
+<p class="mb-4 text-ink-soft">Each part on its own, so you can comment on one thing at a time. Four screen pixels per art pixel.</p>
+{kits.map((kit) => (
+  <figure class="mb-8">
+    <figcaption class="mb-2 font-semibold">{kit.name}</figcaption>
+    <div class="border-2 border-ink bg-sky-2">
+      <div class="flex flex-wrap justify-around">
+        {partNames.map((part, index) => (
+          <div>
+            <div role="img" aria-label={`${kit.name}, ${part}`} style={frame(`parts-${kit.id}.png`, index, 4)} class="max-w-full" />
+            <p class="max-w-none pb-2 text-center text-sm">{part}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </figure>
+))}
+
+<h3>Head and helmet</h3>
+<p class="mb-4 text-ink-soft">Drawn at double detail to show the shape. Rider A and Rider B alternate.</p>
+{kits.map((kit) => (
+  <figure class="mb-8">
+    <figcaption class="mb-2 font-semibold">{kit.name}</figcaption>
+    <div class="border-2 border-ink bg-sky-2">
+      <div class="grid grid-cols-2 justify-items-center px-2 pt-2 sm:grid-cols-4">
+        {headViews.flatMap((view, viewIndex) => riders.map((rider, riderIndex) => (
+          <div>
+            <div role="img" aria-label={`${kit.name}, head, ${rider.name}, ${view}`} style={frame(`head-${kit.id}.png`, viewIndex * 2 + riderIndex, 3)} />
+            <p class="max-w-none pb-2 text-center text-sm">{rider.name}, {view.toLowerCase()}</p>
+          </div>
+        )))}
+      </div>
+    </div>
+  </figure>
+))}
+
+<h2>Known gaps</h2>
+<ul class="prose">
+  <li>Faces, hands and the drivetrain are still schematic. They get hand-finished pixels once the direction is approved.</li>
+  <li>Carrying, running, remounting and the wave come with the motion work.</li>
+</ul>

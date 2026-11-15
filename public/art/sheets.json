@@ -1,0 +1,86 @@
+{
+  "ride-female-club.png": {
+    "cell": {
+      "width": 76,
+      "height": 78
+    },
+    "frames": 4
+  },
+  "stand-female-club.png": {
+    "cell": {
+      "width": 36,
+      "height": 84
+    },
+    "frames": 4
+  },
+  "ride-female-national.png": {
+    "cell": {
+      "width": 76,
+      "height": 78
+    },
+    "frames": 4
+  },
+  "stand-female-national.png": {
+    "cell": {
+      "width": 36,
+      "height": 84
+    },
+    "frames": 4
+  },
+  "ride-male-club.png": {
+    "cell": {
+      "width": 76,
+      "height": 78
+    },
+    "frames": 4
+  },
+  "stand-male-club.png": {
+    "cell": {
+      "width": 36,
+      "height": 84
+    },
+    "frames": 4
+  },
+  "ride-male-national.png": {
+    "cell": {
+      "width": 76,
+      "height": 78
+    },
+    "frames": 4
+  },
+  "stand-male-national.png": {
+    "cell": {
+      "width": 36,
+      "height": 84
+    },
+    "frames": 4
+  },
+  "parts-club.png": {
+    "cell": {
+      "width": 76,
+      "height": 78
+    },
+    "frames": 6
+  },
+  "head-club.png": {
+    "cell": {
+      "width": 44,
+      "height": 40
+    },
+    "frames": 8
+  },
+  "parts-national.png": {
+    "cell": {
+      "width": 76,
+      "height": 78
+    },
+    "frames": 6
+  },
+  "head-national.png": {
+    "cell": {
+      "width": 44,
+      "height": 40
+    },
+    "frames": 8
+  }
+}

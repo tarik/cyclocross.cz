@@ -1,0 +1,32 @@
+---
+/**
+ * Review pages for the owner's approval gates (SPEC.md sections 4.3 and 5.7).
+ * They are built for development and staging only, never for production.
+ */
+import Base from '../../layouts/Base.astro';
+import ArtProposals from '../../components/review/ArtProposals.astro';
+import Typography from '../../components/review/Typography.astro';
+import { site } from '../../config/site.ts';
+
+const pages = {
+  typography: { title: 'Typography specimen', component: Typography },
+  art: { title: 'Cyclist proposals', component: ArtProposals },
+} as const;
+
+export function getStaticPaths() {
+  if (site.env === 'production') return [];
+  // getStaticPaths is hoisted out of the page, so the names are repeated here.
+  return ['typography', 'art'].map((page) => ({ params: { page } }));
+}
+
+const { page } = Astro.params as { page: keyof typeof pages };
+const { title, component: Content } = pages[page];
+---
+
+<Base locale="cs" title={title} translated={false}>
+  <div class="wrap section" lang="en">
+    <p class="eyebrow">Review page · not part of the public site</p>
+    <h1>{title}</h1>
+    <Content />
+  </div>
+</Base>
