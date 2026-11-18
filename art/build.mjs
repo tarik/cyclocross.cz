@@ -8,25 +8,27 @@ import { fileURLToPath } from 'node:url';
 import { encodePng } from './lib/png.mjs';
 import { Sprite, blit } from './lib/raster.mjs';
 import { palette } from './palettes.mjs';
-import { drawRider } from './rider.mjs';
+import { DIRECTIONS, drawRider } from './rider.mjs';
 
 const out = process.argv[2] ?? join(dirname(fileURLToPath(import.meta.url)), '..', 'public', 'art');
 mkdirSync(out, { recursive: true });
 
 const meta = {};
-/** Renders a row of frames into one sheet and records its layout. */
-function sheet(name, cell, frames) {
-  const pixels = new Uint8Array(cell.width * frames.length * cell.height * 4);
+/** Renders frames into one sheet, `columns` per row, and records its layout. */
+function sheet(name, cell, frames, extra = {}) {
+  const columns = extra.columns ?? frames.length;
+  const rows = Math.ceil(frames.length / columns);
+  const pixels = new Uint8Array(cell.width * columns * cell.height * rows * 4);
   frames.forEach((frame, index) => {
     const { body, kit, ...options } = frame;
     const sprite = drawRider({ body, design: kit, ...cell, ...options });
-    blit(pixels, cell.width * frames.length, sprite.toRgba(palette(kit, body)), cell.width, cell.height, index * cell.width, 0);
+    blit(pixels, cell.width * columns, sprite.toRgba(palette(kit, body)), cell.width, cell.height, (index % columns) * cell.width, Math.floor(index / columns) * cell.height);
   });
-  writeFileSync(join(out, name), encodePng(cell.width * frames.length, cell.height, pixels));
-  meta[name] = { cell: { width: cell.width, height: cell.height }, frames: frames.length };
+  writeFileSync(join(out, name), encodePng(cell.width * columns, cell.height * rows, pixels));
+  meta[name] = { cell: { width: cell.width, height: cell.height, anchor: cell.anchor }, frames: frames.length, columns, rows, ...extra };
 }
 
-const RIDE = { width: 76, height: 78, anchor: { x: 38, y: 69 } };
+const RIDE = { width: 76, height: 88, anchor: { x: 38, y: 71 } };
 const STAND = { width: 36, height: 84, anchor: { x: 18, y: 78 } };
 const BODY_ONLY = ['legs', 'torso', 'arms', 'head'];
 
@@ -36,6 +38,17 @@ for (const body of ['female', 'male']) {
     sheet(`ride-${body}-${kit}.png`, RIDE, ['E', 'SE', 'NE', 'W'].map((direction) => ({ body, kit, direction })));
     // Standing off the bike: front, side, three-quarter, back.
     sheet(`stand-${body}-${kit}.png`, STAND, ['S', 'E', 'SE', 'N'].map((direction) => ({ body, kit, direction, stance: 'stand', parts: BODY_ONLY })));
+  }
+}
+
+// The riding cycle: one row per direction, eight crank positions per row.
+const CYCLE = 8;
+for (const body of ['female', 'male']) {
+  for (const kit of ['club', 'national']) {
+    const directions = Object.keys(DIRECTIONS);
+    sheet(`cycle-${body}-${kit}.png`, RIDE,
+      directions.flatMap((direction) => Array.from({ length: CYCLE }, (_, i) => ({ body, kit, direction, crank: (i * 360) / CYCLE }))),
+      { columns: CYCLE, directions });
   }
 }
 

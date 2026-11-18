@@ -1,0 +1,197 @@
+---
+/**
+ * Route drawing for the owner's track approval (SPEC.md 5.2 and 5.7): the
+ * course in the scene projection, with heights and the under and over
+ * crossing. It is drawn from `src/hero/scene.ts`, the data the animation
+ * will use.
+ */
+import { along, canvas, DECK, DECK_THICKNESS, elevatedSegments, pitchDegrees, project, route, structures, SUMMIT, underpasses, type Point } from '../../hero/scene.ts';
+import { withBase } from '../../i18n/routes.ts';
+import sheets from '../../../public/art/sheets.json';
+
+const sheet = sheets['cycle-female-club.png'];
+const { cell } = sheet;
+const xy = (point: Point) => {
+  const { x, y } = project(point);
+  return `${x.toFixed(1)},${y.toFixed(1)}`;
+};
+const line = (points: Point[]) => points.map(xy).join(' ');
+const ground = (point: Point): Point => ({ ...point, h: 0 });
+const pt = (e: number, s: number, h = 0): Point => ({ e, s, h });
+
+const { flyover, hill, barriers, poseArea } = structures;
+// Across the flyover (perpendicular to its north-west heading), half a deck width each way.
+const side = (flyover.width / 2) * Math.SQRT1_2;
+const left = (point: Point): Point => ({ e: point.e - side, s: point.s + side, h: point.h });
+const right = (point: Point): Point => ({ e: point.e + side, s: point.s - side, h: point.h });
+const slab = (a: Point, b: Point) => [left(a), left(b), right(b), right(a)];
+const rampIn = slab(flyover.footIn, flyover.topIn);
+const top = slab(flyover.topIn, flyover.topOut);
+const rampOut = slab(flyover.topOut, flyover.footOut);
+const under = (point: Point): Point => ({ ...point, h: point.h - DECK_THICKNESS });
+// The viewer sees the south-west side of the structure.
+const sideIn = [left(flyover.footIn), left(flyover.topIn), ground(left(flyover.topIn))];
+const sideTop = [left(flyover.topIn), left(flyover.topOut), under(left(flyover.topOut)), under(left(flyover.topIn))];
+const sideOut = [left(flyover.topOut), left(flyover.footOut), ground(left(flyover.topOut))];
+const legs = [left(flyover.topIn), right(flyover.topIn), left(flyover.topOut), right(flyover.topOut)];
+// The ridge runs off the right edge; its far (north) slope shows above the summit line.
+const hillBack = [pt(476, 150), hill.stairsFoot, hill.stairsTop, hill.ridgeEnd, pt(780, -10, 0), pt(560, 20, 0)];
+const hillFront = [hill.stairsFoot, hill.stairsTop, hill.dropTop, hill.ridgeEnd, pt(780, 156, 0), hill.dropFoot, pt(600, 170), pt(530, 160)];
+const steps = Array.from({ length: hill.steps + 1 }, (_, i) => {
+  const t = i / hill.steps;
+  return pt(hill.stairsFoot.e + (hill.stairsTop.e - hill.stairsFoot.e) * t, hill.stairsFoot.s + (hill.stairsTop.s - hill.stairsFoot.s) * t, SUMMIT * t);
+});
+
+const rows = sheet.directions as string[];
+// Segments shown by their number only, to keep the drawing readable.
+const numberOnly = ['entry', 'dismount', 'summit', 'to-pose'];
+const markers = route.map((segment, index) => {
+  const point = along(segment.path, segment.marker);
+  const screen = project(point);
+  return { segment, number: index + 1, point, screen, row: rows.indexOf(segment.facing) };
+});
+// Draw order: everything north of the entry lane first, then the lane and the
+// rider under the flyover, then the flat top and the near ramp, then the rest.
+const lanes = underpasses.map((id) => route.find((segment) => segment.id === id)!.path[0].s);
+const riders = markers.filter((m) => !numberOnly.includes(m.segment.id));
+const farSide = riders.filter((m) => m.point.s < Math.min(...lanes)).sort((a, b) => a.point.s - b.point.s);
+const onLane = riders.filter((m) => m.point.h === 0 && m.point.s >= Math.min(...lanes) && m.point.s <= Math.max(...lanes)).sort((a, b) => a.point.s - b.point.s);
+const nearSide = riders.filter((m) => !farSide.includes(m) && !onLane.includes(m)).sort((a, b) => a.point.s - b.point.s);
+const elevated = route.filter((segment) => elevatedSegments.includes(segment.id));
+const horizon = project(pt(0, -70, 0)).y;
+const sheetUrl = withBase('/art/cycle-female-club.png');
+---
+
+<div class="prose mb-8">
+  <p>
+    This is the course for the desktop scene, drawn from the same data the animation will use. It is a route diagram only,
+    not a draft of the graphics: flat colours stand in for grass, track, flyover and hill, which will all be drawn as pixel art. Riders are placed at the real size, two screen pixels
+    per art pixel on a 1440 px wide screen.
+  </p>
+  <p>
+    The camera is fixed and looks down by {pitchDegrees} degrees. The underside of the flyover's flat top is {DECK - DECK_THICKNESS} art pixels above the ground
+    and a mounted rider is 66 tall, so the rider passes underneath. The summit is at {SUMMIT}.
+  </p>
+</div>
+
+<div class="mb-4 overflow-x-auto border-2 border-ink">
+  <svg viewBox={`0 0 ${canvas.width} ${canvas.height}`} class="block w-full min-w-[720px]" role="img" aria-label="Course route drawing with numbered segments">
+    <rect width={canvas.width} height={canvas.height} fill="#d3e9ea" />
+    <rect y={horizon} width={canvas.width} height={canvas.height - horizon} fill="#8fae4a" />
+    <rect y={canvas.height - 22} width={canvas.width} height="22" fill="#7a5433" />
+
+    <!-- Ground track -->
+    {route.filter((segment) => !elevated.includes(segment)).map((segment) => (
+      <polyline points={line(segment.path)} fill="none" stroke="#b08a5a" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" />
+    ))}
+    <circle cx={project(poseArea).x} cy={project(poseArea).y} r="16" fill="#c9a877" />
+
+    <!-- Hill: stairs on the north-east face, steep drop on the south-east face -->
+    <polygon points={line(hillBack)} fill="#6f8f36" stroke="#2a2520" stroke-width="1" />
+    <polygon points={line(hillFront)} fill="#7d9a3c" stroke="#2a2520" stroke-width="1" />
+    <polyline points={line(steps)} fill="none" stroke="#e9e4d8" stroke-width="9" stroke-dasharray="2 2.6" />
+    <polyline points={line([hill.dropTop, hill.dropFoot])} fill="none" stroke="#b08a5a" stroke-width="10" stroke-linecap="round" />
+    <!-- The track back along the front runs in front of the hill's foot -->
+    {route.filter((segment) => segment.id === 'return').map((segment) => (
+      <polyline points={line(segment.path)} fill="none" stroke="#b08a5a" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" />
+    ))}
+
+    <!-- Flyover, far half: the ramp down and the far legs -->
+    <polygon points={line(sideOut)} fill="#a39878" stroke="#2a2520" stroke-width="1" />
+    <polygon points={line(rampOut)} fill="#c9a877" stroke="#2a2520" stroke-width="1" />
+    {legs.slice(2).map((leg) => (
+      <line x1={project(leg).x} y1={project(under(leg)).y} x2={project(leg).x} y2={project(ground(leg)).y} stroke="#5f5c55" stroke-width="4" />
+    ))}
+
+    {farSide.map((m) => (
+      <svg x={m.screen.x - cell.anchor.x} y={m.screen.y - cell.anchor.y} width={cell.width} height={cell.height} viewBox={`${cell.width} ${m.row * cell.height} ${cell.width} ${cell.height}`}>
+        <image href={sheetUrl} width={cell.width * sheet.columns} height={cell.height * sheet.rows} style="image-rendering:pixelated" />
+      </svg>
+    ))}
+
+    {barriers.map((barrier) => (
+      <rect x={project(barrier).x - 1.5} y={project(barrier).y - 12} width="3" height="14" fill="#fffdf8" stroke="#2a2520" stroke-width="1" />
+    ))}
+    {onLane.map((m) => (
+      <svg x={m.screen.x - cell.anchor.x} y={m.screen.y - cell.anchor.y} width={cell.width} height={cell.height} viewBox={`${cell.width} ${m.row * cell.height} ${cell.width} ${cell.height}`}>
+        <image href={sheetUrl} width={cell.width * sheet.columns} height={cell.height * sheet.rows} style="image-rendering:pixelated" />
+      </svg>
+    ))}
+
+    <!-- Flyover, near half: the flat top, the near legs and the ramp up -->
+    {legs.slice(0, 2).map((leg) => (
+      <line x1={project(leg).x} y1={project(under(leg)).y} x2={project(leg).x} y2={project(ground(leg)).y} stroke="#5f5c55" stroke-width="4" />
+    ))}
+    <polygon points={line(top)} fill="#c9a877" stroke="#2a2520" stroke-width="1" />
+    <polygon points={line(sideTop)} fill="#a39878" stroke="#2a2520" stroke-width="1" />
+    <polygon points={line(sideIn)} fill="#a39878" stroke="#2a2520" stroke-width="1" />
+    <polygon points={line(rampIn)} fill="#c9a877" stroke="#2a2520" stroke-width="1" />
+
+    <!-- Elevated route with drop lines to the ground -->
+    {elevated.map((segment) => (
+      <>
+        <polyline points={line(segment.path)} fill="none" stroke="#a63d14" stroke-width="1.5" stroke-dasharray="5 3" />
+        {segment.path.filter((point) => point.h > 0).map((point) => (
+          <line x1={project(point).x} y1={project(point).y} x2={project(ground(point)).x} y2={project(ground(point)).y} stroke="#2a2520" stroke-width="0.6" stroke-dasharray="2 2" />
+        ))}
+      </>
+    ))}
+
+    {nearSide.map((m) => (
+      <svg x={m.screen.x - cell.anchor.x} y={m.screen.y - cell.anchor.y} width={cell.width} height={cell.height} viewBox={`${cell.width} ${m.row * cell.height} ${cell.width} ${cell.height}`}>
+        <image href={sheetUrl} width={cell.width * sheet.columns} height={cell.height * sheet.rows} style="image-rendering:pixelated" />
+      </svg>
+    ))}
+
+    {markers.map((m) => (
+      <g transform={numberOnly.includes(m.segment.id) ? `translate(${m.screen.x} ${m.screen.y - 4})` : `translate(${m.screen.x - 30} ${m.screen.y - 56})`}>
+        <circle r="7.5" fill="#2a2520" />
+        <text text-anchor="middle" y="3" font-size="9" font-weight="700" fill="#fffdf8" font-family="system-ui, sans-serif">{m.number}</text>
+      </g>
+    ))}
+  </svg>
+</div>
+<p class="mb-8 text-sm text-ink-soft">
+  Red dashes mark the route above the ground, thin dashed lines drop from it to the ground below. All riders show the riding pose
+  for now, including on the stairs, where the final sprite runs with the bike on the shoulder. The hill and flyover are
+  blocked in as simple shapes.
+</p>
+
+<h2>Segments</h2>
+<div class="mb-10 overflow-x-auto">
+  <table class="w-full min-w-[36rem] border-collapse text-left">
+    <thead>
+      <tr class="border-b-2 border-ink">
+        <th class="p-2">No.</th><th class="p-2">Segment</th><th class="p-2">Action</th><th class="p-2">Facing</th><th class="p-2">Height</th>
+      </tr>
+    </thead>
+    <tbody>
+      {route.map((segment, index) => {
+        const heights = segment.path.map((point) => point.h);
+        const from = heights[0];
+        const to = heights[heights.length - 1];
+        return (
+          <tr class="border-b border-line">
+            <td class="p-2 font-semibold">{index + 1}</td>
+            <td class="p-2">{segment.label}</td>
+            <td class="p-2">{segment.action}</td>
+            <td class="p-2">{segment.facing}</td>
+            <td class="p-2">{from === to ? from : `${from} to ${to}`}</td>
+          </tr>
+        );
+      })}
+    </tbody>
+  </table>
+</div>
+
+<h2>How it connects</h2>
+<ul class="prose">
+  <li>The rider enters from the left, hops two barriers and rides straight under the flat top of the flyover.</li>
+  <li>After the dismount the rider runs up the stairs, heading north-east, onto a ridge that carries on off the right edge of the screen.</li>
+  <li>From the summit the rider remounts and drops down the steep south-east face.</li>
+  <li>The whole descent stays on screen. The track then bends round at the right and comes back along the front to the foot of the flyover.</li>
+  <li>The flyover is ridden towards the north-west: steep up, a flat top above the entry lane, steep down.</li>
+  <li>At the foot of the ramp down the track turns left, behind the barriers, without passing under the flyover again.</li>
+  <li>The rider stops and poses at the left, then leaves the screen to the left.</li>
+  <li>Every segment starts where the previous one ends. A test fails if a gap appears.</li>
+</ul>

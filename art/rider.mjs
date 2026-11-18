@@ -10,7 +10,9 @@ import { Sprite } from './lib/raster.mjs';
 export const DIRECTIONS = { E: 0, SE: 45, S: 90, SW: 135, W: 180, NW: 225, N: 270, NE: 315 };
 export const PARTS = ['bike', 'legs', 'torso', 'arms', 'head'];
 
-const PITCH = (18 * Math.PI) / 180; // the camera looks slightly down
+/** The camera looks down by this angle. `src/hero/scene.ts` must use the same value. */
+export const PITCH_DEGREES = 28;
+const PITCH = (PITCH_DEGREES * Math.PI) / 180;
 
 /** Solves a two-bone joint in the X/Y plane; `bend` picks the side (+1 forward). */
 function joint(a, b, la, lb, bend) {
@@ -148,7 +150,9 @@ export function drawRider({
         }
       };
       for (let i = 0; i < 6; i += 1) {
-        const a = (i / 6) * Math.PI * 2 + crank * 0.02;
+        // The wheel turns 15 degrees per 45 degrees of crank. With six spokes that
+        // reads as steady forward rolling and loops cleanly over a crank turn.
+        const a = (i / 6) * Math.PI * 2 - ((crank / 3) * Math.PI) / 180;
         sprite.capsule(project(hub), project(P(hub.x + Math.cos(a) * 8, hub.y + Math.sin(a) * 8)), 0.3, 0.3, 'spoke', id, thin);
       }
       ring(7.9, 0.45, 'rim');
