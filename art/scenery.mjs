@@ -650,6 +650,40 @@ function bannerLayout(index, bw, bh) {
 }
 
 /**
+ * Abstract graphics for banners that carry no lettering, one per design:
+ * chevrons, a wave, diagonal stripes, dots, a split with a stripe, a zigzag
+ * and a sawtooth. Returns the name of a banner colour.
+ */
+function abstractPixel(index, bx, by, bh, design) {
+  const mid = (bh - 1) / 2;
+  switch (index % BANNERS.length) {
+    case 0: // chevrons pointing along the banner
+      return (bx + Math.round(Math.abs(by - mid))) % 10 < 3 ? design.fg : (bx + Math.round(Math.abs(by - mid))) % 10 === 4 ? design.accent : design.bg;
+    case 1: { // a wave
+      const wave = mid + Math.round(Math.sin(bx / 3.2) * (bh / 4));
+      return by >= wave - 1 && by <= wave + 1 ? design.accent : by > wave + 1 ? design.fg : design.bg;
+    }
+    case 2: // diagonal stripes
+      return Math.floor((bx + by) / 4) % 2 === 0 ? design.accent : design.bg;
+    case 3: { // dots
+      const cx = (bx % 8) - 3.5;
+      const cy = by - mid + ((Math.floor(bx / 8) % 2) * 2 - 1) * (bh / 5);
+      return Math.hypot(cx, cy) < 2.6 ? (Math.floor(bx / 8) % 2 ? design.accent : design.fg) : design.bg;
+    }
+    case 4: // a split in two colours with a stripe on the seam
+      return by < mid - 1 ? design.bg : by <= mid + 1 ? design.fg : 'navy';
+    case 5: { // a zigzag band
+      const zig = mid + (Math.abs((bx % 8) - 4) - 2);
+      return Math.abs(by - zig) <= 1 ? design.fg : design.bg;
+    }
+    default: { // a sawtooth of triangles with a line on each edge
+      const edge = ((bx % 12) / 12) * bh;
+      return Math.abs(by - edge) < 1 ? design.accent : by > edge ? design.fg : design.bg;
+    }
+  }
+}
+
+/**
  * Colour of a banner pixel. (bx, by) are pixel coordinates inside a banner of
  * bw by bh pixels; `index` picks the design and the message. `slope` is how
  * steeply the banner runs on screen, in pixels down per pixel across.
@@ -661,17 +695,10 @@ function bannerPixel(index, bx, by, bw, bh, shade = 0, slope = 0) {
   // Hems top and bottom.
   if (by === 0 || by === bh - 1) return tone(design.bg === 'white' ? 'grey' : design.bg);
   // Lettering this small shears into noise on a steep banner, as on the ramps
-  // and the stairs. There, and where a banner is too narrow, a bold band in
-  // word-long blocks stands for the message, after an upright badge.
+  // and the stairs. There, and where a banner is too narrow, it carries an
+  // abstract graphic instead.
   const layout = Math.abs(slope) < 0.4 ? bannerLayout(index, bw, bh) : null;
-  if (!layout) {
-    const mid = Math.floor(bh / 2);
-    const badgeRow = by + Math.round(slope * (bx - 3)) - (mid - 2);
-    if (bx >= 3 && bx < 8 && badgeRow >= 0 && badgeRow < 5) return tone(design.accent);
-    const run = (bx - 10) % 13;
-    if (bx >= 10 && bx < bw - 3 && Math.abs(by - mid) <= 1 && run !== 8 && run !== 9 && run !== 12) return tone(design.fg);
-    return tone(design.bg);
-  }
+  if (!layout) return tone(abstractPixel(index, bx, by - 1, bh - 2, design));
   // The lines, each centred, with a badge before the block when it fits.
   const block = layout.width + (layout.badge ? 7 : 0);
   const left = Math.floor((bw - block) / 2);
@@ -1061,9 +1088,10 @@ function rustyTube(layer, a, b) {
 /** An old steel frame, lying a little tilted, without wheels. */
 function paintFrame(layer, x0, y0) {
   const tilt = (-7 * Math.PI) / 180;
+  const k = 1.4;
   const at = (x, y) => ({
-    x: x0 + 20 + (x - 20) * Math.cos(tilt) - (y - 11) * Math.sin(tilt),
-    y: y0 + 11 + (x - 20) * Math.sin(tilt) + (y - 11) * Math.cos(tilt),
+    x: x0 + 28 + ((x - 20) * Math.cos(tilt) - (y - 11) * Math.sin(tilt)) * k,
+    y: y0 + 15 + ((x - 20) * Math.sin(tilt) + (y - 11) * Math.cos(tilt)) * k,
   });
   const rear = at(2, 18);
   const bracket = at(15, 19);
@@ -1075,10 +1103,33 @@ function paintFrame(layer, x0, y0) {
     [at(11, 2), bracket], [seat, headTop], [headBottom, bracket], [headTop, headBottom],
     [headBottom, at(36, 15)], [at(36, 15), at(38, 19)], // the fork
     [headTop, at(33, 2)], [at(33, 2), at(37, 2)], [at(37, 2), at(38, 5)], // stem and a bent bar
-    [bracket, at(19, 23)], // a crank
   ]) rustyTube(layer, a, b);
   // The saddle, its cover long gone.
-  for (let x = 7; x <= 14; x += 1) layer.set(Math.round(at(x, 1).x), Math.round(at(x, 1).y), C.fur[2]);
+  for (let x = 7; x <= 14; x += 0.5) layer.set(Math.round(at(x, 1).x), Math.round(at(x, 1).y), C.fur[2]);
+  // The chainring on the bracket: a toothed ring and five spider arms.
+  const cx = Math.round(bracket.x);
+  const cy = Math.round(bracket.y);
+  for (let y = -10; y <= 10; y += 1) {
+    for (let x = -10; x <= 10; x += 1) {
+      const r = Math.hypot(x, y);
+      const angle = Math.atan2(y, x);
+      const tooth = Math.floor(((angle + Math.PI) / (Math.PI * 2)) * 32) % 2 === 0;
+      const lit = x + y < 0;
+      if (r >= 7 && r < 8.4) layer.set(cx + x, cy + y, lit ? C.rust[0] : C.rust[1]);
+      else if (r >= 8.4 && r < 9.4 && tooth) layer.set(cx + x, cy + y, C.rust[2]);
+      else if (r < 7 && r >= 2) {
+        const arm = Math.abs((((angle / (Math.PI * 2)) * 5 + 5.25) % 1) - 0.5) > 0.4;
+        if (arm) layer.set(cx + x, cy + y, C.rust[2]);
+      } else if (r < 2) layer.set(cx + x, cy + y, C.rust[3]);
+    }
+  }
+  // A crank arm down to a pedal.
+  const foot = at(21, 27);
+  rustyTube(layer, bracket, foot);
+  for (let x = -3; x <= 3; x += 1) {
+    layer.set(Math.round(foot.x) + x, Math.round(foot.y) + 1, C.steel[3]);
+    layer.set(Math.round(foot.x) + x, Math.round(foot.y) + 2, x % 2 ? C.fur[2] : C.steel[3]);
+  }
 }
 
 /** A dinosaur, long before cyclocross: skull, spine, ribs, legs and tail. */
@@ -1164,27 +1215,47 @@ function paintMole(layer, x0, y0) {
   ], { f: C.fur[1], F: C.fur[0], p: C.pink[0] });
 }
 
-/** An earthworm near the surface. */
+/** An earthworm near the surface: a plump, ringed S curve with a saddle. */
 function paintWorm(layer, x0, y0) {
-  sprite(layer, x0, y0, ['.pp...pp.', 'p..p.p..p', '....p....'], { p: C.pink[1] });
+  const length = 20;
+  for (let x = 0; x < length; x += 1) {
+    const y = y0 + 3 + Math.round(Math.sin(x / 3) * 2);
+    const end = x === 0 || x === length - 1;
+    const ring = x % 3 === 2;
+    const saddle = x >= 5 && x <= 7;
+    layer.set(x0 + x, y, ring || saddle ? C.pink[1] : C.pink[0]);
+    if (!end) layer.set(x0 + x, y + 1, C.pink[1]);
+    if (!end && !ring && !saddle && x % 4 === 0) layer.set(x0 + x, y, C.paper[0]);
+  }
+}
+
+/** An old blue bidon, standing: push-pull nozzle, black cap, a grip waist and a white stripe. */
+function paintOldBidon(layer, x0, y0) {
+  sprite(layer, x0, y0, [
+    '...nn...',
+    '...nm...',
+    '..cccc..',
+    '.cccccc.',
+    '.kwwwgk.',
+    'kwwwwwgk',
+    'kwwwwwgk',
+    'kooooopk',
+    'kwwwwwgk',
+    '.kwwwgk.',
+    '.kwwwgk.',
+    'kwwwwwgk',
+    'kwwwwwgk',
+    'kwwwwwgk',
+    '.kkkkkk.',
+  ], { k: C.bidon[2], w: C.bidon[0], g: C.bidon[1], c: C.cap, n: C.steel[1], m: C.steel[2], o: C.bottle[0], p: C.bottle[1] });
 }
 
 /** Lost things in the soil, left to right. */
 const FINDS = [
   { x: 14, y: SOIL_TOP + 9, w: 44, h: 6, paint: paintMole },
-  { x: 96, y: SOIL_TOP + 22, w: 8, h: 8, paint: (layer, x, y) => sprite(layer, x, y, [
-    '..oooo..',
-    '.oeeeeo.',
-    'oe.oo.eo',
-    'oeo..oeo',
-    'oeo..oeo',
-    'oe.oo.eo',
-    '.oeeeeo.',
-    '..oooo..',
-  ], { o: C.rust[2], e: C.rust[0] }) },
-  { x: 136, y: SOIL_TOP + 31, w: 40, h: 25, paint: paintFrame },
+  { x: 100, y: SOIL_TOP + 26, w: 62, h: 42, paint: paintFrame },
   { x: 214, y: SOIL_TOP + 20, w: 7, h: 10, paint: paintCowbell },
-  { x: 262, y: SOIL_TOP + 6, w: 9, h: 3, paint: paintWorm },
+  { x: 252, y: SOIL_TOP + 7, w: 20, h: 7, paint: paintWorm },
   { x: 300, y: SOIL_TOP + 28, w: 11, h: 3, paint: (layer, x, y) => sprite(layer, x, y, [
     'kkkkkkkkkkk',
     'kyyyyyyyyyk',
@@ -1203,14 +1274,7 @@ const FINDS = [
     'pppppppppp',
   ], { p: C.paper[1], w: C.paper[0], b: C.ink }) },
   { x: 548, y: SOIL_TOP + 34, w: 26, h: 7, paint: paintBottle },
-  { x: 642, y: SOIL_TOP + 34, w: 10, h: 6, paint: (layer, x, y) => sprite(layer, x, y, [
-    '.cc.......',
-    'ccbbbbbbb.',
-    'cbwwwwwwwb',
-    'cbwrrwwwwb',
-    'ccbbbbbbb.',
-    '.cc.......',
-  ], { c: C.cap, b: C.bottle[1], w: C.bottle[0], r: C.tape[0] }) },
+  { x: 640, y: SOIL_TOP + 26, w: 8, h: 15, paint: paintOldBidon },
 ];
 
 // --------------------------------------------------------------- the scene

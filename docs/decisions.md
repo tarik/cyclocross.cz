@@ -4,6 +4,12 @@ Newest first. Each entry says what was decided, by whom and why. Owner decisions
 
 ## 2026-11-18, scenery PR
 
+Fourth round, after the owner's review:
+
+- **Owner: the frame has its crank.** The rusty frame is larger and carries a toothed chainring with five spider arms, a crank arm and a pedal. The loose chainring was removed, as it did not read.
+- **Owner: the steep banners are abstract.** Banners on the ramps and the stairs carry a graphic per design (chevrons, a wave, diagonal stripes, dots, a split, a zigzag, a sawtooth) instead of imitating lettering.
+- **Agent: finds that read.** The earthworm is a plump, ringed pink S curve, and the old bidon is a standing blue bottle with a black cap, a nozzle, a grip waist and a white stripe (white looked like a snowman).
+
 Third round, after the owner's review:
 
 - **Owner: nothing stands on the track.** The feather flag and the end of the banner fence stood in the track where it bends down from the flyover. The pose fence now runs at s 52 from e -6 to 214 and the flag stands behind it at (184, 30). The stairs fence and two lines of hill tape were shortened where they reached into the dismount lane and the summit. A unit test (`tests/unit/scenery.test.ts`) keeps every flag, fence and line of tape more than half a track width plus one unit from the route.

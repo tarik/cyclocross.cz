@@ -112,6 +112,7 @@ export const SCENERY = {
   ink: '#2a2520',
   cap: '#2a2520',
   bottle: ['#f4f0e6', '#c9c0ae'],
+  bidon: ['#7fb0dc', '#4a7fb5', '#2f5d8a'],
   /** Green glass of a Czech lager bottle, its cream label and gold foil. */
   glass: ['#a9cf7e', '#5f9147', '#3f6b34', '#284727'],
   label: ['#f6ecc8', '#d8c58f'],
