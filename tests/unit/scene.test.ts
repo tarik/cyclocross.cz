@@ -13,7 +13,7 @@ describe('course route', () => {
     }
   });
 
-  it('passes under the flat top twice with headroom and crosses it at deck height', () => {
+  it('passes under the flat top with headroom and crosses it at deck height', () => {
     const { topIn, topOut, width } = structures.flyover;
     for (const id of underpasses) {
       const [from, to] = route.find((segment) => segment.id === id)!.path;
@@ -39,6 +39,23 @@ describe('course route', () => {
     for (const id of ['flyover-up', 'flyover-top', 'flyover-down']) expect(heading(id), id).toEqual({ e: -1, s: -1 });
     expect(heading('stairs')).toEqual({ e: 1, s: -1 });
     expect(heading('downhill')).toEqual({ e: 1, s: 1 });
+  });
+
+  it('turns left after the flyover instead of passing under it again', () => {
+    const index = route.findIndex((segment) => segment.id === 'flyover-down');
+    for (const segment of route.slice(index + 1)) {
+      const { path } = segment;
+      expect(path[path.length - 1].e, segment.id).toBeLessThanOrEqual(path[0].e);
+    }
+    expect(underpasses).toEqual(['underpass']);
+  });
+
+  it('runs the hill off the right edge with the whole descent on screen', () => {
+    const { ridgeEnd } = structures.hill;
+    expect(project(ridgeEnd).x).toBeGreaterThan(canvas.width);
+    for (const point of route.find((segment) => segment.id === 'downhill')!.path) {
+      expect(project(point).x).toBeLessThan(canvas.width - 20);
+    }
   });
 
   it('keeps every marker inside the canvas', () => {

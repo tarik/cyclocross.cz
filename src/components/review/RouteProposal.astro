@@ -34,8 +34,9 @@ const sideIn = [left(flyover.footIn), left(flyover.topIn), ground(left(flyover.t
 const sideTop = [left(flyover.topIn), left(flyover.topOut), under(left(flyover.topOut)), under(left(flyover.topIn))];
 const sideOut = [left(flyover.topOut), left(flyover.footOut), ground(left(flyover.topOut))];
 const legs = [left(flyover.topIn), right(flyover.topIn), left(flyover.topOut), right(flyover.topOut)];
-const hillShape = [pt(468, 156), hill.stairsFoot, hill.stairsTop, hill.dropTop, hill.dropFoot, pt(690, 170), pt(600, 188), pt(520, 180)];
-const hillFront = [hill.stairsFoot, hill.stairsTop, hill.dropTop, hill.dropFoot, pt(600, 188), pt(520, 180)];
+// The ridge runs off the right edge; its far (north) slope shows above the summit line.
+const hillBack = [pt(476, 150), hill.stairsFoot, hill.stairsTop, hill.ridgeEnd, pt(780, -10, 0), pt(560, 20, 0)];
+const hillFront = [hill.stairsFoot, hill.stairsTop, hill.dropTop, hill.ridgeEnd, pt(780, 156, 0), hill.dropFoot, pt(600, 170), pt(530, 160)];
 const steps = Array.from({ length: hill.steps + 1 }, (_, i) => {
   const t = i / hill.steps;
   return pt(hill.stairsFoot.e + (hill.stairsTop.e - hill.stairsFoot.e) * t, hill.stairsFoot.s + (hill.stairsTop.s - hill.stairsFoot.s) * t, SUMMIT * t);
@@ -43,7 +44,7 @@ const steps = Array.from({ length: hill.steps + 1 }, (_, i) => {
 
 const rows = sheet.directions as string[];
 // Segments shown by their number only, to keep the drawing readable.
-const numberOnly = ['entry', 'dismount', 'summit', 'loop', 'under-return', 'to-pose'];
+const numberOnly = ['entry', 'dismount', 'summit', 'to-pose'];
 const markers = route.map((segment, index) => {
   const point = along(segment.path, segment.marker);
   const screen = project(point);
@@ -86,10 +87,14 @@ const sheetUrl = withBase('/art/cycle-female-club.png');
     <circle cx={project(poseArea).x} cy={project(poseArea).y} r="16" fill="#c9a877" />
 
     <!-- Hill: stairs on the north-east face, steep drop on the south-east face -->
-    <polygon points={line(hillShape)} fill="#6f8f36" stroke="#2a2520" stroke-width="1" />
+    <polygon points={line(hillBack)} fill="#6f8f36" stroke="#2a2520" stroke-width="1" />
     <polygon points={line(hillFront)} fill="#7d9a3c" stroke="#2a2520" stroke-width="1" />
     <polyline points={line(steps)} fill="none" stroke="#e9e4d8" stroke-width="9" stroke-dasharray="2 2.6" />
     <polyline points={line([hill.dropTop, hill.dropFoot])} fill="none" stroke="#b08a5a" stroke-width="10" stroke-linecap="round" />
+    <!-- The track back along the front runs in front of the hill's foot -->
+    {route.filter((segment) => segment.id === 'return').map((segment) => (
+      <polyline points={line(segment.path)} fill="none" stroke="#b08a5a" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" />
+    ))}
 
     <!-- Flyover, far half: the ramp down and the far legs -->
     <polygon points={line(sideOut)} fill="#a39878" stroke="#2a2520" stroke-width="1" />
@@ -182,11 +187,11 @@ const sheetUrl = withBase('/art/cycle-female-club.png');
 <h2>How it connects</h2>
 <ul class="prose">
   <li>The rider enters from the left, hops two barriers and rides straight under the flat top of the flyover.</li>
-  <li>After the dismount the rider runs up the stairs, heading north-east, to the top of the hill.</li>
+  <li>After the dismount the rider runs up the stairs, heading north-east, onto a ridge that carries on off the right edge of the screen.</li>
   <li>From the summit the rider remounts and drops down the steep south-east face.</li>
-  <li>The track loops round at the right and comes back along the front to the foot of the flyover.</li>
+  <li>The whole descent stays on screen. The track then bends round at the right and comes back along the front to the foot of the flyover.</li>
   <li>The flyover is ridden towards the north-west: steep up, a flat top above the entry lane, steep down.</li>
-  <li>The track turns round the far end of the flyover and passes under it a second time, heading left, on a lane behind the entry lane. The two lanes never cross.</li>
+  <li>At the foot of the ramp down the track turns left, behind the barriers, without passing under the flyover again.</li>
   <li>The rider stops and poses at the left, then leaves the screen to the left.</li>
   <li>Every segment starts where the previous one ends. A test fails if a gap appears.</li>
 </ul>

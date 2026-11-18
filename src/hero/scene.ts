@@ -51,14 +51,18 @@ export const SUMMIT = 112;
 export const structures = {
   /**
    * The flyover: a steep ramp up, a flat top and a steep ramp down, ridden
-   * towards the north-west. Two lanes pass under the flat top: the entry
-   * lane (south) and the way out (north).
+   * towards the north-west. The entry lane passes under the flat top; after
+   * the ramp down the route turns left, towards the pose area.
    */
   flyover: { footIn: p(453, 203, 0), topIn: p(400, 150, DECK), topOut: p(341, 91, DECK), footOut: p(288, 38, 0), width: 26 },
-  /** The hill on the right: stairs up its north-east face, a steep drop down the south-east face. */
-  hill: { stairsFoot: p(500, 140, 0), stairsTop: p(570, 70, SUMMIT), dropTop: p(592, 72, SUMMIT), dropFoot: p(667, 147, 0), steps: 14 },
+  /**
+   * The hill on the right: a ridge that runs off the right edge of the
+   * screen. Stairs climb its north-east face, a steep drop comes down its
+   * south-east face inside the screen.
+   */
+  hill: { stairsFoot: p(500, 140, 0), stairsTop: p(565, 75, SUMMIT), dropTop: p(596, 76, SUMMIT), dropFoot: p(668, 148, 0), ridgeEnd: p(780, 52, SUMMIT + 14), steps: 14 },
   barriers: [p(112, 140, 0), p(222, 140, 0)],
-  poseArea: p(130, 104, 0),
+  poseArea: p(140, 74, 0),
 };
 
 export const route: Segment[] = [
@@ -66,22 +70,20 @@ export const route: Segment[] = [
   { id: 'barriers', label: 'Barriers', action: 'hop', facing: 'E', marker: 0.85, path: [p(60, 140), p(262, 140)] },
   { id: 'underpass', label: 'Under the flyover', action: 'ride', facing: 'E', marker: 0.45, path: [p(262, 140), p(420, 140)] },
   { id: 'dismount', label: 'Dismount', action: 'dismount', facing: 'E', marker: 0.6, path: [p(420, 140), p(500, 140)] },
-  { id: 'stairs', label: 'Stairs', action: 'run', facing: 'NE', marker: 0.5, path: [p(500, 140), p(570, 70, SUMMIT)] },
-  { id: 'summit', label: 'Summit', action: 'remount', facing: 'SE', marker: 0.5, path: [p(570, 70, SUMMIT), p(592, 72, SUMMIT)] },
-  { id: 'downhill', label: 'Steep downhill', action: 'ride', facing: 'SE', marker: 0.55, path: [p(592, 72, SUMMIT), p(667, 147, 0)] },
-  { id: 'return', label: 'Back to the flyover', action: 'ride', facing: 'W', marker: 0.72, path: [p(667, 147), p(692, 172), p(676, 198), p(620, 203), p(453, 203)] },
+  { id: 'stairs', label: 'Stairs', action: 'run', facing: 'NE', marker: 0.5, path: [p(500, 140), p(565, 75, SUMMIT)] },
+  { id: 'summit', label: 'Summit', action: 'remount', facing: 'SE', marker: 0.5, path: [p(565, 75, SUMMIT), p(596, 76, SUMMIT)] },
+  { id: 'downhill', label: 'Steep downhill', action: 'ride', facing: 'SE', marker: 0.55, path: [p(596, 76, SUMMIT), p(668, 148, 0)] },
+  { id: 'return', label: 'Back to the flyover', action: 'ride', facing: 'W', marker: 0.72, path: [p(668, 148), p(692, 176), p(670, 203), p(453, 203)] },
   { id: 'flyover-up', label: 'Flyover, steep up', action: 'ride', facing: 'NW', marker: 0.5, path: [p(453, 203), p(400, 150, DECK)] },
   { id: 'flyover-top', label: 'Flyover, flat top', action: 'ride', facing: 'NW', marker: 0.5, path: [p(400, 150, DECK), p(341, 91, DECK)] },
   { id: 'flyover-down', label: 'Flyover, steep down', action: 'ride', facing: 'NW', marker: 0.6, path: [p(341, 91, DECK), p(288, 38, 0)] },
-  { id: 'loop', label: 'Round the end of the flyover', action: 'ride', facing: 'E', marker: 0.25, path: [p(288, 38), p(272, 22), p(290, 6), p(340, 10), p(396, 50), p(420, 90), p(404, 104)] },
-  { id: 'under-return', label: 'Under the flyover again', action: 'ride', facing: 'W', marker: 0.32, path: [p(404, 104), p(250, 104)] },
-  { id: 'to-pose', label: 'To the pose area', action: 'ride', facing: 'W', marker: 0.6, path: [p(250, 104), p(130, 104)] },
-  { id: 'pose', label: 'Pose and idle', action: 'pose', facing: 'S', marker: 0, path: [p(130, 104), p(130, 104)] },
-  { id: 'exit', label: 'Exit', action: 'ride', facing: 'W', marker: 0.6, path: [p(130, 104), p(-60, 104)] },
+  { id: 'to-pose', label: 'Left to the pose area', action: 'ride', facing: 'W', marker: 0.85, path: [p(288, 38), p(262, 48), p(220, 70), p(140, 74)] },
+  { id: 'pose', label: 'Pose and idle', action: 'pose', facing: 'S', marker: 0, path: [p(140, 74), p(140, 74)] },
+  { id: 'exit', label: 'Exit', action: 'ride', facing: 'W', marker: 0.45, path: [p(140, 74), p(-60, 74)] },
 ];
 
-/** The two lanes that pass under the flat top of the flyover. */
-export const underpasses = ['underpass', 'under-return'];
+/** The lane that passes under the flat top of the flyover. */
+export const underpasses = ['underpass'];
 
 /** Segments that are allowed to leave the ground. */
 export const elevatedSegments = ['stairs', 'summit', 'downhill', 'flyover-up', 'flyover-top', 'flyover-down'];
