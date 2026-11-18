@@ -241,31 +241,33 @@ function terrain(e, s) {
 // ---------------------------------------------------- course furniture data
 
 /** Banner fences: crowd barriers dressed with sponsor banners, along a ground line. */
-const FENCES = [
-  { from: { e: -6, s: 56 }, to: { e: 252, s: 56 }, first: 6 },
+export const FENCES = [
+  // Behind the pose area; it ends before the track bends up to the flyover.
+  { from: { e: -6, s: 52 }, to: { e: 214, s: 52 }, first: 6 },
   { from: { e: 478, s: 186 }, to: { e: 640, s: 186 }, first: 2 },
   // Along the north-west side of the stairs, stepping up the slope.
-  { from: { e: 468, s: 108 }, to: { e: 560, s: 16 }, first: 5, onTerrain: true },
+  { from: { e: 474, s: 102 }, to: { e: 560, s: 16 }, first: 5, onTerrain: true },
 ];
 const FENCE_HEIGHT = 27;
 const PANEL = 44;
 
 /** Course tape on stakes, by layer. */
-const TAPES = [
+export const TAPES = [
   { layer: 'front', from: { e: -6, s: 137 }, to: { e: 252, s: 137 } },
   { layer: 'tape-mid', from: { e: 172, s: 97 }, to: { e: 268, s: 97 } },
   { layer: 'front', from: { e: 448, s: 220 }, to: { e: 718, s: 220 } },
   // Both sides of the drop and the near side of the stairs.
   { layer: 'back', from: { e: 622, s: 20 }, to: { e: 706, s: 138 }, onTerrain: true },
-  { layer: 'hill-tape', from: { e: 598, s: 40 }, to: { e: 682, s: 158 }, onTerrain: true },
-  { layer: 'hill-tape', from: { e: 492, s: 132 }, to: { e: 584, s: 40 }, onTerrain: true },
+  { layer: 'hill-tape', from: { e: 603, s: 47 }, to: { e: 682, s: 158 }, onTerrain: true },
+  { layer: 'hill-tape', from: { e: 492, s: 132 }, to: { e: 578, s: 46 }, onTerrain: true },
 ];
 const TAPE_HEIGHT = 26;
 
 /** Feather flags along the course. */
-const FLAGS = [
+export const FLAGS = [
   { e: 14, s: 44, colour: 'teal' },
-  { e: 262, s: 44, colour: 'orange' },
+  // Behind the pose fence, clear of the track that bends down from the flyover.
+  { e: 184, s: 30, colour: 'orange' },
   { e: 468, s: 90, colour: 'yellow' },
   { e: 652, s: 20, colour: 'navy' },
 ];
@@ -605,10 +607,22 @@ const FONT = {
   '.': '000000000000010', ' ': '000000000000000',
 };
 /**
- * Generic trades for the banners, the kind of local businesses that support an
- * amateur race. They name no real company. Words need no diacritics.
+ * Banner messages: the site itself, and the empty slots offered for sale.
+ * Each message lists layouts from the longest to the shortest, as lines; the
+ * first that fits the banner is used. Words need no diacritics.
  */
-const WORDS = ['CYKLO', 'AUTO', 'STAVBY', 'ELEKTRO', 'OKNA', 'KOVO', 'SPORT', 'CYCLOCROSS.CZ'];
+const MESSAGES = {
+  brand: [['CYCLOCROSS.CZ'], ['CYCLO', 'CROSS.CZ'], ['CYCLO', 'CROSS']],
+  ad: {
+    cs: [['KUP SI REKLAMU'], ['KUP SI', 'REKLAMU'], ['REKLAMA']],
+    en: [['ADVERTISE HERE'], ['ADVERTISE', 'HERE'], ['YOUR AD', 'HERE']],
+  },
+};
+export const LOCALES = ['cs', 'en'];
+let locale = 'cs';
+
+/** Every third banner offers itself for sale; the rest carry the site. */
+const isAd = (index) => index % 3 === 1;
 
 /** Banner designs: background, lettering and an accent block. */
 const BANNERS = [
@@ -621,32 +635,56 @@ const BANNERS = [
   { bg: 'white', fg: 'navy', accent: 'orange' },
 ];
 
+const lineWidth = (line) => line.length * 4 - 1;
+
+/** The first layout of a message that fits, with room for the badge if any. */
+function bannerLayout(index, bw, bh) {
+  const options = isAd(index) ? MESSAGES.ad[locale] : MESSAGES.brand;
+  for (const lines of options) {
+    const width = Math.max(...lines.map(lineWidth));
+    const height = lines.length * 5 + (lines.length - 1) * 2;
+    if (width + 4 > bw || height + 4 > bh) continue;
+    return { lines, width, height, badge: width + 13 <= bw };
+  }
+  return null;
+}
+
 /**
  * Colour of a banner pixel. (bx, by) are pixel coordinates inside a banner of
- * bw by bh pixels; `index` picks the design and the words.
+ * bw by bh pixels; `index` picks the design and the message. `slope` is how
+ * steeply the banner runs on screen, in pixels down per pixel across.
  */
-function bannerPixel(index, bx, by, bw, bh, shade = 0) {
+function bannerPixel(index, bx, by, bw, bh, shade = 0, slope = 0) {
   const design = BANNERS[index % BANNERS.length];
   const tone = (name) => C.banner[name][Math.min(C.banner[name].length - 1, shade)];
   if (by < 0 || by >= bh || bx < 0 || bx >= bw) return null;
   // Hems top and bottom.
   if (by === 0 || by === bh - 1) return tone(design.bg === 'white' ? 'grey' : design.bg);
-  const word = index % BANNERS.length === 6 ? 'CYCLOCROSS.CZ' : WORDS[(index * 5 + 1) % (WORDS.length - 1)];
-  // Too narrow for lettering (a banner seen at a steep angle): a band of dashes.
-  if (bw < 26) {
+  // Lettering this small shears into noise on a steep banner, as on the ramps
+  // and the stairs. There, and where a banner is too narrow, a bold band in
+  // word-long blocks stands for the message, after an upright badge.
+  const layout = Math.abs(slope) < 0.4 ? bannerLayout(index, bw, bh) : null;
+  if (!layout) {
     const mid = Math.floor(bh / 2);
-    if (Math.abs(by - mid) <= 1 && (bx + by) % 4 !== 3) return tone(design.fg);
+    const badgeRow = by + Math.round(slope * (bx - 3)) - (mid - 2);
+    if (bx >= 3 && bx < 8 && badgeRow >= 0 && badgeRow < 5) return tone(design.accent);
+    const run = (bx - 10) % 13;
+    if (bx >= 10 && bx < bw - 3 && Math.abs(by - mid) <= 1 && run !== 8 && run !== 9 && run !== 12) return tone(design.fg);
     return tone(design.bg);
   }
-  // One word with a badge before it, centred on the banner.
-  const textWidth = word.length * 4 - 1;
-  const start = Math.floor((bw - textWidth - 7) / 2);
-  const y0 = Math.floor((bh - 5) / 2);
-  const local = bx - start;
-  if (local >= 0 && local < 5 && by >= y0 && by < y0 + 5) return tone(design.accent);
-  const lx = local - 7;
-  if (lx >= 0 && lx < textWidth && by >= y0 && by < y0 + 5 && bh >= 7) {
-    const glyph = FONT[word[Math.floor(lx / 4)]] ?? FONT[' '];
+  // The lines, each centred, with a badge before the block when it fits.
+  const block = layout.width + (layout.badge ? 7 : 0);
+  const left = Math.floor((bw - block) / 2);
+  const top = Math.floor((bh - layout.height) / 2);
+  const badgeTop = Math.floor((bh - 5) / 2);
+  if (layout.badge && bx >= left && bx < left + 5 && by >= badgeTop && by < badgeTop + 5) return tone(design.accent);
+  const textLeft = left + (layout.badge ? 7 : 0);
+  for (const [row, line] of layout.lines.entries()) {
+    const y0 = top + row * 7;
+    if (by < y0 || by >= y0 + 5) continue;
+    const lx = bx - textLeft - Math.floor((layout.width - lineWidth(line)) / 2);
+    if (lx < 0 || lx >= lineWidth(line)) continue;
+    const glyph = FONT[line[Math.floor(lx / 4)]] ?? FONT[' '];
     const gx = lx % 4;
     if (gx < 3 && glyph[(by - y0) * 3 + gx] === '1') return tone(design.fg);
   }
@@ -801,10 +839,11 @@ function paintFlyover(st) {
       const top1 = onFlyover(a1, HALF + 0.5, -3);
       const drop = (p) => ({ ...p, h: Math.max(1, p.h - BANNER_DROP) });
       const widthPx = Math.abs(top1.e - top0.e);
+      const slope = (proj(top1).y - proj(top0).y) / (proj(top1).x - proj(top0).x);
       face(top0, sub(top1, top0), sub(drop(top0), top0), [top0, top1, drop(top1), drop(top0)], (x, y, a, b, p) => {
         const bx = Math.floor(a * widthPx);
         const by = Math.floor(b * (BANNER_DROP * COS));
-        st.plot(x, y, p, bannerPixel(index + 1, bx, by, Math.floor(widthPx), Math.floor(BANNER_DROP * COS), 0));
+        st.plot(x, y, p, bannerPixel(index + 1, bx, by, Math.floor(widthPx), Math.floor(BANNER_DROP * COS), 0, slope));
       });
     }
   }
@@ -893,7 +932,7 @@ function paintFences(st) {
     let d = 0;
     let index = fence.first;
     while (d < length - 8) {
-      // Our own banner is twice as long, so the lettering fits.
+      // Some banners are twice as long, so the message fits on one line.
       const wide = index % BANNERS.length === 6 && !fence.onTerrain;
       const span = Math.min(length - d, wide ? panelLength * 2 : panelLength);
       const g0 = point(d + 0.6);
@@ -911,8 +950,9 @@ function paintFences(st) {
       const widthPx = Math.abs(proj(p10).x - proj(p00).x);
       const heightPx = Math.round((FENCE_HEIGHT - 3) * COS);
       const which = index;
+      const slope = (proj(p10).y - proj(p00).y) / (proj(p10).x - proj(p00).x);
       face(p00, { e: p10.e - p00.e, s: p10.s - p00.s, h: p10.h - p00.h }, { e: 0, s: 0, h: 3 - FENCE_HEIGHT }, [p00, p10, p11, p01], (x, y, a, b, p) => {
-        st.plot(x, y, p, bannerPixel(which, Math.floor(a * widthPx), Math.floor(b * heightPx), Math.floor(widthPx), heightPx), 'back');
+        st.plot(x, y, p, bannerPixel(which, Math.floor(a * widthPx), Math.floor(b * heightPx), Math.floor(widthPx), heightPx, 0, slope), 'back');
       });
       d += span;
       index += 1;
@@ -989,10 +1029,11 @@ function paintSoil(layer) {
       x += hash(r, k, 61) > 0.6 ? 1 : hash(r, k, 61) < 0.25 ? -1 : 0;
     }
   }
-  // Stones.
+  // Stones, kept out of the way of the finds.
   for (let i = 0; i < 34; i += 1) {
     const cx = Math.floor(hash(i, 0, 70) * W);
     const cy = Math.floor(SOIL_TOP + 14 + hash(i, 1, 70) * (SOIL_BOTTOM - SOIL_TOP - 18));
+    if (FINDS.some((f) => cx > f.x - 5 && cx < f.x + f.w + 5 && cy > f.y - 4 && cy < f.y + f.h + 4)) continue;
     const r = 1.2 + hash(i, 2, 70) * 2.2;
     for (let y = -3; y <= 3; y += 1) {
       for (let x = -4; x <= 4; x += 1) {
@@ -1002,9 +1043,136 @@ function paintSoil(layer) {
       }
     }
   }
-  // Cycling discoveries.
-  const y0 = SOIL_TOP + 16;
-  sprite(layer, 96, y0 + 6, [
+  for (const find of FINDS) find.paint(layer, find.x, find.y);
+}
+
+/** Thick lines for the rusty frame: a lit upper pixel, a shaded lower one and pits of rust. */
+function rustyTube(layer, a, b) {
+  const n = Math.ceil(Math.max(Math.abs(b.x - a.x), Math.abs(b.y - a.y))) * 2;
+  for (let i = 0; i <= n; i += 1) {
+    const x = Math.round(a.x + ((b.x - a.x) * i) / n);
+    const y = Math.round(a.y + ((b.y - a.y) * i) / n);
+    const pit = hash(x, y, 95);
+    layer.set(x, y, pit < 0.12 ? C.rust[3] : pit > 0.85 ? C.rust[0] : C.rust[1]);
+    layer.set(x, y + 1, pit < 0.3 ? C.rust[3] : C.rust[2]);
+  }
+}
+
+/** An old steel frame, lying a little tilted, without wheels. */
+function paintFrame(layer, x0, y0) {
+  const tilt = (-7 * Math.PI) / 180;
+  const at = (x, y) => ({
+    x: x0 + 20 + (x - 20) * Math.cos(tilt) - (y - 11) * Math.sin(tilt),
+    y: y0 + 11 + (x - 20) * Math.sin(tilt) + (y - 11) * Math.cos(tilt),
+  });
+  const rear = at(2, 18);
+  const bracket = at(15, 19);
+  const seat = at(12, 5);
+  const headTop = at(32, 5);
+  const headBottom = at(34, 11);
+  for (const [a, b] of [
+    [seat, rear], [bracket, rear], // the rear triangle
+    [at(11, 2), bracket], [seat, headTop], [headBottom, bracket], [headTop, headBottom],
+    [headBottom, at(36, 15)], [at(36, 15), at(38, 19)], // the fork
+    [headTop, at(33, 2)], [at(33, 2), at(37, 2)], [at(37, 2), at(38, 5)], // stem and a bent bar
+    [bracket, at(19, 23)], // a crank
+  ]) rustyTube(layer, a, b);
+  // The saddle, its cover long gone.
+  for (let x = 7; x <= 14; x += 1) layer.set(Math.round(at(x, 1).x), Math.round(at(x, 1).y), C.fur[2]);
+}
+
+/** A dinosaur, long before cyclocross: skull, spine, ribs, legs and tail. */
+function paintFossil(layer, x0, y0) {
+  const bone = (x, y, shade = 0) => layer.set(x0 + x, y0 + y, C.bone[shade]);
+  const spine = (x) => Math.round(5 - 4 * Math.sin((Math.PI * (x - 11)) / 44) + (x > 48 ? (x - 48) * 0.28 : 0));
+  sprite(layer, x0, y0 + 2, [
+    '..aaaaaaa...',
+    '.abbbbbbba..',
+    'abbc.bbbbba.',
+    'abbbbbbcbbba',
+    'bbbbbbbbbbb.',
+    'b.b.b.bbbb..',
+    '............',
+    '.b.b.b.bb...',
+    'cccccccc....',
+  ], { a: C.bone[0], b: C.bone[1], c: C.bone[2] });
+  for (let x = 12; x <= 66; x += 3) {
+    const y = spine(x);
+    const small = x > 52;
+    bone(x, y, 0);
+    if (!small) bone(x + 1, y, 1);
+    bone(x, y + 1, small ? 2 : 1);
+    if (!small) bone(x + 1, y + 1, 2);
+  }
+  // Ribs curving down from the middle of the back.
+  for (let x = 20; x <= 41; x += 3) {
+    const y = spine(x) + 2;
+    const length = 5 + Math.round(3 * Math.sin((Math.PI * (x - 18)) / 26));
+    for (let k = 0; k < length; k += 1) bone(x + Math.floor(k / 3), y + k, k < 2 ? 1 : 2);
+  }
+  // Two legs with three-toed feet.
+  for (const [hip, knee, ankle] of [[[19, 7], [21, 11], [18, 15]], [[46, 6], [49, 10], [46, 15]]]) {
+    for (const [a, b] of [[hip, knee], [knee, ankle]]) {
+      const n = Math.max(Math.abs(b[0] - a[0]), Math.abs(b[1] - a[1]));
+      for (let i = 0; i <= n; i += 1) bone(Math.round(a[0] + ((b[0] - a[0]) * i) / n), Math.round(a[1] + ((b[1] - a[1]) * i) / n), 1);
+    }
+    for (let k = -1; k <= 3; k += 1) bone(ankle[0] + k, ankle[1] + 1, k === 1 ? 1 : 2);
+  }
+}
+
+/** A green lager bottle with a cream label and a gold foil neck, as Czech beer comes. */
+function paintBottle(layer, x0, y0) {
+  sprite(layer, x0, y0, [
+    '.dddddddddddddddd.........',
+    'dhhhhhhhhhhhhhhhhdd.......',
+    'dgggllllllllggggggddddddf.',
+    'dggllrrrrrrllgggggggggfffF',
+    'dgglllyyyylllggggggddddff.',
+    'dgggllllllllgggggggd......',
+    '.dddddddddddddddddd.......',
+  ], { d: C.glass[3], g: C.glass[2], h: C.glass[1], l: C.label[0], r: C.banner.red[0], y: C.gold[1], f: C.gold[1], F: C.gold[2] });
+}
+
+/** A cowbell, rung at every cyclocross race, with a stub of its strap. */
+function paintCowbell(layer, x0, y0) {
+  sprite(layer, x0, y0, [
+    '..rrr....',
+    '.r...r...',
+    '..ddd....',
+    '.dlggd...',
+    '.dlggd...',
+    'dlgggmd..',
+    'dlgggmd..',
+    'dgggmmd..',
+    'ddddddd..',
+    '...k.....',
+  ], { r: C.banner.red[0], d: C.gold[3], l: C.gold[0], g: C.gold[1], m: C.gold[2], k: C.steel[3] });
+}
+
+/** A mole at the end of its tunnel, nose first. */
+function paintMole(layer, x0, y0) {
+  for (let x = 0; x < 34; x += 1) {
+    const wave = Math.round(Math.sin(x / 5) * 1.2);
+    for (let y = -1; y <= 1; y += 1) layer.set(x0 + x, y0 + 3 + wave + y, C.topsoil[3]);
+  }
+  sprite(layer, x0 + 32, y0, [
+    '..ffffff...',
+    '.fFFFFFFf..',
+    'fFFFFFFFFpp',
+    'fFFFFFFFFfp',
+    '.pfffffpf..',
+  ], { f: C.fur[1], F: C.fur[0], p: C.pink[0] });
+}
+
+/** An earthworm near the surface. */
+function paintWorm(layer, x0, y0) {
+  sprite(layer, x0, y0, ['.pp...pp.', 'p..p.p..p', '....p....'], { p: C.pink[1] });
+}
+
+/** Lost things in the soil, left to right. */
+const FINDS = [
+  { x: 14, y: SOIL_TOP + 9, w: 44, h: 6, paint: paintMole },
+  { x: 96, y: SOIL_TOP + 22, w: 8, h: 8, paint: (layer, x, y) => sprite(layer, x, y, [
     '..oooo..',
     '.oeeeeo.',
     'oe.oo.eo',
@@ -1013,13 +1181,17 @@ function paintSoil(layer) {
     'oe.oo.eo',
     '.oeeeeo.',
     '..oooo..',
-  ], { o: C.rust[2], e: C.rust[0] });
-  sprite(layer, 300, y0 + 12, [
+  ], { o: C.rust[2], e: C.rust[0] }) },
+  { x: 136, y: SOIL_TOP + 31, w: 40, h: 25, paint: paintFrame },
+  { x: 214, y: SOIL_TOP + 20, w: 7, h: 10, paint: paintCowbell },
+  { x: 262, y: SOIL_TOP + 6, w: 9, h: 3, paint: paintWorm },
+  { x: 300, y: SOIL_TOP + 28, w: 11, h: 3, paint: (layer, x, y) => sprite(layer, x, y, [
     'kkkkkkkkkkk',
     'kyyyyyyyyyk',
     '.kkkkkkkkk.',
-  ], { k: C.lever[1], y: C.lever[0] });
-  sprite(layer, 470, y0 + 2, [
+  ], { k: C.lever[1], y: C.lever[0] }) },
+  { x: 344, y: SOIL_TOP + 40, w: 68, h: 17, paint: paintFossil },
+  { x: 470, y: SOIL_TOP + 18, w: 10, h: 9, paint: (layer, x, y) => sprite(layer, x, y, [
     'pppppppppp',
     'p.p......p',
     'pwwwwwwwwp',
@@ -1029,20 +1201,23 @@ function paintSoil(layer) {
     'pwbwwwbwwp',
     'pwwwwwwwwp',
     'pppppppppp',
-  ], { p: C.paper[1], w: C.paper[0], b: C.ink });
-  sprite(layer, 642, y0 + 18, [
+  ], { p: C.paper[1], w: C.paper[0], b: C.ink }) },
+  { x: 548, y: SOIL_TOP + 34, w: 26, h: 7, paint: paintBottle },
+  { x: 642, y: SOIL_TOP + 34, w: 10, h: 6, paint: (layer, x, y) => sprite(layer, x, y, [
     '.cc.......',
     'ccbbbbbbb.',
     'cbwwwwwwwb',
     'cbwrrwwwwb',
     'ccbbbbbbb.',
     '.cc.......',
-  ], { c: C.cap, b: C.bottle[1], w: C.bottle[0], r: C.tape[0] });
-}
+  ], { c: C.cap, b: C.bottle[1], w: C.bottle[0], r: C.tape[0] }) },
+];
 
 // --------------------------------------------------------------- the scene
 
-export function paintScene() {
+/** The whole scene, with the banner lettering in one language. */
+export function paintScene(language = 'cs') {
+  locale = language;
   const layers = {};
   for (const id of ['back', ...occluders.map((o) => o.id)]) layers[id] = new Layer();
   const back = layers.back;

@@ -22,7 +22,11 @@ const riders = route
 const data = {
   width: scene.width,
   height: scene.height,
-  layers: scene.layers.map((layer) => ({ ...layer, url: withBase(`/art/${layer.file}`) })),
+  layers: scene.layers.map(({ id, files, ...rest }) => ({
+    id,
+    ...rest,
+    urls: { cs: withBase(`/art/${files.cs}`), en: withBase(`/art/${files.en}`) },
+  })),
   sheet: { url: withBase('/art/cycle-female-club.png'), cell: sheet.cell },
   riders,
 };
@@ -30,16 +34,18 @@ const details = [
   { label: 'Flyover', x: 260, y: 80, width: 220, height: 170 },
   { label: 'Stairs, summit and drop', x: 450, y: 40, width: 270, height: 200 },
   { label: 'Banners, barriers and course tape', x: 0, y: 140, width: 270, height: 90 },
-  { label: 'Soil cutaway with discoveries', x: 60, y: 252, width: 470, height: 92 },
+  { label: 'Banners at the foot of the hill', x: 450, y: 190, width: 270, height: 70 },
+  { label: 'Soil cutaway, left half', x: 0, y: 252, width: 360, height: 80 },
+  { label: 'Soil cutaway, right half', x: 360, y: 252, width: 360, height: 80 },
 ];
 ---
 
 <div class="prose mb-6">
   <p>
-    This is the scenery for the desktop scene, drawn on the course you approved. Second round: golden hour, a steel
-    flyover with handrails and banners, wider and gentler stairs, tape at real height and sponsor banners mixed with
-    tape, as at a well supported amateur race. The riders stand at a few points of the route only to show size and
-    layering; the animation comes later.
+    This is the scenery for the desktop scene, drawn on the course you approved. Third round: the flag and the banner
+    fence now stand beside the track where it comes down from the flyover, the banners advertise this site or offer
+    themselves for sale in the language of the page, and the soil holds more finds. The riders stand at a few points
+    of the route only to show size and layering; the animation comes later.
   </p>
   <p>
     The scene is 720 by 344 art pixels and is shown at two screen pixels per art pixel on a 1440 px wide screen. Smaller
@@ -47,8 +53,10 @@ const details = [
   </p>
 </div>
 
-<p class="mb-4">
+<p class="mb-4 flex flex-wrap gap-2">
   <button type="button" class="pill" data-scene-riders aria-pressed="true">Hide the riders</button>
+  <button type="button" class="pill" data-scene-locale="cs" aria-pressed="true">Czech banners</button>
+  <button type="button" class="pill" data-scene-locale="en" aria-pressed="false">English banners</button>
 </p>
 
 <div class="scene-bleed mb-10" data-scene={JSON.stringify(data)}>
@@ -60,7 +68,7 @@ const details = [
   {details.map((detail) => (
     <figure class="min-w-0">
       <figcaption class="mb-2 font-semibold">{detail.label}</figcaption>
-      <div class="overflow-x-auto border-2 border-ink">
+      <div class="w-fit max-w-full overflow-x-auto border-2 border-ink">
         <canvas width={detail.width * 3} height={detail.height * 3} class="block max-w-none" data-scene-detail={JSON.stringify(detail)} aria-hidden="true"></canvas>
       </div>
     </figure>
@@ -72,8 +80,9 @@ const details = [
   <li>Everything is drawn from the course data, so the stairs, the drop and the flyover sit exactly where the riders will ride.</li>
   <li>The scenery comes in layers: the background, course tape between the two left lanes, the near half of the flyover, the tape beside the stairs and the drop, and finally the tape and the near handrails in front of everything. A rider is drawn between the layers by how far from the viewer it is, so a rider under the flyover is hidden by its near half and a rider on top is not, and the handrail passes in front of a rider on the deck.</li>
   <li>The low sun sits in the upper left, as the light on the riders, and casts long, cool shadows of the flyover, the banner fences, the barriers and the big tree.</li>
-  <li>The banners advertise made-up local trades (cycle shop, car service, builders, windows, metalwork) and this site. They name no real company, and later they can become real advertising slots with matching links on the page.</li>
-  <li>Hidden in the soil: a chainring, a tyre lever, race number 17 and an old bidon. A newer bidon lies in the grass by the barriers.</li>
+  <li>The banners carry this site, and every third one offers itself for sale: KUP SI REKLAMU on the Czech page, ADVERTISE HERE on the English one. Only the background layer differs between the two languages. On the steep banners along the ramps and the stairs, letters this small shear into noise, so a bold band stands for the message there.</li>
+  <li>Hidden in the soil, from the left: a mole at the end of its tunnel, a chainring, a rusty old frame, a cowbell, an earthworm, a tyre lever, a dinosaur, race number 17, a green lager bottle and an old bidon. A newer bidon lies in the grass by the barriers.</li>
+  <li>A test keeps every flag, banner fence and line of tape at least half a track width from the route, so nothing stands on the track.</li>
   <li>The soil fades into the page in stepped, dithered rows, so the content below starts on the plain page colour.</li>
 </ul>
 
@@ -86,7 +95,8 @@ const details = [
 </style>
 
 <script>
-  interface Layer { id: string; url: string; s?: number }
+  type Locale = 'cs' | 'en';
+  interface Layer { id: string; urls: Record<Locale, string>; s?: number }
   interface Rider { id: string; x: number; y: number; row: number; depth: number }
   interface SceneData {
     width: number;
@@ -99,6 +109,7 @@ const details = [
   const host = document.querySelector<HTMLElement>('[data-scene]');
   const canvas = document.querySelector<HTMLCanvasElement>('[data-scene-canvas]');
   const toggle = document.querySelector<HTMLButtonElement>('[data-scene-riders]');
+  const localeButtons = [...document.querySelectorAll<HTMLButtonElement>('[data-scene-locale]')];
   if (host && canvas && toggle) {
     const data = JSON.parse(host.dataset.scene!) as SceneData;
     const load = (url: string) => new Promise<HTMLImageElement>((resolve, reject) => {
@@ -107,12 +118,15 @@ const details = [
       image.onerror = reject;
       image.src = url;
     });
-    Promise.all([...data.layers.map((layer) => load(layer.url)), load(data.sheet.url)]).then((images) => {
+    const locales: Locale[] = ['cs', 'en'];
+    const urls = data.layers.flatMap((layer) => locales.map((locale) => layer.urls[locale]));
+    Promise.all([...urls.map(load), load(data.sheet.url)]).then((images) => {
       const sheet = images.pop()!;
-      const layers = data.layers.map((layer, i) => ({ ...layer, image: images[i] }));
+      const byUrl = new Map(urls.map((url, i) => [url, images[i]]));
       const context = canvas.getContext('2d')!;
       context.imageSmoothingEnabled = false;
       let showRiders = true;
+      let locale: Locale = 'cs';
 
       const drawRider = (rider: Rider) => {
         const { cell } = data.sheet;
@@ -127,10 +141,10 @@ const details = [
         context.clearRect(0, 0, data.width, data.height);
         const riders = showRiders ? [...data.riders].sort((a, b) => a.depth - b.depth) : [];
         let next = 0;
-        for (const layer of layers) {
+        for (const layer of data.layers) {
           // Riders further away than this layer go first.
           while (layer.s !== undefined && next < riders.length && riders[next].depth < layer.s) drawRider(riders[next++]);
-          context.drawImage(layer.image, 0, 0);
+          context.drawImage(byUrl.get(layer.urls[locale])!, 0, 0);
         }
         while (next < riders.length) drawRider(riders[next++]);
         for (const detail of document.querySelectorAll<HTMLCanvasElement>('[data-scene-detail]')) {
@@ -148,6 +162,13 @@ const details = [
         toggle.textContent = showRiders ? 'Hide the riders' : 'Show the riders';
         render();
       });
+      for (const button of localeButtons) {
+        button.addEventListener('click', () => {
+          locale = button.dataset.sceneLocale as Locale;
+          for (const other of localeButtons) other.setAttribute('aria-pressed', String(other === button));
+          render();
+        });
+      }
       render();
     });
   }

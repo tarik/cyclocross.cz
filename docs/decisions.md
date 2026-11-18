@@ -4,6 +4,14 @@ Newest first. Each entry says what was decided, by whom and why. Owner decisions
 
 ## 2026-11-18, scenery PR
 
+Third round, after the owner's review:
+
+- **Owner: nothing stands on the track.** The feather flag and the end of the banner fence stood in the track where it bends down from the flyover. The pose fence now runs at s 52 from e -6 to 214 and the flag stands behind it at (184, 30). The stairs fence and two lines of hill tape were shortened where they reached into the dismount lane and the summit. A unit test (`tests/unit/scenery.test.ts`) keeps every flag, fence and line of tape more than half a track width plus one unit from the route.
+- **Owner: the banners advertise cyclocross.cz, and some offer themselves for sale**: every third banner says KUP SI REKLAMU on the Czech page. **Agent:** on the English page it says ADVERTISE HERE, the usual wording on such banners, rather than the literal BUY ADVERTISEMENTS. The made-up trades are gone. Each message has layouts from one line to two short lines, and a banner uses the longest that fits.
+- **Agent: the scenery is built once per language.** Only layers whose pixels differ get a file per language (today only `scene-back.cs.png` and `scene-back.en.png`); `scene.json` lists `files` per locale for every layer.
+- **Agent: steep banners carry no lettering.** On the ramps and the stairs, 3 by 5 letters shear into noise, so those banners show an upright badge and a bold band in word-long blocks.
+- **Owner: more finds in the soil**: a rusty frame, bones and a green lager bottle with a cream label and gold foil (no brand name). **Agent:** the bones are a small dinosaur, and a mole at the end of its tunnel, a cowbell (rung at every cyclocross race) and an earthworm were added. Stones keep clear of the finds.
+
 Second round, after the owner's review (photos of a stairs hill and a race flyover):
 
 - **Owner: golden hour.** The sky runs from blue-violet overhead through rose and peach to pale gold, with a low sun in the upper left, long thin clouds lit from below, warm highlights and cool, long shadows (separate shadow ramps in `SCENERY.shadow`).

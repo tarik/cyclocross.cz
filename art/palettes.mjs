@@ -112,6 +112,12 @@ export const SCENERY = {
   ink: '#2a2520',
   cap: '#2a2520',
   bottle: ['#f4f0e6', '#c9c0ae'],
+  /** Green glass of a Czech lager bottle, its cream label and gold foil. */
+  glass: ['#a9cf7e', '#5f9147', '#3f6b34', '#284727'],
+  label: ['#f6ecc8', '#d8c58f'],
+  bone: ['#f3e9d2', '#d9c9a6', '#a8946f'],
+  fur: ['#5b4f4b', '#3f3634', '#2b2424'],
+  pink: ['#f2a7a0', '#d77f7c'],
   /** Cast shadows at golden hour are cool: blue and violet shifted. */
   shadow: {
     grass: ['#7f8a5a', '#66745a', '#525f55', '#414b4b'],
