@@ -27,18 +27,19 @@ const data = {
   riders,
 };
 const details = [
-  { label: 'Flyover', x: 270, y: 96, width: 210, height: 130 },
-  { label: 'Stairs, summit and drop', x: 480, y: 52, width: 240, height: 176 },
-  { label: 'Barriers and course tape', x: 60, y: 160, width: 230, height: 70 },
+  { label: 'Flyover', x: 260, y: 80, width: 220, height: 170 },
+  { label: 'Stairs, summit and drop', x: 450, y: 40, width: 270, height: 200 },
+  { label: 'Banners, barriers and course tape', x: 0, y: 140, width: 270, height: 90 },
   { label: 'Soil cutaway with discoveries', x: 60, y: 252, width: 470, height: 92 },
 ];
 ---
 
 <div class="prose mb-6">
   <p>
-    This is the scenery for the desktop scene, drawn on the course you approved. It is the first full proposal for the
-    background, so please look at the overall mood, the colours, the flyover, the hill and the soil at the bottom. The
-    riders stand at a few points of the route only to show size and layering; the animation comes later.
+    This is the scenery for the desktop scene, drawn on the course you approved. Second round: golden hour, a steel
+    flyover with handrails and banners, wider and gentler stairs, tape at real height and sponsor banners mixed with
+    tape, as at a well supported amateur race. The riders stand at a few points of the route only to show size and
+    layering; the animation comes later.
   </p>
   <p>
     The scene is 720 by 344 art pixels and is shown at two screen pixels per art pixel on a 1440 px wide screen. Smaller
@@ -69,8 +70,9 @@ const details = [
 <h2>How it is built</h2>
 <ul class="prose mb-10">
   <li>Everything is drawn from the course data, so the stairs, the drop and the flyover sit exactly where the riders will ride.</li>
-  <li>The scenery comes in four layers: the background, course tape between the two left lanes, the near half of the flyover, and course tape in front of everything. A rider is drawn between the layers by how far from the viewer it is, so a rider under the flyover is hidden by its near half and a rider on top is not.</li>
-  <li>The sun comes from the upper left, as on the riders, and casts the shadows of the flyover, the barriers and the big tree.</li>
+  <li>The scenery comes in layers: the background, course tape between the two left lanes, the near half of the flyover, the tape beside the stairs and the drop, and finally the tape and the near handrails in front of everything. A rider is drawn between the layers by how far from the viewer it is, so a rider under the flyover is hidden by its near half and a rider on top is not, and the handrail passes in front of a rider on the deck.</li>
+  <li>The low sun sits in the upper left, as the light on the riders, and casts long, cool shadows of the flyover, the banner fences, the barriers and the big tree.</li>
+  <li>The banners advertise made-up local trades (cycle shop, car service, builders, windows, metalwork) and this site. They name no real company, and later they can become real advertising slots with matching links on the page.</li>
   <li>Hidden in the soil: a chainring, a tyre lever, race number 17 and an old bidon. A newer bidon lies in the grass by the barriers.</li>
   <li>The soil fades into the page in stepped, dithered rows, so the content below starts on the plain page colour.</li>
 </ul>

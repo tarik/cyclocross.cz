@@ -4,12 +4,24 @@ Newest first. Each entry says what was decided, by whom and why. Owner decisions
 
 ## 2026-11-18, scenery PR
 
+Second round, after the owner's review (photos of a stairs hill and a race flyover):
+
+- **Owner: golden hour.** The sky runs from blue-violet overhead through rose and peach to pale gold, with a low sun in the upper left, long thin clouds lit from below, warm highlights and cool, long shadows (separate shadow ramps in `SCENERY.shadow`).
+- **Owner: a realistic flyover.** It is now a temporary race structure: steel scaffold posts, ledgers and braces, deck plates with grip strips and a coloured edge strip, handrails with a knee rail on both sides and sponsor banners hung on the ramp sides. The lane under the flat top is kept free of posts. The near handrails are in the front layer, so they pass in front of a rider on the deck.
+- **Owner: wider, gentler stairs.** The summit is 96 (was 112) and the stairs run 130 units at about 36 degrees (were about 55), 26 units wide with timber nosings and side boards. The hill is broader: its radius is 130.
+- **Owner: tape at real height.** Stakes and tape stand about a metre high (26 units) and follow the ground on the hill.
+- **Owner: sponsor banners mixed with tape**, for the feel of a well supported amateur race: banner fences behind the pose area, along the foot of the hill and up the stairs (following the slope, as in the owner's photo), tape elsewhere, and four feather flags. The banners name made-up local trades and this site in a 3 by 5 pixel font without diacritics; no real company is named. They are candidates for real advertising slots later (SPEC.md 9.1), each with a labelled HTML link.
+- **Agent: the track is 28 units wide.** A new occluder layer, `hill-tape` (s 160), holds the tape on the near side of the stairs and the drop.
+- **Agent: Czech race photographs could not be downloaded from the build environment** (the photo host refused the connection), so the owner's two photos and general knowledge of race furniture are the references. Spectators are left out for now: at the riders' scale they would be as tall as the riders and crowd the scene.
+
+First round:
+
 - **Owner: route approved** by merging the route PR, including the 28 degree camera.
 - **Agent: the scenery is painted by code from the course data** (`art/scenery.mjs`), like the riders, so terrain, structures and riders share one projection and the stairs, drop and flyover sit exactly on the route. Colours are named ramps in `SCENERY` (`art/palettes.mjs`); texture is seeded noise snapped to small clusters and dithered seams, so rebuilds are byte-identical.
 - **Agent: the ground and the hill are a height field drawn column by column**, which gives correct occlusion of the hill and shows stair risers as real vertical faces. The hill's cross-section is a straight slope with a rounded crest and toe (`hillHeight` in `src/hero/scene.ts`); the stairs and the drop are cut in along their route lines.
 - **Agent: the sun comes from the west, slightly in front of the scene and high**, matching the upper-left light on the riders. The flyover, barriers and big tree cast shadows on the ground.
 - **Agent: the scenery is a background plus occluder layers, each at a ground depth** (`occluders` in `src/hero/scene.ts`, written to `public/art/scene.json`): course tape between the two left lanes (s 97), the near half of the flyover (s 121) and course tape in front of everything. A rider is drawn after every layer nearer the back than its draw depth. Riders on the flyover always draw after its near half. This replaces a single "under the bridge" flag.
-- **Agent: the track is 22 units wide** (was 14 in the diagram), so it reads as a track at display size. The entry lane moved from s 140 to s 120 and the stairs foot with it: the earlier test only compared the lane with the ends of the flat top, but the flyover is diagonal, so the old lane clipped the ramp up. The test now checks the whole lane band against both ramps.
+- **Agent: the track is 22 units wide** (was 14 in the diagram; 28 since the second round), so it reads as a track at display size. The entry lane moved from s 140 to s 120 and the stairs foot with it: the earlier test only compared the lane with the ends of the flat top, but the flyover is diagonal, so the old lane clipped the ramp up. The test now checks the whole lane band against both ramps.
 - **Agent: the canvas is 720 by 344.** The extra rows hold the soil cutaway, which fades into the page in stepped, dithered rows of lighter soil, so content below starts on the plain page colour.
 - **Agent: autumn palette at launch**: pale sky with a few clouds, a far range of hills with a small village and church tower, a tree line in gold, orange, rust, olive and spruce, a large golden tree by the pose area and three birches, green grass with ochre patches, tufts and fallen leaves, brown track with ruts and stones, a timber flyover, white barriers and red-and-white course tape. Discoveries: a chainring, a tyre lever, race number 17 and an old bidon in the soil, a newer bidon in the grass.
 

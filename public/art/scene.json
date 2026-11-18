@@ -17,6 +17,11 @@
       "s": 121
     },
     {
+      "id": "hill-tape",
+      "file": "scene-hill-tape.png",
+      "s": 160
+    },
+    {
       "id": "front",
       "file": "scene-front.png",
       "s": 1000

@@ -46,7 +46,7 @@ const p = (e: number, s: number, h = 0): Point => ({ e, s, h });
 export const RIDER_HEIGHT = 66;
 export const DECK = 84; // top of the flyover
 export const DECK_THICKNESS = 8; // the underside must clear a mounted rider
-export const SUMMIT = 112;
+export const SUMMIT = 96;
 
 export const structures = {
   /**
@@ -58,25 +58,27 @@ export const structures = {
   flyover: { footIn: p(453, 203, 0), topIn: p(400, 150, DECK), topOut: p(341, 91, DECK), footOut: p(288, 38, 0), width: 26 },
   /**
    * The hill on the right: a ridge that runs off the right edge of the
-   * screen. Its height falls linearly from the ridge line to the ground over
-   * `radius`. Stairs climb its rounded west end heading north-east; a steep
-   * drop comes down its south face inside the screen.
+   * screen. Its height falls from the ridge line to the ground over `radius`.
+   * A wide flight of stairs climbs its rounded west end heading north-east at
+   * about 36 degrees; a steep drop comes down its south face inside the screen.
    */
   hill: {
-    stairsFoot: p(500, 120, 0),
-    stairsTop: p(555, 65, SUMMIT),
-    dropTop: p(590, 66, SUMMIT),
-    dropFoot: p(668, 144, 0),
-    ridgeEnd: p(800, 46, SUMMIT + 14),
-    radius: 78,
+    stairsFoot: p(480, 120, 0),
+    stairsTop: p(572, 28, SUMMIT),
+    dropTop: p(610, 30, SUMMIT),
+    dropFoot: p(696, 150, 0),
+    ridgeEnd: p(800, 10, SUMMIT + 14),
+    radius: 130,
     steps: 14,
+    /** Width of the flight of stairs, in ground units. */
+    stairsWidth: 26,
   },
   barriers: [p(112, 120, 0), p(222, 120, 0)],
   poseArea: p(140, 74, 0),
 };
 
 /** Width of the ridden track on the ground, in ground units. */
-export const TRACK_WIDTH = 22;
+export const TRACK_WIDTH = 28;
 /** The ground ends here, towards the viewer; below it the soil is cut away. */
 export const GROUND_FRONT = 228;
 
@@ -84,11 +86,11 @@ export const route: Segment[] = [
   { id: 'entry', label: 'Entry', action: 'ride', facing: 'E', marker: 0.85, path: [p(-40, 120), p(60, 120)] },
   { id: 'barriers', label: 'Barriers', action: 'hop', facing: 'E', marker: 0.85, path: [p(60, 120), p(262, 120)] },
   { id: 'underpass', label: 'Under the flyover', action: 'ride', facing: 'E', marker: 0.45, path: [p(262, 120), p(420, 120)] },
-  { id: 'dismount', label: 'Dismount', action: 'dismount', facing: 'E', marker: 0.6, path: [p(420, 120), p(500, 120)] },
-  { id: 'stairs', label: 'Stairs', action: 'run', facing: 'NE', marker: 0.5, path: [p(500, 120), p(555, 65, SUMMIT)] },
-  { id: 'summit', label: 'Summit', action: 'remount', facing: 'SE', marker: 0.5, path: [p(555, 65, SUMMIT), p(590, 66, SUMMIT)] },
-  { id: 'downhill', label: 'Steep downhill', action: 'ride', facing: 'SE', marker: 0.55, path: [p(590, 66, SUMMIT), p(668, 144, 0)] },
-  { id: 'return', label: 'Back to the flyover', action: 'ride', facing: 'W', marker: 0.72, path: [p(668, 144), p(692, 172), p(670, 203), p(453, 203)] },
+  { id: 'dismount', label: 'Dismount', action: 'dismount', facing: 'E', marker: 0.6, path: [p(420, 120), p(480, 120)] },
+  { id: 'stairs', label: 'Stairs', action: 'run', facing: 'NE', marker: 0.5, path: [p(480, 120), p(572, 28, SUMMIT)] },
+  { id: 'summit', label: 'Summit', action: 'remount', facing: 'SE', marker: 0.5, path: [p(572, 28, SUMMIT), p(610, 30, SUMMIT)] },
+  { id: 'downhill', label: 'Steep downhill', action: 'ride', facing: 'SE', marker: 0.55, path: [p(610, 30, SUMMIT), p(696, 150, 0)] },
+  { id: 'return', label: 'Back to the flyover', action: 'ride', facing: 'W', marker: 0.72, path: [p(696, 150), p(712, 180), p(690, 203), p(453, 203)] },
   { id: 'flyover-up', label: 'Flyover, steep up', action: 'ride', facing: 'NW', marker: 0.5, path: [p(453, 203), p(400, 150, DECK)] },
   { id: 'flyover-top', label: 'Flyover, flat top', action: 'ride', facing: 'NW', marker: 0.5, path: [p(400, 150, DECK), p(341, 91, DECK)] },
   { id: 'flyover-down', label: 'Flyover, steep down', action: 'ride', facing: 'NW', marker: 0.6, path: [p(341, 91, DECK), p(288, 38, 0)] },
@@ -110,6 +112,7 @@ export const FLYOVER_SPLIT_S = 121;
 export const occluders = [
   { id: 'tape-mid', s: 97 },
   { id: 'flyover-front', s: FLYOVER_SPLIT_S },
+  { id: 'hill-tape', s: 160 },
   { id: 'front', s: 1000 },
 ] as const;
 const flyoverSegments = ['flyover-up', 'flyover-top', 'flyover-down'];
