@@ -1,0 +1,152 @@
+---
+/**
+ * The scenery proposal for the desktop scene (SPEC.md 4.1, 4.2 and 5.7 step
+ * 4): background, occluder layers and soil cutaway from `art/scenery.mjs`,
+ * composed in a canvas with riders placed on the approved route, drawn in
+ * the order the animation will use.
+ */
+import { withBase } from '../../i18n/routes.ts';
+import { along, drawDepth, project, route } from '../../hero/scene.ts';
+import scene from '../../../public/art/scene.json';
+import sheets from '../../../public/art/sheets.json';
+
+const sheet = sheets['cycle-female-club.png'];
+const shown = ['barriers', 'underpass', 'stairs', 'downhill', 'flyover-top', 'pose'];
+const riders = route
+  .filter((segment) => shown.includes(segment.id))
+  .map((segment) => {
+    const point = along(segment.path, segment.marker);
+    const { x, y } = project(point);
+    return { id: segment.id, x: Math.round(x), y: Math.round(y), row: (sheet.directions as string[]).indexOf(segment.facing), depth: drawDepth(segment.id, point) };
+  });
+const data = {
+  width: scene.width,
+  height: scene.height,
+  layers: scene.layers.map((layer) => ({ ...layer, url: withBase(`/art/${layer.file}`) })),
+  sheet: { url: withBase('/art/cycle-female-club.png'), cell: sheet.cell },
+  riders,
+};
+const details = [
+  { label: 'Flyover', x: 270, y: 96, width: 210, height: 130 },
+  { label: 'Stairs, summit and drop', x: 480, y: 52, width: 240, height: 176 },
+  { label: 'Barriers and course tape', x: 60, y: 160, width: 230, height: 70 },
+  { label: 'Soil cutaway with discoveries', x: 60, y: 252, width: 470, height: 92 },
+];
+---
+
+<div class="prose mb-6">
+  <p>
+    This is the scenery for the desktop scene, drawn on the course you approved. It is the first full proposal for the
+    background, so please look at the overall mood, the colours, the flyover, the hill and the soil at the bottom. The
+    riders stand at a few points of the route only to show size and layering; the animation comes later.
+  </p>
+  <p>
+    The scene is 720 by 344 art pixels and is shown at two screen pixels per art pixel on a 1440 px wide screen. Smaller
+    screens show it scaled down here; the tablet and phone versions are designed separately later.
+  </p>
+</div>
+
+<p class="mb-4">
+  <button type="button" class="pill" data-scene-riders aria-pressed="true">Hide the riders</button>
+</p>
+
+<div class="scene-bleed mb-10" data-scene={JSON.stringify(data)}>
+  <canvas width={scene.width} height={scene.height} class="block h-auto w-full" data-scene-canvas role="img" aria-label="Scenery proposal: autumn course with a flyover, a hill with stairs, and a soil cutaway"></canvas>
+</div>
+
+<h2>Details at three times</h2>
+<div class="mb-10 grid gap-6">
+  {details.map((detail) => (
+    <figure class="min-w-0">
+      <figcaption class="mb-2 font-semibold">{detail.label}</figcaption>
+      <div class="overflow-x-auto border-2 border-ink">
+        <canvas width={detail.width * 3} height={detail.height * 3} class="block max-w-none" data-scene-detail={JSON.stringify(detail)} aria-hidden="true"></canvas>
+      </div>
+    </figure>
+  ))}
+</div>
+
+<h2>How it is built</h2>
+<ul class="prose mb-10">
+  <li>Everything is drawn from the course data, so the stairs, the drop and the flyover sit exactly where the riders will ride.</li>
+  <li>The scenery comes in four layers: the background, course tape between the two left lanes, the near half of the flyover, and course tape in front of everything. A rider is drawn between the layers by how far from the viewer it is, so a rider under the flyover is hidden by its near half and a rider on top is not.</li>
+  <li>The sun comes from the upper left, as on the riders, and casts the shadows of the flyover, the barriers and the big tree.</li>
+  <li>Hidden in the soil: a chainring, a tyre lever, race number 17 and an old bidon. A newer bidon lies in the grass by the barriers.</li>
+  <li>The soil fades into the page in stepped, dithered rows, so the content below starts on the plain page colour.</li>
+</ul>
+
+<style>
+  .scene-bleed {
+    width: min(100vw, 1440px);
+    margin-left: calc(50% - min(50vw, 720px));
+  }
+  canvas { image-rendering: pixelated; }
+</style>
+
+<script>
+  interface Layer { id: string; url: string; s?: number }
+  interface Rider { id: string; x: number; y: number; row: number; depth: number }
+  interface SceneData {
+    width: number;
+    height: number;
+    layers: Layer[];
+    sheet: { url: string; cell: { width: number; height: number; anchor: { x: number; y: number } } };
+    riders: Rider[];
+  }
+
+  const host = document.querySelector<HTMLElement>('[data-scene]');
+  const canvas = document.querySelector<HTMLCanvasElement>('[data-scene-canvas]');
+  const toggle = document.querySelector<HTMLButtonElement>('[data-scene-riders]');
+  if (host && canvas && toggle) {
+    const data = JSON.parse(host.dataset.scene!) as SceneData;
+    const load = (url: string) => new Promise<HTMLImageElement>((resolve, reject) => {
+      const image = new Image();
+      image.onload = () => resolve(image);
+      image.onerror = reject;
+      image.src = url;
+    });
+    Promise.all([...data.layers.map((layer) => load(layer.url)), load(data.sheet.url)]).then((images) => {
+      const sheet = images.pop()!;
+      const layers = data.layers.map((layer, i) => ({ ...layer, image: images[i] }));
+      const context = canvas.getContext('2d')!;
+      context.imageSmoothingEnabled = false;
+      let showRiders = true;
+
+      const drawRider = (rider: Rider) => {
+        const { cell } = data.sheet;
+        context.fillStyle = 'rgba(42, 37, 32, 0.22)';
+        context.beginPath();
+        context.ellipse(rider.x + 1, rider.y, 17, 2.5, 0, 0, Math.PI * 2);
+        context.fill();
+        context.drawImage(sheet, cell.width, rider.row * cell.height, cell.width, cell.height, rider.x - cell.anchor.x, rider.y - cell.anchor.y, cell.width, cell.height);
+      };
+
+      const render = () => {
+        context.clearRect(0, 0, data.width, data.height);
+        const riders = showRiders ? [...data.riders].sort((a, b) => a.depth - b.depth) : [];
+        let next = 0;
+        for (const layer of layers) {
+          // Riders further away than this layer go first.
+          while (layer.s !== undefined && next < riders.length && riders[next].depth < layer.s) drawRider(riders[next++]);
+          context.drawImage(layer.image, 0, 0);
+        }
+        while (next < riders.length) drawRider(riders[next++]);
+        for (const detail of document.querySelectorAll<HTMLCanvasElement>('[data-scene-detail]')) {
+          const area = JSON.parse(detail.dataset.sceneDetail!) as { x: number; y: number; width: number; height: number };
+          const target = detail.getContext('2d')!;
+          target.imageSmoothingEnabled = false;
+          target.clearRect(0, 0, detail.width, detail.height);
+          target.drawImage(canvas, area.x, area.y, area.width, area.height, 0, 0, detail.width, detail.height);
+        }
+      };
+
+      toggle.addEventListener('click', () => {
+        showRiders = !showRiders;
+        toggle.setAttribute('aria-pressed', String(showRiders));
+        toggle.textContent = showRiders ? 'Hide the riders' : 'Show the riders';
+        render();
+      });
+      render();
+    });
+  }
+</script>

@@ -9,6 +9,8 @@ import { encodePng } from './lib/png.mjs';
 import { Sprite, blit } from './lib/raster.mjs';
 import { palette } from './palettes.mjs';
 import { DIRECTIONS, drawRider } from './rider.mjs';
+import { paintScene } from './scenery.mjs';
+import { occluders } from '../src/hero/scene.ts';
 
 const out = process.argv[2] ?? join(dirname(fileURLToPath(import.meta.url)), '..', 'public', 'art');
 mkdirSync(out, { recursive: true });
@@ -86,6 +88,19 @@ for (const kit of ['club', 'national']) {
   }
   wheel.sphere({ ...c, z: 2 }, 1.6, 'jersey', 3, { flat: true });
   writeFileSync(join(out, 'mark-wheel.png'), encodePng(size, size, wheel.toRgba(palette('club', 'female'))));
+}
+
+// The desktop scenery: a background and the occluder layers drawn between riders.
+{
+  const scene = paintScene();
+  const layers = [{ id: 'back', file: 'scene-back.png' }];
+  writeFileSync(join(out, 'scene-back.png'), encodePng(scene.width, scene.height, scene.back));
+  for (const occluder of occluders) {
+    const file = `scene-${occluder.id}.png`;
+    writeFileSync(join(out, file), encodePng(scene.width, scene.height, scene[occluder.id]));
+    layers.push({ id: occluder.id, file, s: occluder.s });
+  }
+  writeFileSync(join(out, 'scene.json'), `${JSON.stringify({ width: scene.width, height: scene.height, layers }, null, 2)}\n`);
 }
 
 writeFileSync(join(out, 'sheets.json'), `${JSON.stringify(meta, null, 2)}\n`);

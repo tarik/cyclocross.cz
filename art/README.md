@@ -6,7 +6,8 @@ The sprites are original work, generated from the files in this folder.
 - `palettes.mjs`: colour ramps per material, skin tones and the two kits.
 - `lib/raster.mjs`: depth-buffered pixel rasteriser, shading and outline.
 - `lib/png.mjs`: PNG encoder.
-- `build.mjs`: exports the sheets.
+- `scenery.mjs`: the desktop scenery (sky, landscape, ground and hill, flyover, barriers, tape, soil), painted from the course data in `src/hero/scene.ts`.
+- `build.mjs`: exports the sheets and the scenery layers.
 
 ## Export
 
@@ -14,4 +15,4 @@ The sprites are original work, generated from the files in this folder.
 npm run art
 ```
 
-writes the PNG sheets and `sheets.json` (cell size and view order) to `public/art/`. Commit the result together with the source change. `npm test` fails when the committed sheets differ from what the source produces.
+writes the PNG sheets and `sheets.json` (cell size and view order), plus the scenery layers `scene-*.png` and `scene.json` (layer order and depths), to `public/art/`. Commit the result together with the source change. `npm test` fails when the committed sheets differ from what the source produces.

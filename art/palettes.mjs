@@ -60,3 +60,43 @@ export const KITS = {
 export function palette(kit, body) {
   return { ...KITS[kit], ...SKIN[body] };
 }
+
+/**
+ * The autumn scenery palette (SPEC.md 4.1): warm daylight, pale sky, golden
+ * foliage, green and ochre grass, earthy track. Ramps run light to dark.
+ */
+export const SCENERY = {
+  sky: ['#bcdde8', '#c9e3e9', '#d6e9e6', '#e3eedf', '#eff0d6'],
+  cloud: ['#fffdf6', '#f3f4ee', '#e1ebea', '#cfe0e4'],
+  farHill: ['#c8d6c8', '#b9cabd', '#a9bdb1', '#9bb0a6'],
+  nearHill: ['#b9c79f', '#a6b98d', '#93a97d', '#82976f'],
+  wall: ['#f3eee2', '#d9d1c1'],
+  roof: ['#c8664a', '#a9503a', '#86402f'],
+  spire: ['#5d6b6b', '#45514f'],
+  grass: ['#a7b552', '#8aa140', '#6c8734', '#53692a'],
+  dryGrass: ['#c9b866', '#ad9c4e', '#8c7d3b', '#6a5e2c'],
+  leaf: ['#f2c14e', '#e39a2d', '#cf6f25', '#b5512a'],
+  track: ['#b28d61', '#957049', '#78573a', '#5d432d'],
+  timber: ['#c49866', '#a37a4c', '#7f5c39', '#5c412a'],
+  deck: ['#d9b47f', '#c19a64', '#9c7a4d', '#76593a'],
+  post: ['#e9dcc4', '#6f5136', '#4e3925'],
+  board: ['#fffdf6', '#ece6da', '#cfc6b6', '#8f877a'],
+  tape: ['#d63b2e', '#f6f1e6'],
+  gold: ['#f7d77a', '#e8b23f', '#c88827', '#94601d'],
+  orange: ['#f2a65a', '#dd7a31', '#b25624', '#7d3a19'],
+  rust: ['#d97a4a', '#b6532e', '#8a3a22', '#5e2818'],
+  olive: ['#c7c26a', '#a3a346', '#7a7f32', '#565c25'],
+  spruce: ['#6d8457', '#506944', '#3a5034', '#2a3a27'],
+  trunk: ['#8a6a4f', '#6a4e38', '#4d3828', '#3a2a1e'],
+  birch: ['#f4f0e6', '#d9d3c6', '#3a3431'],
+  topsoil: ['#6b4a2e', '#5a3d26', '#4a3220', '#3a271a'],
+  soil: ['#9a7350', '#80603f', '#6c4f33', '#57402a'],
+  root: '#b8946a',
+  fade: ['#a88563', '#c4aa88', '#ddcfb8'],
+  stone: ['#bdb4a6', '#9b9184', '#7a7166', '#5b544c'],
+  lever: ['#f2c94c', '#2f5d8a'],
+  paper: ['#f7f3ea', '#c9c0ae'],
+  ink: '#2a2520',
+  cap: '#2a2520',
+  bottle: ['#f4f0e6', '#c9c0ae'],
+};

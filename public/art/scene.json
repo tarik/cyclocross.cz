@@ -1,0 +1,25 @@
+{
+  "width": 720,
+  "height": 344,
+  "layers": [
+    {
+      "id": "back",
+      "file": "scene-back.png"
+    },
+    {
+      "id": "tape-mid",
+      "file": "scene-tape-mid.png",
+      "s": 97
+    },
+    {
+      "id": "flyover-front",
+      "file": "scene-flyover-front.png",
+      "s": 121
+    },
+    {
+      "id": "front",
+      "file": "scene-front.png",
+      "s": 1000
+    }
+  ]
+}
