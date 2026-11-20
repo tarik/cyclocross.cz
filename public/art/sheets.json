@@ -195,6 +195,258 @@
       "NE"
     ]
   },
+  "act-female-club.png": {
+    "cell": {
+      "width": 76,
+      "height": 88,
+      "anchor": {
+        "x": 38,
+        "y": 71
+      }
+    },
+    "frames": 45,
+    "columns": 6,
+    "rows": 9,
+    "actions": {
+      "hop": {
+        "E": {
+          "row": 0,
+          "frames": 6
+        }
+      },
+      "dismount": {
+        "E": {
+          "row": 1,
+          "frames": 6
+        }
+      },
+      "carry": {
+        "E": {
+          "row": 2,
+          "frames": 6
+        },
+        "NE": {
+          "row": 3,
+          "frames": 6
+        }
+      },
+      "remount": {
+        "E": {
+          "row": 4,
+          "frames": 5
+        }
+      },
+      "straddle": {
+        "W": {
+          "row": 5,
+          "frames": 4
+        },
+        "SW": {
+          "row": 6,
+          "frames": 4
+        },
+        "S": {
+          "row": 7,
+          "frames": 4
+        }
+      },
+      "wave": {
+        "S": {
+          "row": 8,
+          "frames": 4
+        }
+      }
+    }
+  },
+  "act-female-national.png": {
+    "cell": {
+      "width": 76,
+      "height": 88,
+      "anchor": {
+        "x": 38,
+        "y": 71
+      }
+    },
+    "frames": 45,
+    "columns": 6,
+    "rows": 9,
+    "actions": {
+      "hop": {
+        "E": {
+          "row": 0,
+          "frames": 6
+        }
+      },
+      "dismount": {
+        "E": {
+          "row": 1,
+          "frames": 6
+        }
+      },
+      "carry": {
+        "E": {
+          "row": 2,
+          "frames": 6
+        },
+        "NE": {
+          "row": 3,
+          "frames": 6
+        }
+      },
+      "remount": {
+        "E": {
+          "row": 4,
+          "frames": 5
+        }
+      },
+      "straddle": {
+        "W": {
+          "row": 5,
+          "frames": 4
+        },
+        "SW": {
+          "row": 6,
+          "frames": 4
+        },
+        "S": {
+          "row": 7,
+          "frames": 4
+        }
+      },
+      "wave": {
+        "S": {
+          "row": 8,
+          "frames": 4
+        }
+      }
+    }
+  },
+  "act-male-club.png": {
+    "cell": {
+      "width": 76,
+      "height": 88,
+      "anchor": {
+        "x": 38,
+        "y": 71
+      }
+    },
+    "frames": 45,
+    "columns": 6,
+    "rows": 9,
+    "actions": {
+      "hop": {
+        "E": {
+          "row": 0,
+          "frames": 6
+        }
+      },
+      "dismount": {
+        "E": {
+          "row": 1,
+          "frames": 6
+        }
+      },
+      "carry": {
+        "E": {
+          "row": 2,
+          "frames": 6
+        },
+        "NE": {
+          "row": 3,
+          "frames": 6
+        }
+      },
+      "remount": {
+        "E": {
+          "row": 4,
+          "frames": 5
+        }
+      },
+      "straddle": {
+        "W": {
+          "row": 5,
+          "frames": 4
+        },
+        "SW": {
+          "row": 6,
+          "frames": 4
+        },
+        "S": {
+          "row": 7,
+          "frames": 4
+        }
+      },
+      "wave": {
+        "S": {
+          "row": 8,
+          "frames": 4
+        }
+      }
+    }
+  },
+  "act-male-national.png": {
+    "cell": {
+      "width": 76,
+      "height": 88,
+      "anchor": {
+        "x": 38,
+        "y": 71
+      }
+    },
+    "frames": 45,
+    "columns": 6,
+    "rows": 9,
+    "actions": {
+      "hop": {
+        "E": {
+          "row": 0,
+          "frames": 6
+        }
+      },
+      "dismount": {
+        "E": {
+          "row": 1,
+          "frames": 6
+        }
+      },
+      "carry": {
+        "E": {
+          "row": 2,
+          "frames": 6
+        },
+        "NE": {
+          "row": 3,
+          "frames": 6
+        }
+      },
+      "remount": {
+        "E": {
+          "row": 4,
+          "frames": 5
+        }
+      },
+      "straddle": {
+        "W": {
+          "row": 5,
+          "frames": 4
+        },
+        "SW": {
+          "row": 6,
+          "frames": 4
+        },
+        "S": {
+          "row": 7,
+          "frames": 4
+        }
+      },
+      "wave": {
+        "S": {
+          "row": 8,
+          "frames": 4
+        }
+      }
+    }
+  },
   "parts-club.png": {
     "cell": {
       "width": 76,

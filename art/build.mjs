@@ -9,6 +9,7 @@ import { encodePng } from './lib/png.mjs';
 import { Sprite, blit } from './lib/raster.mjs';
 import { palette } from './palettes.mjs';
 import { DIRECTIONS, drawRider } from './rider.mjs';
+import { ACTION_ROWS, actionFrames } from './poses.mjs';
 import { LOCALES, paintScene } from './scenery.mjs';
 import { occluders } from '../src/hero/scene.ts';
 
@@ -51,6 +52,28 @@ for (const body of ['female', 'male']) {
     sheet(`cycle-${body}-${kit}.png`, RIDE,
       directions.flatMap((direction) => Array.from({ length: CYCLE }, (_, i) => ({ body, kit, direction, crank: (i * 360) / CYCLE }))),
       { columns: CYCLE, directions });
+  }
+}
+
+// Actions beyond riding: one row per action and direction, frames left to
+// right (empty cells where an action has fewer frames). `actions` in the
+// metadata maps action -> direction -> { row, frames }.
+for (const body of ['female', 'male']) {
+  for (const kit of ['club', 'national']) {
+    const rows = ACTION_ROWS.map((row) => ({ ...row, frames: actionFrames(row, body) }));
+    const columns = Math.max(...rows.map((row) => row.frames.length));
+    const pixels = new Uint8Array(RIDE.width * columns * RIDE.height * rows.length * 4);
+    const actions = {};
+    rows.forEach((row, r) => {
+      (actions[row.action] ??= {})[row.direction] = { row: r, frames: row.frames.length };
+      row.frames.forEach((posed, c) => {
+        const sprite = drawRider({ body, design: kit, direction: row.direction, ...RIDE, posed, crank: posed.crank });
+        blit(pixels, RIDE.width * columns, sprite.toRgba(palette(kit, body)), RIDE.width, RIDE.height, c * RIDE.width, r * RIDE.height);
+      });
+    });
+    const name = `act-${body}-${kit}.png`;
+    writeFileSync(join(out, name), encodePng(RIDE.width * columns, RIDE.height * rows.length, pixels));
+    meta[name] = { cell: RIDE, frames: rows.reduce((sum, row) => sum + row.frames.length, 0), columns, rows: rows.length, actions };
   }
 }
 

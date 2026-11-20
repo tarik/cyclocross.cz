@@ -7,6 +7,7 @@ import Base from '../../layouts/Base.astro';
 import ArtProposals from '../../components/review/ArtProposals.astro';
 import RidingCycle from '../../components/review/RidingCycle.astro';
 import RouteProposal from '../../components/review/RouteProposal.astro';
+import MotionPreview from '../../components/review/MotionPreview.astro';
 import SceneProposal from '../../components/review/SceneProposal.astro';
 import Typography from '../../components/review/Typography.astro';
 import { site } from '../../config/site.ts';
@@ -17,12 +18,13 @@ const pages = {
   riding: { title: 'Riding in eight directions', component: RidingCycle },
   route: { title: 'Course route proposal', component: RouteProposal },
   scene: { title: 'Scenery proposal', component: SceneProposal },
+  motion: { title: 'Motion review', component: MotionPreview },
 } as const;
 
 export function getStaticPaths() {
   if (site.env === 'production') return [];
   // getStaticPaths is hoisted out of the page, so the names are repeated here.
-  return ['typography', 'art', 'riding', 'route', 'scene'].map((page) => ({ params: { page } }));
+  return ['typography', 'art', 'riding', 'route', 'scene', 'motion'].map((page) => ({ params: { page } }));
 }
 
 const { page } = Astro.params as { page: keyof typeof pages };
