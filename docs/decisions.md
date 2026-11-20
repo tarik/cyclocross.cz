@@ -4,9 +4,16 @@ Newest first. Each entry says what was decided, by whom and why. Owner decisions
 
 ## 2026-11-18, scenery PR
 
+Fifth round, after the owner's review (2026-11-20):
+
+- **Owner: the frame has no crank** (the earlier request was a typo). The chainring, crank and pedal are gone; the frame stays at the larger size.
+- **Owner: race number 13, upside down.** The plate, pin holes and all, is drawn turned half way round, as riders pin a 13 for luck.
+- **Owner: molehills.** A mound of fresh earth sits on the front edge of the grass above a passage down to the mole's tunnel, with two smaller ones further back.
+- **Agent: the tyre lever did not read**, so it is now a set of three levers (blue, yellow, orange) fanned out from their pin, each with a hooked tip.
+
 Fourth round, after the owner's review:
 
-- **Owner: the frame has its crank.** The rusty frame is larger and carries a toothed chainring with five spider arms, a crank arm and a pedal. The loose chainring was removed, as it did not read.
+- **Owner: the frame has its crank** (later reversed). The rusty frame is larger and carried a toothed chainring, a crank arm and a pedal. The loose chainring was removed, as it did not read.
 - **Owner: the steep banners are abstract.** Banners on the ramps and the stairs carry a graphic per design (chevrons, a wave, diagonal stripes, dots, a split, a zigzag, a sawtooth) instead of imitating lettering.
 - **Agent: finds that read.** The earthworm is a plump, ringed pink S curve, and the old bidon is a standing blue bottle with a black cap, a nozzle, a grip waist and a white stripe (white looked like a snowman).
 

@@ -107,7 +107,12 @@ export const SCENERY = {
   root: '#b8946a',
   fade: ['#a88563', '#c4aa88', '#ddcfb8'],
   stone: ['#c9b8a6', '#9f9283', '#7a7068', '#5b544e'],
-  lever: ['#f2c94c', '#2f5d8a'],
+  /** Tyre levers in a set of three: light, mid and dark of each. */
+  levers: [
+    ['#7fb0dc', '#2f5d8a', '#22335f'],
+    ['#ffe07a', '#f2b23a', '#93571f'],
+    ['#f0782f', '#c95a22', '#7d3a1f'],
+  ],
   paper: ['#f7f3ea', '#c9c0ae'],
   ink: '#2a2520',
   cap: '#2a2520',

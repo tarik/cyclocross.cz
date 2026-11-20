@@ -1085,7 +1085,7 @@ function rustyTube(layer, a, b) {
   }
 }
 
-/** An old steel frame, lying a little tilted, without wheels. */
+/** An old steel frame, lying a little tilted, without wheels or cranks. */
 function paintFrame(layer, x0, y0) {
   const tilt = (-7 * Math.PI) / 180;
   const k = 1.4;
@@ -1106,30 +1106,6 @@ function paintFrame(layer, x0, y0) {
   ]) rustyTube(layer, a, b);
   // The saddle, its cover long gone.
   for (let x = 7; x <= 14; x += 0.5) layer.set(Math.round(at(x, 1).x), Math.round(at(x, 1).y), C.fur[2]);
-  // The chainring on the bracket: a toothed ring and five spider arms.
-  const cx = Math.round(bracket.x);
-  const cy = Math.round(bracket.y);
-  for (let y = -10; y <= 10; y += 1) {
-    for (let x = -10; x <= 10; x += 1) {
-      const r = Math.hypot(x, y);
-      const angle = Math.atan2(y, x);
-      const tooth = Math.floor(((angle + Math.PI) / (Math.PI * 2)) * 32) % 2 === 0;
-      const lit = x + y < 0;
-      if (r >= 7 && r < 8.4) layer.set(cx + x, cy + y, lit ? C.rust[0] : C.rust[1]);
-      else if (r >= 8.4 && r < 9.4 && tooth) layer.set(cx + x, cy + y, C.rust[2]);
-      else if (r < 7 && r >= 2) {
-        const arm = Math.abs((((angle / (Math.PI * 2)) * 5 + 5.25) % 1) - 0.5) > 0.4;
-        if (arm) layer.set(cx + x, cy + y, C.rust[2]);
-      } else if (r < 2) layer.set(cx + x, cy + y, C.rust[3]);
-    }
-  }
-  // A crank arm down to a pedal.
-  const foot = at(21, 27);
-  rustyTube(layer, bracket, foot);
-  for (let x = -3; x <= 3; x += 1) {
-    layer.set(Math.round(foot.x) + x, Math.round(foot.y) + 1, C.steel[3]);
-    layer.set(Math.round(foot.x) + x, Math.round(foot.y) + 2, x % 2 ? C.fur[2] : C.steel[3]);
-  }
 }
 
 /** A dinosaur, long before cyclocross: skull, spine, ribs, legs and tail. */
@@ -1215,6 +1191,44 @@ function paintMole(layer, x0, y0) {
   ], { f: C.fur[1], F: C.fur[0], p: C.pink[0] });
 }
 
+/**
+ * Molehills: mounds of fresh, crumbly earth on the grass, lit from the left.
+ * The one at the front edge sits on a shaft of loose soil down to the tunnel.
+ */
+const MOLEHILLS = [
+  { x: 21, y: SOIL_TOP + 1, r: 8, h: 6, shaft: true },
+  { x: 62, y: SOIL_TOP - 9, r: 6, h: 4 },
+  { x: 38, y: SOIL_TOP - 21, r: 4, h: 3 },
+];
+
+function paintMolehills(layer) {
+  for (const [i, hill] of MOLEHILLS.entries()) {
+    if (hill.shaft) {
+      // The passage up from the tunnel, as dark as the tunnel itself.
+      for (let y = hill.y; y <= SOIL_TOP + 13; y += 1) {
+        const wobble = Math.round(Math.sin(y / 2.5) * 0.8);
+        for (let x = -1; x <= 1; x += 1) layer.set(hill.x - 3 + x + wobble, y, C.topsoil[3]);
+      }
+    }
+    for (let x = -hill.r; x <= hill.r; x += 1) {
+      const t = x / hill.r;
+      const top = hill.y - Math.round(hill.h * Math.sqrt(Math.max(0, 1 - t * t)) + (hash(x, i, 121) > 0.75 ? 1 : 0) * (Math.abs(t) < 0.8 ? 1 : 0));
+      for (let y = top; y <= hill.y; y += 1) {
+        const lit = y === top ? (t < 0.3 ? 0 : 1) : t < -0.2 ? 1 : t < 0.4 ? 2 : 3;
+        const crumb = hash(x, y, 122 + i) > 0.82;
+        layer.set(hill.x + x, y, C.topsoil[Math.max(0, lit - (crumb ? 1 : 0))]);
+      }
+    }
+    // Crumbs scattered on the grass around the mound.
+    for (let k = 0; k < hill.r; k += 1) {
+      const side = hash(k, i, 123) > 0.5 ? 1 : -1;
+      const x = hill.x + side * (hill.r + 1 + Math.floor(hash(k, i, 124) * 3));
+      const y = hill.y - Math.floor(hash(k, i, 125) * 2);
+      layer.set(x, y, C.topsoil[hash(k, i, 126) > 0.5 ? 1 : 2]);
+    }
+  }
+}
+
 /** An earthworm near the surface: a plump, ringed S curve with a saddle. */
 function paintWorm(layer, x0, y0) {
   const length = 20;
@@ -1250,29 +1264,63 @@ function paintOldBidon(layer, x0, y0) {
   ], { k: C.bidon[2], w: C.bidon[0], g: C.bidon[1], c: C.cap, n: C.steel[1], m: C.steel[2], o: C.bottle[0], p: C.bottle[1] });
 }
 
+/**
+ * Race number 13, pinned upside down for luck as riders do, so the whole
+ * plate, pin holes and all, is drawn turned half way round.
+ */
+function paintRaceNumber(layer, x0, y0) {
+  const plate = [
+    'pppppppppppp',
+    'p.pwwwwwwp.p',
+    'pwwwwwwwwwwp',
+    'pwwwbwwbbbwp',
+    'pwwbbwwwwbwp',
+    'pwwwbwwwbbwp',
+    'pwwwbwwwwbwp',
+    'pwwwbwwbbbwp',
+    'p.pwwwwwwp.p',
+    'pppppppppppp',
+  ];
+  const turned = plate.map((row) => [...row].reverse().join('')).reverse();
+  sprite(layer, x0, y0, turned, { p: C.paper[1], w: C.paper[0], b: C.ink });
+}
+
+/**
+ * A set of three tyre levers, fanned out from the pin that holds them: long
+ * flat bars with a hooked lip at one end and a spoke notch at the other.
+ */
+function paintTyreLevers(layer, x0, y0) {
+  const pivot = { x: x0 + 3, y: y0 + 14 };
+  const levers = [-52, -30, -8].map((angle, i) => ({ angle, ramp: C.levers[i] }));
+  for (const lever of levers) {
+    const a = (lever.angle * Math.PI) / 180;
+    const along = { x: Math.cos(a), y: Math.sin(a) };
+    const across = { x: -along.y, y: along.x };
+    for (let y = -24; y <= 4; y += 1) {
+      for (let x = -4; x <= 26; x += 1) {
+        const u = x * along.x + y * along.y;
+        const v = x * across.x + y * across.y;
+        const hook = u > 18 && u < 21 && v < -1 && v > -3.4 + (u - 18) * 0.2;
+        const body = u > -1.5 && u < 20 && Math.abs(v) < 1.9 && !(u < 0.2 && Math.abs(v) < 0.6);
+        if (!body && !hook) continue;
+        const edge = !hook && (Math.abs(v) > 1.1 || u > 19.2 || u < -0.7);
+        const notch = u > 0.5 && u < 2 && Math.abs(v) < 0.5;
+        if (notch) continue;
+        layer.set(pivot.x + x, pivot.y + y, hook ? lever.ramp[2] : edge ? (v < 0 ? lever.ramp[0] : lever.ramp[2]) : lever.ramp[1]);
+      }
+    }
+  }
+}
+
 /** Lost things in the soil, left to right. */
 const FINDS = [
   { x: 14, y: SOIL_TOP + 9, w: 44, h: 6, paint: paintMole },
-  { x: 100, y: SOIL_TOP + 26, w: 62, h: 42, paint: paintFrame },
+  { x: 100, y: SOIL_TOP + 26, w: 62, h: 30, paint: paintFrame },
   { x: 214, y: SOIL_TOP + 20, w: 7, h: 10, paint: paintCowbell },
   { x: 252, y: SOIL_TOP + 7, w: 20, h: 7, paint: paintWorm },
-  { x: 300, y: SOIL_TOP + 28, w: 11, h: 3, paint: (layer, x, y) => sprite(layer, x, y, [
-    'kkkkkkkkkkk',
-    'kyyyyyyyyyk',
-    '.kkkkkkkkk.',
-  ], { k: C.lever[1], y: C.lever[0] }) },
+  { x: 288, y: SOIL_TOP + 20, w: 26, h: 18, paint: paintTyreLevers },
   { x: 344, y: SOIL_TOP + 40, w: 68, h: 17, paint: paintFossil },
-  { x: 470, y: SOIL_TOP + 18, w: 10, h: 9, paint: (layer, x, y) => sprite(layer, x, y, [
-    'pppppppppp',
-    'p.p......p',
-    'pwwwwwwwwp',
-    'pwbwwbbbwp',
-    'pwbwwwwbwp',
-    'pwbwwwbwwp',
-    'pwbwwwbwwp',
-    'pwwwwwwwwp',
-    'pppppppppp',
-  ], { p: C.paper[1], w: C.paper[0], b: C.ink }) },
+  { x: 468, y: SOIL_TOP + 17, w: 12, h: 10, paint: paintRaceNumber },
   { x: 548, y: SOIL_TOP + 34, w: 26, h: 7, paint: paintBottle },
   { x: 640, y: SOIL_TOP + 26, w: 8, h: 15, paint: paintOldBidon },
 ];
@@ -1302,6 +1350,7 @@ export function paintScene(language = 'cs') {
   st.flush(layers);
   for (const tape of TAPES.filter((t) => t.layer !== 'back')) paintTape(layers[tape.layer], tape.from, tape.to, tape);
   paintSoil(back);
+  paintMolehills(back);
   const out = { width: W, height: H };
   for (const [id, layer] of Object.entries(layers)) out[id] = layer.rgba;
   return out;
