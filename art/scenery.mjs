@@ -1176,13 +1176,28 @@ function paintCowbell(layer, x0, y0) {
   ], { r: C.banner.red[0], d: C.gold[3], l: C.gold[0], g: C.gold[1], m: C.gold[2], k: C.steel[3] });
 }
 
-/** A mole at the end of its tunnel, nose first. */
+/**
+ * A mole at the end of its passage, nose first. The passage comes down from
+ * the molehill at the front edge, bends and runs to the mole: one tunnel,
+ * with no dead end.
+ */
 function paintMole(layer, x0, y0) {
-  for (let x = 0; x < 34; x += 1) {
-    const wave = Math.round(Math.sin(x / 5) * 1.2);
-    for (let y = -1; y <= 1; y += 1) layer.set(x0 + x, y0 + 3 + wave + y, C.topsoil[3]);
+  const hill = MOLEHILLS[0];
+  const brush = (x, y) => {
+    for (let dy = -1; dy <= 1; dy += 1) for (let dx = -1; dx <= 1; dx += 1) layer.set(Math.round(x) + dx, Math.round(y) + dy, C.topsoil[3]);
+  };
+  const ty = y0 + 2;
+  const bend = 4;
+  // Down from the mound to the start of the bend.
+  for (let y = hill.y - 1; y <= ty - bend; y += 1) brush(hill.x, y);
+  // A quarter turn towards the mole.
+  for (let a = 0; a <= 90; a += 5) {
+    const r = (a * Math.PI) / 180;
+    brush(hill.x + bend - bend * Math.cos(r), ty - bend + bend * Math.sin(r));
   }
-  sprite(layer, x0 + 32, y0, [
+  // Along to the mole, gently rising and falling.
+  for (let x = hill.x + bend; x <= x0; x += 1) brush(x, ty + Math.round(Math.sin((x - hill.x - bend) / 5) * 1.2));
+  sprite(layer, x0, y0, [
     '..ffffff...',
     '.fFFFFFFf..',
     'fFFFFFFFFpp',
@@ -1192,34 +1207,43 @@ function paintMole(layer, x0, y0) {
 }
 
 /**
- * Molehills: mounds of fresh, crumbly earth on the grass, lit from the left.
- * The one at the front edge sits on a shaft of loose soil down to the tunnel.
+ * Molehills: round, bell-shaped domes of dark, fresh earth with steep sides
+ * and a lumpy outline, the way the mole's piles look in Czech cartoons, lit
+ * from the left with a short shadow on the grass. The one at the front edge
+ * sits over the mole's passage.
  */
 const MOLEHILLS = [
-  { x: 21, y: SOIL_TOP + 1, r: 8, h: 6, shaft: true },
-  { x: 62, y: SOIL_TOP - 9, r: 6, h: 4 },
-  { x: 38, y: SOIL_TOP - 21, r: 4, h: 3 },
+  { x: 22, y: SOIL_TOP + 1, r: 9, h: 10 },
+  { x: 64, y: SOIL_TOP - 9, r: 6, h: 7 },
+  { x: 40, y: SOIL_TOP - 21, r: 4, h: 5 },
 ];
 
 function paintMolehills(layer) {
   for (const [i, hill] of MOLEHILLS.entries()) {
-    if (hill.shaft) {
-      // The passage up from the tunnel, as dark as the tunnel itself.
-      for (let y = hill.y; y <= SOIL_TOP + 13; y += 1) {
-        const wobble = Math.round(Math.sin(y / 2.5) * 0.8);
-        for (let x = -1; x <= 1; x += 1) layer.set(hill.x - 3 + x + wobble, y, C.topsoil[3]);
-      }
+    // A short cast shadow to the right.
+    for (let x = 1; x <= Math.ceil(hill.r / 2); x += 1) {
+      for (let y = 0; y <= 1; y += 1) layer.set(hill.x + hill.r + x - y, hill.y - y, C.shadow.grass[2]);
     }
+    const tops = [];
     for (let x = -hill.r; x <= hill.r; x += 1) {
-      const t = x / hill.r;
-      const top = hill.y - Math.round(hill.h * Math.sqrt(Math.max(0, 1 - t * t)) + (hash(x, i, 121) > 0.75 ? 1 : 0) * (Math.abs(t) < 0.8 ? 1 : 0));
-      for (let y = top; y <= hill.y; y += 1) {
-        const lit = y === top ? (t < 0.3 ? 0 : 1) : t < -0.2 ? 1 : t < 0.4 ? 2 : 3;
-        const crumb = hash(x, y, 122 + i) > 0.82;
-        layer.set(hill.x + x, y, C.topsoil[Math.max(0, lit - (crumb ? 1 : 0))]);
-      }
+      const t = Math.abs(x / (hill.r + 0.5));
+      // A superellipse: steep sides and a broad, rounded crown.
+      const lump = hash(Math.floor((x + 20) / 3), i, 121) > 0.6 && t < 0.85 ? 1 : 0;
+      tops.push(hill.y - Math.round(hill.h * Math.pow(Math.max(0, 1 - Math.pow(t, 2.6)), 1 / 2.2)) - lump);
     }
-    // Crumbs scattered on the grass around the mound.
+    tops.forEach((top, k) => {
+      const x = k - hill.r;
+      const t = x / hill.r;
+      for (let y = top; y <= hill.y; y += 1) {
+        const edge = y === top || k === 0 || k === tops.length - 1 || y < tops[k - 1] || y < tops[k + 1];
+        const depth = (y - top) / Math.max(1, hill.y - top);
+        let shade = t < -0.35 ? 1 : t < 0.35 ? 1 + (depth > 0.5 ? 1 : 0) : 2;
+        if (edge) shade = t < 0.1 && y === top ? 0 : 3;
+        else if (hash(x, y, 122 + i) > 0.86) shade = Math.max(0, shade - 1);
+        layer.set(hill.x + x, y, C.topsoil[shade]);
+      }
+    });
+    // Crumbs on the grass at the foot.
     for (let k = 0; k < hill.r; k += 1) {
       const side = hash(k, i, 123) > 0.5 ? 1 : -1;
       const x = hill.x + side * (hill.r + 1 + Math.floor(hash(k, i, 124) * 3));
@@ -1285,40 +1309,12 @@ function paintRaceNumber(layer, x0, y0) {
   sprite(layer, x0, y0, turned, { p: C.paper[1], w: C.paper[0], b: C.ink });
 }
 
-/**
- * A set of three tyre levers, fanned out from the pin that holds them: long
- * flat bars with a hooked lip at one end and a spoke notch at the other.
- */
-function paintTyreLevers(layer, x0, y0) {
-  const pivot = { x: x0 + 3, y: y0 + 14 };
-  const levers = [-52, -30, -8].map((angle, i) => ({ angle, ramp: C.levers[i] }));
-  for (const lever of levers) {
-    const a = (lever.angle * Math.PI) / 180;
-    const along = { x: Math.cos(a), y: Math.sin(a) };
-    const across = { x: -along.y, y: along.x };
-    for (let y = -24; y <= 4; y += 1) {
-      for (let x = -4; x <= 26; x += 1) {
-        const u = x * along.x + y * along.y;
-        const v = x * across.x + y * across.y;
-        const hook = u > 18 && u < 21 && v < -1 && v > -3.4 + (u - 18) * 0.2;
-        const body = u > -1.5 && u < 20 && Math.abs(v) < 1.9 && !(u < 0.2 && Math.abs(v) < 0.6);
-        if (!body && !hook) continue;
-        const edge = !hook && (Math.abs(v) > 1.1 || u > 19.2 || u < -0.7);
-        const notch = u > 0.5 && u < 2 && Math.abs(v) < 0.5;
-        if (notch) continue;
-        layer.set(pivot.x + x, pivot.y + y, hook ? lever.ramp[2] : edge ? (v < 0 ? lever.ramp[0] : lever.ramp[2]) : lever.ramp[1]);
-      }
-    }
-  }
-}
-
 /** Lost things in the soil, left to right. */
 const FINDS = [
-  { x: 14, y: SOIL_TOP + 9, w: 44, h: 6, paint: paintMole },
+  { x: 46, y: SOIL_TOP + 10, w: 11, h: 5, paint: paintMole },
   { x: 100, y: SOIL_TOP + 26, w: 62, h: 30, paint: paintFrame },
   { x: 214, y: SOIL_TOP + 20, w: 7, h: 10, paint: paintCowbell },
   { x: 252, y: SOIL_TOP + 7, w: 20, h: 7, paint: paintWorm },
-  { x: 288, y: SOIL_TOP + 20, w: 26, h: 18, paint: paintTyreLevers },
   { x: 344, y: SOIL_TOP + 40, w: 68, h: 17, paint: paintFossil },
   { x: 468, y: SOIL_TOP + 17, w: 12, h: 10, paint: paintRaceNumber },
   { x: 548, y: SOIL_TOP + 34, w: 26, h: 7, paint: paintBottle },

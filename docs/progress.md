@@ -9,7 +9,7 @@ Read this after `SPEC.md`. Update it in every PR.
 | 1 | Astro foundation, bilingual routes, schemas, CI, Playwright, deployment template | Merged |
 | 2 | Calendar, event pages, directory, feeds, contribution forms, researched season data | Merged (plus GitHub Pages preview) |
 | 3 | Typography, tokens, wordmark and cyclist proposals | Merged. Cyclists approved; fonts and wordmark still to be chosen by the owner |
-| 4 | Eight-direction riding study, track geometry, background, soil transition | Riding cycle and route approved and merged. Scenery proposal in review, fifth round after owner feedback: furniture off the track, cyclocross.cz and buy-an-ad banners in both languages, abstract steep banners, soil finds and molehills (`/review/scene/`) |
+| 4 | Eight-direction riding study, track geometry, background, soil transition | Riding cycle and route approved and merged. Scenery proposal in review, sixth round after owner feedback: furniture off the track, cyclocross.cz and buy-an-ad banners in both languages, abstract steep banners, soil finds and molehills (`/review/scene/`) |
 | 5 | Supporting content, advertising placements, metadata | Not started |
 | 6 | Animation controller and action modules | Not started |
 | 7 | Full choreography, refined art, kits, responsive scenes | Not started |

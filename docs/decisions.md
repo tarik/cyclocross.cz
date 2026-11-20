@@ -4,12 +4,18 @@ Newest first. Each entry says what was decided, by whom and why. Owner decisions
 
 ## 2026-11-18, scenery PR
 
+Sixth round, after the owner's review (2026-11-20):
+
+- **Owner: no tyre levers.** They are removed from the soil.
+- **Owner: molehills shaped like those in the Czech cartoon about the little mole**: round, bell-shaped domes of dark earth with steep sides, a broad crown and a lumpy outline, lit from the left with a short shadow. Only the shape of the piles follows the cartoon; the character itself is not drawn, and the mole underground stays a plain, realistic mole.
+- **Owner: no blind tunnel.** The passage is one tunnel: down from the front molehill, a quarter turn, and along to the mole.
+
 Fifth round, after the owner's review (2026-11-20):
 
 - **Owner: the frame has no crank** (the earlier request was a typo). The chainring, crank and pedal are gone; the frame stays at the larger size.
 - **Owner: race number 13, upside down.** The plate, pin holes and all, is drawn turned half way round, as riders pin a 13 for luck.
 - **Owner: molehills.** A mound of fresh earth sits on the front edge of the grass above a passage down to the mole's tunnel, with two smaller ones further back.
-- **Agent: the tyre lever did not read**, so it is now a set of three levers (blue, yellow, orange) fanned out from their pin, each with a hooked tip.
+- **Agent: the tyre lever did not read**, so it became a set of three fanned levers (removed in the sixth round).
 
 Fourth round, after the owner's review:
 
