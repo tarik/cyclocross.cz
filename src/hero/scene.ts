@@ -25,7 +25,7 @@ export interface Segment {
 }
 
 /** Design canvas of the desktop scene, in art pixels. Shown at two screen pixels per art pixel. */
-export const canvas = { width: 720, height: 320 } as const;
+export const canvas = { width: 720, height: 344 } as const;
 
 /** The camera looks down by this angle; the same value is used to draw the sprites. */
 export const pitchDegrees = 28;
@@ -46,34 +46,51 @@ const p = (e: number, s: number, h = 0): Point => ({ e, s, h });
 export const RIDER_HEIGHT = 66;
 export const DECK = 84; // top of the flyover
 export const DECK_THICKNESS = 8; // the underside must clear a mounted rider
-export const SUMMIT = 112;
+export const SUMMIT = 96;
 
 export const structures = {
   /**
    * The flyover: a steep ramp up, a flat top and a steep ramp down, ridden
-   * towards the north-west. The entry lane passes under the flat top; after
-   * the ramp down the route turns left, towards the pose area.
+   * towards the north-west. The ramps are solid timber wedges; the entry lane
+   * passes under the flat top between them. After the ramp down the route
+   * turns left, towards the pose area.
    */
   flyover: { footIn: p(453, 203, 0), topIn: p(400, 150, DECK), topOut: p(341, 91, DECK), footOut: p(288, 38, 0), width: 26 },
   /**
    * The hill on the right: a ridge that runs off the right edge of the
-   * screen. Stairs climb its north-east face, a steep drop comes down its
-   * south-east face inside the screen.
+   * screen. Its height falls from the ridge line to the ground over `radius`.
+   * A wide flight of stairs climbs its rounded west end heading north-east at
+   * about 36 degrees; a steep drop comes down its south face inside the screen.
    */
-  hill: { stairsFoot: p(500, 140, 0), stairsTop: p(565, 75, SUMMIT), dropTop: p(596, 76, SUMMIT), dropFoot: p(668, 148, 0), ridgeEnd: p(780, 52, SUMMIT + 14), steps: 14 },
-  barriers: [p(112, 140, 0), p(222, 140, 0)],
+  hill: {
+    stairsFoot: p(480, 120, 0),
+    stairsTop: p(572, 28, SUMMIT),
+    dropTop: p(610, 30, SUMMIT),
+    dropFoot: p(696, 150, 0),
+    ridgeEnd: p(800, 10, SUMMIT + 14),
+    radius: 130,
+    steps: 14,
+    /** Width of the flight of stairs, in ground units. */
+    stairsWidth: 26,
+  },
+  barriers: [p(112, 120, 0), p(222, 120, 0)],
   poseArea: p(140, 74, 0),
 };
 
+/** Width of the ridden track on the ground, in ground units. */
+export const TRACK_WIDTH = 28;
+/** The ground ends here, towards the viewer; below it the soil is cut away. */
+export const GROUND_FRONT = 228;
+
 export const route: Segment[] = [
-  { id: 'entry', label: 'Entry', action: 'ride', facing: 'E', marker: 0.85, path: [p(-40, 140), p(60, 140)] },
-  { id: 'barriers', label: 'Barriers', action: 'hop', facing: 'E', marker: 0.85, path: [p(60, 140), p(262, 140)] },
-  { id: 'underpass', label: 'Under the flyover', action: 'ride', facing: 'E', marker: 0.45, path: [p(262, 140), p(420, 140)] },
-  { id: 'dismount', label: 'Dismount', action: 'dismount', facing: 'E', marker: 0.6, path: [p(420, 140), p(500, 140)] },
-  { id: 'stairs', label: 'Stairs', action: 'run', facing: 'NE', marker: 0.5, path: [p(500, 140), p(565, 75, SUMMIT)] },
-  { id: 'summit', label: 'Summit', action: 'remount', facing: 'SE', marker: 0.5, path: [p(565, 75, SUMMIT), p(596, 76, SUMMIT)] },
-  { id: 'downhill', label: 'Steep downhill', action: 'ride', facing: 'SE', marker: 0.55, path: [p(596, 76, SUMMIT), p(668, 148, 0)] },
-  { id: 'return', label: 'Back to the flyover', action: 'ride', facing: 'W', marker: 0.72, path: [p(668, 148), p(692, 176), p(670, 203), p(453, 203)] },
+  { id: 'entry', label: 'Entry', action: 'ride', facing: 'E', marker: 0.85, path: [p(-40, 120), p(60, 120)] },
+  { id: 'barriers', label: 'Barriers', action: 'hop', facing: 'E', marker: 0.85, path: [p(60, 120), p(262, 120)] },
+  { id: 'underpass', label: 'Under the flyover', action: 'ride', facing: 'E', marker: 0.45, path: [p(262, 120), p(420, 120)] },
+  { id: 'dismount', label: 'Dismount', action: 'dismount', facing: 'E', marker: 0.6, path: [p(420, 120), p(480, 120)] },
+  { id: 'stairs', label: 'Stairs', action: 'run', facing: 'NE', marker: 0.5, path: [p(480, 120), p(572, 28, SUMMIT)] },
+  { id: 'summit', label: 'Summit', action: 'remount', facing: 'SE', marker: 0.5, path: [p(572, 28, SUMMIT), p(610, 30, SUMMIT)] },
+  { id: 'downhill', label: 'Steep downhill', action: 'ride', facing: 'SE', marker: 0.55, path: [p(610, 30, SUMMIT), p(696, 150, 0)] },
+  { id: 'return', label: 'Back to the flyover', action: 'ride', facing: 'W', marker: 0.72, path: [p(696, 150), p(712, 180), p(690, 203), p(453, 203)] },
   { id: 'flyover-up', label: 'Flyover, steep up', action: 'ride', facing: 'NW', marker: 0.5, path: [p(453, 203), p(400, 150, DECK)] },
   { id: 'flyover-top', label: 'Flyover, flat top', action: 'ride', facing: 'NW', marker: 0.5, path: [p(400, 150, DECK), p(341, 91, DECK)] },
   { id: 'flyover-down', label: 'Flyover, steep down', action: 'ride', facing: 'NW', marker: 0.6, path: [p(341, 91, DECK), p(288, 38, 0)] },
@@ -85,8 +102,55 @@ export const route: Segment[] = [
 /** The lane that passes under the flat top of the flyover. */
 export const underpasses = ['underpass'];
 
+/**
+ * Occlusion. The scenery comes as a background plus occluder layers, each at
+ * a ground depth `s`. A rider is drawn after every layer whose depth is less
+ * than the rider's draw depth, and before the others. The near half of the
+ * flyover is one such layer; riders on the flyover are always drawn after it.
+ */
+export const FLYOVER_SPLIT_S = 121;
+export const occluders = [
+  { id: 'tape-mid', s: 97 },
+  { id: 'flyover-front', s: FLYOVER_SPLIT_S },
+  { id: 'hill-tape', s: 160 },
+  { id: 'front', s: 1000 },
+] as const;
+const flyoverSegments = ['flyover-up', 'flyover-top', 'flyover-down'];
+export function drawDepth(segmentId: string, point: Point): number {
+  return flyoverSegments.includes(segmentId) ? Math.max(point.s, FLYOVER_SPLIT_S + 1) : point.s;
+}
+
 /** Segments that are allowed to leave the ground. */
 export const elevatedSegments = ['stairs', 'summit', 'downhill', 'flyover-up', 'flyover-top', 'flyover-down'];
+
+/** Distance from a ground point to a ground segment, and the height there. */
+function toSegment(e: number, s: number, a: Point, b: Point) {
+  const de = b.e - a.e;
+  const ds = b.s - a.s;
+  const t = Math.max(0, Math.min(1, ((e - a.e) * de + (s - a.s) * ds) / (de * de + ds * ds)));
+  return { distance: Math.hypot(e - (a.e + de * t), s - (a.s + ds * t)), h: a.h + (b.h - a.h) * t };
+}
+
+/** Cross-section of the hill: a straight slope with a rounded crest and toe, 1 at the ridge, 0 at the foot. */
+function slopeProfile(x: number): number {
+  const a = 0.22;
+  let f: number;
+  if (x < a) f = 1 - a - (x * x) / (2 * a);
+  else if (x < 1 - a) f = 1 - a / 2 - x;
+  else f = ((1 - x) * (1 - x)) / (2 * a);
+  return f / (1 - a);
+}
+
+/** Height of the hill at a ground point, before the stairs and the drop are cut in. */
+export function hillHeight(e: number, s: number): number {
+  const { stairsTop, dropTop, ridgeEnd, radius } = structures.hill;
+  let best = 0;
+  for (const [a, b] of [[stairsTop, dropTop], [dropTop, ridgeEnd]] as const) {
+    const { distance, h } = toSegment(e, s, a, b);
+    best = Math.max(best, h * slopeProfile(Math.min(1, distance / radius)));
+  }
+  return best;
+}
 
 /** A point part of the way along a polyline, by length. */
 export function along(path: Point[], t: number): Point {

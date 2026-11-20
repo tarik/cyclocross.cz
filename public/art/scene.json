@@ -1,0 +1,45 @@
+{
+  "width": 720,
+  "height": 344,
+  "layers": [
+    {
+      "id": "back",
+      "files": {
+        "cs": "scene-back.cs.png",
+        "en": "scene-back.en.png"
+      }
+    },
+    {
+      "id": "tape-mid",
+      "files": {
+        "cs": "scene-tape-mid.png",
+        "en": "scene-tape-mid.png"
+      },
+      "s": 97
+    },
+    {
+      "id": "flyover-front",
+      "files": {
+        "cs": "scene-flyover-front.png",
+        "en": "scene-flyover-front.png"
+      },
+      "s": 121
+    },
+    {
+      "id": "hill-tape",
+      "files": {
+        "cs": "scene-hill-tape.png",
+        "en": "scene-hill-tape.png"
+      },
+      "s": 160
+    },
+    {
+      "id": "front",
+      "files": {
+        "cs": "scene-front.png",
+        "en": "scene-front.png"
+      },
+      "s": 1000
+    }
+  ]
+}

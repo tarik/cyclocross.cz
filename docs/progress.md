@@ -9,7 +9,7 @@ Read this after `SPEC.md`. Update it in every PR.
 | 1 | Astro foundation, bilingual routes, schemas, CI, Playwright, deployment template | Merged |
 | 2 | Calendar, event pages, directory, feeds, contribution forms, researched season data | Merged (plus GitHub Pages preview) |
 | 3 | Typography, tokens, wordmark and cyclist proposals | Merged. Cyclists approved; fonts and wordmark still to be chosen by the owner |
-| 4 | Eight-direction riding study, track geometry, background, soil transition | Part 1 in review: riding cycle and route proposal (revised after owner feedback: flyover ridden north-west then left to the pose area, stairs north-east, downhill south-east, hill running off the right edge, pose and exit left; camera pitch 28 degrees) (`/review/riding/`, `/review/route/`). Scenery and soil follow after route approval |
+| 4 | Eight-direction riding study, track geometry, background, soil transition | Riding cycle and route approved and merged. Scenery proposal in review, sixth round after owner feedback: furniture off the track, cyclocross.cz and buy-an-ad banners in both languages, abstract steep banners, soil finds and molehills (`/review/scene/`) |
 | 5 | Supporting content, advertising placements, metadata | Not started |
 | 6 | Animation controller and action modules | Not started |
 | 7 | Full choreography, refined art, kits, responsive scenes | Not started |
@@ -30,9 +30,15 @@ Read this after `SPEC.md`. Update it in every PR.
 - Event pages in both languages, per-event `.ics` files and a season feed under `/ics/`.
 - Issue Forms for adding and correcting a race and reporting a site problem.
 - Styling is Tailwind 4.
-- Art pipeline in `art/` (posable rider model, palette-swap kits, `npm run art`). Review pages: `/review/typography/`, `/review/art/`, `/review/riding/`, `/review/route/`. Course data in `src/hero/scene.ts`.
+- Art pipeline in `art/` (posable rider model, palette-swap kits, `npm run art`). Review pages: `/review/typography/`, `/review/art/`, `/review/riding/`, `/review/route/`, `/review/scene/`. Course data in `src/hero/scene.ts`.
 - GitHub Pages preview workflow (runs on pushes to `main`; the owner must set Settings > Pages > Source to GitHub Actions once).
 - After the owner's screenshot review: collapsed filter, button-style actions, two-column details, sticky header, slim turf footer. See `docs/decisions.md`.
+
+## What exists after the scenery PR
+
+- `art/scenery.mjs` paints the desktop scenery from `src/hero/scene.ts`, once per language because of the banner lettering; `npm run art` writes `public/art/scene-*.png` and `scene.json` (layers, their depths and a file per locale).
+- `/review/scene/` composes the layers in a canvas with riders placed on the route in the draw order the animation will use.
+- Next on the art track: owner review of the scenery, then PR 6 (animation controller: hop, dismount, run with bike, remount, pose, wave), which reads the same layers and `drawDepth`.
 
 ## Data gaps to close
 

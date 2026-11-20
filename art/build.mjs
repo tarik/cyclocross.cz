@@ -9,6 +9,8 @@ import { encodePng } from './lib/png.mjs';
 import { Sprite, blit } from './lib/raster.mjs';
 import { palette } from './palettes.mjs';
 import { DIRECTIONS, drawRider } from './rider.mjs';
+import { LOCALES, paintScene } from './scenery.mjs';
+import { occluders } from '../src/hero/scene.ts';
 
 const out = process.argv[2] ?? join(dirname(fileURLToPath(import.meta.url)), '..', 'public', 'art');
 mkdirSync(out, { recursive: true });
@@ -86,6 +88,25 @@ for (const kit of ['club', 'national']) {
   }
   wheel.sphere({ ...c, z: 2 }, 1.6, 'jersey', 3, { flat: true });
   writeFileSync(join(out, 'mark-wheel.png'), encodePng(size, size, wheel.toRgba(palette('club', 'female'))));
+}
+
+// The desktop scenery: a background and the occluder layers drawn between
+// riders. Banner lettering differs by language, so a layer that carries any is
+// written once per language; the others are shared.
+{
+  const scenes = Object.fromEntries(LOCALES.map((locale) => [locale, paintScene(locale)]));
+  const first = scenes[LOCALES[0]];
+  const layers = [];
+  for (const { id, s } of [{ id: 'back' }, ...occluders]) {
+    const shared = LOCALES.every((locale) => Buffer.from(scenes[locale][id]).equals(Buffer.from(first[id])));
+    const files = {};
+    for (const locale of LOCALES) {
+      files[locale] = shared ? `scene-${id}.png` : `scene-${id}.${locale}.png`;
+      writeFileSync(join(out, files[locale]), encodePng(first.width, first.height, scenes[locale][id]));
+    }
+    layers.push(s === undefined ? { id, files } : { id, files, s });
+  }
+  writeFileSync(join(out, 'scene.json'), `${JSON.stringify({ width: first.width, height: first.height, layers }, null, 2)}\n`);
 }
 
 writeFileSync(join(out, 'sheets.json'), `${JSON.stringify(meta, null, 2)}\n`);

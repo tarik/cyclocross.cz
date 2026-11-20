@@ -2,13 +2,63 @@
 
 Newest first. Each entry says what was decided, by whom and why. Owner decisions are binding; agent decisions are defaults that the owner can overturn.
 
+## 2026-11-18, scenery PR
+
+Sixth round, after the owner's review (2026-11-20):
+
+- **Owner: no tyre levers.** They are removed from the soil.
+- **Owner: molehills shaped like those in the Czech cartoon about the little mole**: round, bell-shaped domes of dark earth with steep sides, a broad crown and a lumpy outline, lit from the left with a short shadow. Only the shape of the piles follows the cartoon; the character itself is not drawn, and the mole underground stays a plain, realistic mole.
+- **Owner: no blind tunnel.** The passage is one tunnel: down from the front molehill, a quarter turn, and along to the mole.
+
+Fifth round, after the owner's review (2026-11-20):
+
+- **Owner: the frame has no crank** (the earlier request was a typo). The chainring, crank and pedal are gone; the frame stays at the larger size.
+- **Owner: race number 13, upside down.** The plate, pin holes and all, is drawn turned half way round, as riders pin a 13 for luck.
+- **Owner: molehills.** A mound of fresh earth sits on the front edge of the grass above a passage down to the mole's tunnel, with two smaller ones further back.
+- **Agent: the tyre lever did not read**, so it became a set of three fanned levers (removed in the sixth round).
+
+Fourth round, after the owner's review:
+
+- **Owner: the frame has its crank** (later reversed). The rusty frame is larger and carried a toothed chainring, a crank arm and a pedal. The loose chainring was removed, as it did not read.
+- **Owner: the steep banners are abstract.** Banners on the ramps and the stairs carry a graphic per design (chevrons, a wave, diagonal stripes, dots, a split, a zigzag, a sawtooth) instead of imitating lettering.
+- **Agent: finds that read.** The earthworm is a plump, ringed pink S curve, and the old bidon is a standing blue bottle with a black cap, a nozzle, a grip waist and a white stripe (white looked like a snowman).
+
+Third round, after the owner's review:
+
+- **Owner: nothing stands on the track.** The feather flag and the end of the banner fence stood in the track where it bends down from the flyover. The pose fence now runs at s 52 from e -6 to 214 and the flag stands behind it at (184, 30). The stairs fence and two lines of hill tape were shortened where they reached into the dismount lane and the summit. A unit test (`tests/unit/scenery.test.ts`) keeps every flag, fence and line of tape more than half a track width plus one unit from the route.
+- **Owner: the banners advertise cyclocross.cz, and some offer themselves for sale**: every third banner says KUP SI REKLAMU on the Czech page. **Agent:** on the English page it says ADVERTISE HERE, the usual wording on such banners, rather than the literal BUY ADVERTISEMENTS. The made-up trades are gone. Each message has layouts from one line to two short lines, and a banner uses the longest that fits.
+- **Agent: the scenery is built once per language.** Only layers whose pixels differ get a file per language (today only `scene-back.cs.png` and `scene-back.en.png`); `scene.json` lists `files` per locale for every layer.
+- **Agent: steep banners carry no lettering.** On the ramps and the stairs, 3 by 5 letters shear into noise, so those banners show an upright badge and a bold band in word-long blocks.
+- **Owner: more finds in the soil**: a rusty frame, bones and a green lager bottle with a cream label and gold foil (no brand name). **Agent:** the bones are a small dinosaur, and a mole at the end of its tunnel, a cowbell (rung at every cyclocross race) and an earthworm were added. Stones keep clear of the finds.
+
+Second round, after the owner's review (photos of a stairs hill and a race flyover):
+
+- **Owner: golden hour.** The sky runs from blue-violet overhead through rose and peach to pale gold, with a low sun in the upper left, long thin clouds lit from below, warm highlights and cool, long shadows (separate shadow ramps in `SCENERY.shadow`).
+- **Owner: a realistic flyover.** It is now a temporary race structure: steel scaffold posts, ledgers and braces, deck plates with grip strips and a coloured edge strip, handrails with a knee rail on both sides and sponsor banners hung on the ramp sides. The lane under the flat top is kept free of posts. The near handrails are in the front layer, so they pass in front of a rider on the deck.
+- **Owner: wider, gentler stairs.** The summit is 96 (was 112) and the stairs run 130 units at about 36 degrees (were about 55), 26 units wide with timber nosings and side boards. The hill is broader: its radius is 130.
+- **Owner: tape at real height.** Stakes and tape stand about a metre high (26 units) and follow the ground on the hill.
+- **Owner: sponsor banners mixed with tape**, for the feel of a well supported amateur race: banner fences behind the pose area, along the foot of the hill and up the stairs (following the slope, as in the owner's photo), tape elsewhere, and four feather flags. The banners name made-up local trades and this site in a 3 by 5 pixel font without diacritics; no real company is named. They are candidates for real advertising slots later (SPEC.md 9.1), each with a labelled HTML link.
+- **Agent: the track is 28 units wide.** A new occluder layer, `hill-tape` (s 160), holds the tape on the near side of the stairs and the drop.
+- **Agent: Czech race photographs could not be downloaded from the build environment** (the photo host refused the connection), so the owner's two photos and general knowledge of race furniture are the references. Spectators are left out for now: at the riders' scale they would be as tall as the riders and crowd the scene.
+
+First round:
+
+- **Owner: route approved** by merging the route PR, including the 28 degree camera.
+- **Agent: the scenery is painted by code from the course data** (`art/scenery.mjs`), like the riders, so terrain, structures and riders share one projection and the stairs, drop and flyover sit exactly on the route. Colours are named ramps in `SCENERY` (`art/palettes.mjs`); texture is seeded noise snapped to small clusters and dithered seams, so rebuilds are byte-identical.
+- **Agent: the ground and the hill are a height field drawn column by column**, which gives correct occlusion of the hill and shows stair risers as real vertical faces. The hill's cross-section is a straight slope with a rounded crest and toe (`hillHeight` in `src/hero/scene.ts`); the stairs and the drop are cut in along their route lines.
+- **Agent: the sun comes from the west, slightly in front of the scene and high**, matching the upper-left light on the riders. The flyover, barriers and big tree cast shadows on the ground.
+- **Agent: the scenery is a background plus occluder layers, each at a ground depth** (`occluders` in `src/hero/scene.ts`, written to `public/art/scene.json`): course tape between the two left lanes (s 97), the near half of the flyover (s 121) and course tape in front of everything. A rider is drawn after every layer nearer the back than its draw depth. Riders on the flyover always draw after its near half. This replaces a single "under the bridge" flag.
+- **Agent: the track is 22 units wide** (was 14 in the diagram; 28 since the second round), so it reads as a track at display size. The entry lane moved from s 140 to s 120 and the stairs foot with it: the earlier test only compared the lane with the ends of the flat top, but the flyover is diagonal, so the old lane clipped the ramp up. The test now checks the whole lane band against both ramps.
+- **Agent: the canvas is 720 by 344.** The extra rows hold the soil cutaway, which fades into the page in stepped, dithered rows of lighter soil, so content below starts on the plain page colour.
+- **Agent: autumn palette at launch**: pale sky with a few clouds, a far range of hills with a small village and church tower, a tree line in gold, orange, rust, olive and spruce, a large golden tree by the pose area and three birches, green grass with ochre patches, tufts and fallen leaves, brown track with ruts and stones, a timber flyover, white barriers and red-and-white course tape. Discoveries: a chainring, a tyre lever, race number 17 and an old bidon in the soil, a newer bidon in the grass.
+
 ## 2026-11-15, riding study and route PR
 
 - **Owner: cyclist direction approved** by merging the proposals PR. Fonts and the wordmark are still open.
 - **Agent: the riding cycle is eight frames per crank turn in all eight directions**, none mirrored. Sheets are `public/art/cycle-{rider}-{kit}.png`, rows in the order of `DIRECTIONS`, columns are crank positions. The wheels turn 15 degrees per frame, which loops cleanly with six spokes.
-- **Agent: the desktop scene is 720 by 320 art pixels at two screen pixels each.** A mounted rider is 66 units tall, so riders are large in the scene. The alternative, a smaller sprite, loses the detail the owner approved.
+- **Agent: the desktop scene is 720 by 320 art pixels at two screen pixels each** (344 tall since the scenery PR). A mounted rider is 66 units tall, so riders are large in the scene. The alternative, a smaller sprite, loses the detail the owner approved.
 - **Agent: the course is data in `src/hero/scene.ts`**: one projection (28 degree pitch, shared with the sprites and checked by a test), structures and fourteen route segments. Tests fail if segments do not connect, if the underside of the flyover's flat top does not clear a mounted rider, or if the route leaves the ground outside the stairs, hill and flyover.
-- **Owner: route.** Enter left, two barriers, pass under the flyover, dismount, stairs up the hill heading north-east, remount, steep downhill heading south-east, back along the front, over the flyover heading north-west (steep up, short flat top, steep down), then turn left behind the barriers, stop and pose on the left and leave the screen to the left. The flyover replaces the earlier long bridge. The route does not pass under the flyover a second time (owner correction, 18 November). The hill is a ridge that runs off the right edge of the screen, with the whole descent on screen, so the landscape is not flat. The revised drawing awaits the owner's approval before any scenery is drawn.
+- **Owner: route.** Enter left, two barriers, pass under the flyover, dismount, stairs up the hill heading north-east, remount, steep downhill heading south-east, back along the front, over the flyover heading north-west (steep up, short flat top, steep down), then turn left behind the barriers, stop and pose on the left and leave the screen to the left. The flyover replaces the earlier long bridge. The route does not pass under the flyover a second time (owner correction, 18 November). The hill is a ridge that runs off the right edge of the screen, with the whole descent on screen, so the landscape is not flat. Approved on 18 November by merging the route PR.
 - **Owner: the route drawing is not the graphics.** It is a flat-colour diagram; grass, track, flyover and hill will be pixel art in the riders' style.
 - **Agent: the camera pitch is raised from 18 to 28 degrees.** At 18 degrees the two lanes under the flyover were 8 screen pixels apart and the diagonal headings looked almost side-on. The approved riders are redrawn at the new angle (rider cell 76 by 88, anchor 38, 71); the owner is asked to confirm they still look right.
 

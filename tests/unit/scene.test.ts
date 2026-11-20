@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { along, canvas, DECK, DECK_THICKNESS, elevatedSegments, project, RIDER_HEIGHT, route, routeGaps, structures, underpasses } from '../../src/hero/scene.ts';
+import { along, canvas, drawDepth, FLYOVER_SPLIT_S, DECK, DECK_THICKNESS, elevatedSegments, hillHeight, project, RIDER_HEIGHT, route, routeGaps, structures, TRACK_WIDTH, underpasses } from '../../src/hero/scene.ts';
 
 describe('course route', () => {
   it('is continuous from entry to exit', () => {
@@ -13,22 +13,41 @@ describe('course route', () => {
     }
   });
 
-  it('passes under the flat top with headroom and crosses it at deck height', () => {
+  it('passes under the flat top between the ramps, with headroom', () => {
     const { topIn, topOut, width } = structures.flyover;
+    // The flyover runs along e - s = k; along it, u = e + s grows towards the ramp up.
+    const k = topIn.e - topIn.s;
+    const reach = width / Math.SQRT2;
     for (const id of underpasses) {
       const [from, to] = route.find((segment) => segment.id === id)!.path;
       expect(from.s, id).toBe(to.s);
-      // The flyover runs along e - s = constant, so the lane meets it here.
-      const crossing = from.s + (topIn.e - topIn.s);
-      expect(Math.min(from.e, to.e), id).toBeLessThan(crossing - width);
-      expect(Math.max(from.e, to.e), id).toBeGreaterThan(crossing + width);
-      // The whole lane width lies under the flat part, not under a ramp.
-      expect(from.s - 7, id).toBeGreaterThan(topOut.s);
-      expect(from.s + 7, id).toBeLessThan(topIn.s);
+      const half = TRACK_WIDTH / 2;
+      // Every point of the lane band below the deck lies between the two ramps.
+      const lowest = k - reach + 2 * (from.s - half);
+      const highest = k + reach + 2 * (from.s + half);
+      expect(lowest, id).toBeGreaterThan(topOut.e + topOut.s);
+      expect(highest, id).toBeLessThan(topIn.e + topIn.s);
+      expect(Math.min(from.e, to.e), id).toBeLessThan(from.s + k - reach);
+      expect(Math.max(from.e, to.e), id).toBeGreaterThan(from.s + k + reach);
+      // A rider under the flat top is drawn before the near half of the flyover.
+      expect(drawDepth(id, along(route.find((segment) => segment.id === id)!.path, 0.5)), id).toBeLessThan(FLYOVER_SPLIT_S);
     }
     expect(DECK - DECK_THICKNESS).toBeGreaterThanOrEqual(RIDER_HEIGHT + 4);
     const top = route.find((segment) => segment.id === 'flyover-top')!;
     expect(top.path.every((point) => point.h === DECK)).toBe(true);
+  });
+
+  it('puts the stairs and the drop on the hill surface', () => {
+    const { stairsFoot, stairsTop, dropTop, dropFoot } = structures.hill;
+    for (const point of [stairsFoot, stairsTop, dropTop, dropFoot]) {
+      expect(Math.abs(hillHeight(point.e, point.s) - point.h), `${point.e},${point.s}`).toBeLessThan(1);
+    }
+    // The ground lanes stay clear of the hill.
+    for (const id of ['entry', 'barriers', 'underpass', 'dismount', 'return', 'to-pose', 'exit']) {
+      for (const point of route.find((segment) => segment.id === id)!.path) {
+        expect(hillHeight(point.e, point.s), id).toBeLessThan(1);
+      }
+    }
   });
 
   it('rides the flyover north-west and the downhill south-east', () => {
