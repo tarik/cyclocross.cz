@@ -1,0 +1,234 @@
+---
+/**
+ * Motion review (SPEC.md 5.7 step 5 and section 15, PR 6): the animation
+ * controller running the whole route with rough action sprites, with
+ * deterministic controls to pause, step, slow down and jump to any segment,
+ * and each action's frames on their own.
+ */
+import { withBase } from '../../i18n/routes.ts';
+import { route } from '../../hero/scene.ts';
+import { ACTION_LABELS } from '../../hero/labels.ts';
+import scene from '../../../public/art/scene.json';
+import sheets from '../../../public/art/sheets.json';
+
+const used = Object.fromEntries(Object.entries(sheets).filter(([name]) => name.startsWith('cycle-') || name.startsWith('act-')));
+const data = {
+  width: scene.width,
+  height: scene.height,
+  layers: scene.layers.map(({ id, files, ...rest }) => ({
+    id,
+    ...rest,
+    urls: { cs: withBase(`/art/${files.cs}`), en: withBase(`/art/${files.en}`) },
+  })),
+  sheets: used,
+  art: withBase('/art/'),
+};
+const actionSheet = sheets['act-female-club.png'];
+const rows = Object.entries(actionSheet.actions).flatMap(([action, directions]) =>
+  Object.entries(directions).map(([direction, { row, frames }]) => ({ action, direction, row, frames })));
+const segments = route.map((segment) => ({ id: segment.id, label: segment.label }));
+---
+
+<div class="prose mb-6">
+  <p>
+    The animation controller running the approved course with first, rough action frames: the bunny hops, the dismount,
+    running up the stairs with the bike on the shoulder, the remount at the top, the stop and turn to face you, the idle
+    and the wave, and the exit. Riders alternate on each loop. The point of this round is timing and geometry; the frames
+    are polished afterwards.
+  </p>
+</div>
+
+<div class="mb-4 flex flex-wrap items-center gap-x-6 gap-y-3" data-motion-controls>
+  <div class="flex flex-wrap items-center gap-2">
+    <button type="button" class="pill min-w-20 justify-center" data-motion-play>Pause</button>
+    <button type="button" class="pill" data-motion-step="-1" aria-label="One frame back">Frame back</button>
+    <button type="button" class="pill" data-motion-step="1" aria-label="One frame forward">Frame forward</button>
+  </div>
+  <div class="flex flex-wrap items-center gap-2" role="group" aria-labelledby="motion-speed">
+    <span id="motion-speed" class="font-semibold">Speed</span>
+    <button type="button" class="chip" data-motion-speed="0.25" aria-pressed="false">¼×</button>
+    <button type="button" class="chip" data-motion-speed="0.5" aria-pressed="false">½×</button>
+    <button type="button" class="chip" data-motion-speed="1" aria-pressed="true">1×</button>
+  </div>
+  <div class="flex flex-wrap items-center gap-2" role="group" aria-labelledby="motion-rider">
+    <span id="motion-rider" class="font-semibold">Rider</span>
+    <button type="button" class="chip" data-motion-body="" aria-pressed="true">Alternate</button>
+    <button type="button" class="chip" data-motion-body="female" aria-pressed="false">Female</button>
+    <button type="button" class="chip" data-motion-body="male" aria-pressed="false">Male</button>
+  </div>
+  <div class="flex flex-wrap items-center gap-2" role="group" aria-labelledby="motion-kit">
+    <span id="motion-kit" class="font-semibold">Kit</span>
+    <button type="button" class="chip" data-motion-kit="club" aria-pressed="true">Club</button>
+    <button type="button" class="chip" data-motion-kit="national" aria-pressed="false">Czech colours</button>
+  </div>
+  <div class="flex flex-wrap items-center gap-2" role="group" aria-labelledby="motion-banners">
+    <span id="motion-banners" class="font-semibold">Banners</span>
+    <button type="button" class="chip" data-motion-locale="cs" aria-pressed="true">Czech</button>
+    <button type="button" class="chip" data-motion-locale="en" aria-pressed="false">English</button>
+  </div>
+</div>
+
+<div class="scene-bleed mb-3" data-motion={JSON.stringify(data)}>
+  <canvas width={scene.width} height={scene.height} class="block h-auto w-full" data-motion-canvas aria-hidden="true"></canvas>
+</div>
+<p class="mb-4 font-mono text-sm" data-motion-readout>Loading…</p>
+
+<h2>Jump to a segment</h2>
+<div class="mb-10 flex flex-wrap gap-2">
+  {segments.map((segment) => (
+    <button type="button" class="pill" data-motion-seek={segment.id}>{segment.label}</button>
+  ))}
+</div>
+
+<h2>Each action on its own</h2>
+<p class="prose mb-4">Shown three times larger, looping, with every frame beside it.</p>
+<div class="mb-10 grid gap-6" data-motion-actions>
+  {rows.map((row) => (
+    <figure class="min-w-0">
+      <figcaption class="mb-2 font-semibold">{ACTION_LABELS[row.action]}, facing {row.direction}</figcaption>
+      <div class="flex flex-wrap items-end gap-4">
+        <canvas width={228} height={264} class="block border-2 border-ink bg-paper" data-motion-action={JSON.stringify(row)} aria-hidden="true"></canvas>
+        <div class="overflow-x-auto">
+          <canvas width={76 * row.frames * 2} height={176} class="block max-w-none" data-motion-strip={JSON.stringify(row)} aria-hidden="true"></canvas>
+        </div>
+      </div>
+    </figure>
+  ))}
+</div>
+
+<h2>How it works</h2>
+<ul class="prose mb-10">
+  <li>The course, speeds, hop windows, pose timing and the directions each action is drawn in are data (<code>src/hero/scene.ts</code> and <code>src/hero/choreography.ts</code>). The sequencer validates them and fails on an unknown action, a segment without a speed or an action asked for in a direction that has no frames.</li>
+  <li>The sequencer is pure: the same seed gives the same loop, so this page and the tests step through it frame by frame. On the public page the starting rider is chosen once per visit, and riders alternate after that.</li>
+  <li>Facing follows the direction of travel over a short stretch of the route, so turns step through the directions in between. Actions drawn in fewer directions use the nearest one.</li>
+  <li>The hops are timed so the front wheel clears the barrier in the front-up frame and the rear wheel in the rear-up frame. The shadow stays on the ground and shrinks while the bike is in the air.</li>
+  <li>The rider is drawn between the scenery layers by depth, so the near half of the flyover hides a rider underneath and the handrail passes in front of a rider on the deck.</li>
+  <li>The animation runs at up to 30 frames a second, stops when the scene is off screen or the tab is hidden, and resumes where it was. With reduced motion requested, it starts paused on a still frame of the rider facing you.</li>
+</ul>
+
+<style>
+  .scene-bleed {
+    width: min(100vw, 1440px);
+    margin-left: calc(50% - min(50vw, 720px));
+  }
+  canvas { image-rendering: pixelated; }
+</style>
+
+<script>
+  import { HeroPlayer, type FrameInfo } from '../../hero/player.ts';
+  import { segmentStarts } from '../../hero/timeline.ts';
+  import type { Body, Kit, Sheets } from '../../hero/sprites.ts';
+
+  type Locale = 'cs' | 'en';
+  interface Data {
+    width: number;
+    height: number;
+    layers: { id: string; s?: number; urls: Record<Locale, string> }[];
+    sheets: Sheets;
+    art: string;
+  }
+  interface Row { action: string; direction: string; row: number; frames: number }
+
+  const host = document.querySelector<HTMLElement>('[data-motion]');
+  const canvas = document.querySelector<HTMLCanvasElement>('[data-motion-canvas]');
+  const readout = document.querySelector<HTMLElement>('[data-motion-readout]');
+  if (host && canvas && readout) {
+    const data = JSON.parse(host.dataset.motion!) as Data;
+    const seed = Number(new URLSearchParams(location.search).get('seed') ?? 1) || 1;
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let locale: Locale = 'cs';
+    const layersFor = (which: Locale) => data.layers.map((layer) => ({ id: layer.id, s: layer.s, url: layer.urls[which] }));
+    const playButton = document.querySelector<HTMLButtonElement>('[data-motion-play]')!;
+    const press = (selector: string, chosen: Element) => {
+      for (const button of document.querySelectorAll(selector)) button.setAttribute('aria-pressed', String(button === chosen));
+    };
+    const show = (info: FrameInfo) => {
+      const state = info.state;
+      const where = state ? `${state.segment} · ${state.move} ${state.facing} frame ${state.frame}` : 'between riders';
+      readout.textContent = `Loop ${info.loop + 1} · ${info.time.toFixed(2)} s of ${info.duration.toFixed(2)} s · ${where} · ${info.body}, ${info.kit}`;
+      playButton.textContent = info.playing ? 'Pause' : 'Play';
+      playButton.dataset.playing = String(info.playing);
+    };
+    const player = new HeroPlayer(canvas, {
+      width: data.width,
+      height: data.height,
+      layers: layersFor(locale),
+      sheets: data.sheets,
+      sheetUrl: (name) => `${data.art}${name}`,
+    }, { seed, kit: 'club', autoplay: !reduced, onFrame: show });
+    player.start().catch((error) => { readout.textContent = `Could not start: ${error.message}`; });
+
+    playButton.addEventListener('click', () => (player.isPlaying ? player.pause() : player.play()));
+    for (const button of document.querySelectorAll<HTMLButtonElement>('[data-motion-step]')) {
+      button.addEventListener('click', () => {
+        player.pause();
+        player.step(Number(button.dataset.motionStep));
+      });
+    }
+    for (const button of document.querySelectorAll<HTMLButtonElement>('[data-motion-speed]')) {
+      button.addEventListener('click', () => {
+        player.setSpeed(Number(button.dataset.motionSpeed));
+        press('[data-motion-speed]', button);
+      });
+    }
+    for (const button of document.querySelectorAll<HTMLButtonElement>('[data-motion-body]')) {
+      button.addEventListener('click', () => {
+        player.setBody((button.dataset.motionBody || undefined) as Body | undefined);
+        press('[data-motion-body]', button);
+      });
+    }
+    for (const button of document.querySelectorAll<HTMLButtonElement>('[data-motion-kit]')) {
+      button.addEventListener('click', async () => {
+        await player.setKit(button.dataset.motionKit as Kit);
+        press('[data-motion-kit]', button);
+        drawActions(button.dataset.motionKit as Kit);
+      });
+    }
+    for (const button of document.querySelectorAll<HTMLButtonElement>('[data-motion-locale]')) {
+      button.addEventListener('click', async () => {
+        locale = button.dataset.motionLocale as Locale;
+        await player.setLayers(layersFor(locale));
+        press('[data-motion-locale]', button);
+      });
+    }
+    for (const button of document.querySelectorAll<HTMLButtonElement>('[data-motion-seek]')) {
+      button.addEventListener('click', () => {
+        const start = segmentStarts(player.current).find((segment) => segment.id === button.dataset.motionSeek);
+        if (start) player.seek(start.start + 0.001);
+      });
+    }
+
+    // Each action on its own: a looping canvas and a strip of its frames.
+    const loops: number[] = [];
+    const drawActions = (kit: Kit) => {
+      for (const id of loops.splice(0)) clearInterval(id);
+      const image = new Image();
+      image.src = `${data.art}act-female-${kit}.png`;
+      image.onload = () => {
+        const meta = data.sheets[`act-female-${kit}.png`];
+        const { width, height } = meta.cell;
+        for (const strip of document.querySelectorAll<HTMLCanvasElement>('[data-motion-strip]')) {
+          const row = JSON.parse(strip.dataset.motionStrip!) as Row;
+          const c = strip.getContext('2d')!;
+          c.imageSmoothingEnabled = false;
+          c.clearRect(0, 0, strip.width, strip.height);
+          for (let i = 0; i < row.frames; i += 1) c.drawImage(image, i * width, row.row * height, width, height, i * width * 2, 0, width * 2, height * 2);
+        }
+        for (const loop of document.querySelectorAll<HTMLCanvasElement>('[data-motion-action]')) {
+          const row = JSON.parse(loop.dataset.motionAction!) as Row;
+          const c = loop.getContext('2d')!;
+          c.imageSmoothingEnabled = false;
+          let frame = 0;
+          const draw = () => {
+            c.clearRect(0, 0, loop.width, loop.height);
+            c.drawImage(image, frame * width, row.row * height, width, height, 0, 0, width * 3, height * 3);
+            frame = (frame + 1) % row.frames;
+          };
+          draw();
+          if (!reduced) loops.push(window.setInterval(draw, row.action === 'carry' ? 110 : 220));
+        }
+      };
+    };
+    drawActions('club');
+  }
+</script>

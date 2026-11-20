@@ -2,7 +2,8 @@
 
 The sprites are original work, generated from the files in this folder.
 
-- `rider.mjs`: the bicycle and rider as a posable model (units, joints, jersey design).
+- `rider.mjs`: the bicycle and rider as a posable model (units, joints, jersey design). `drawRider({ posed })` draws explicit joints and a moved or pitched bike.
+- `poses.mjs`: the action frames (hop, dismount, carry, remount, stop and idle, wave) as joints per frame, and `ACTION_ROWS`, the directions each action is drawn in.
 - `palettes.mjs`: colour ramps per material, skin tones and the two kits.
 - `lib/raster.mjs`: depth-buffered pixel rasteriser, shading and outline.
 - `lib/png.mjs`: PNG encoder.
@@ -15,4 +16,4 @@ The sprites are original work, generated from the files in this folder.
 npm run art
 ```
 
-writes the PNG sheets and `sheets.json` (cell size and view order), plus the scenery layers `scene-*.png` and `scene.json` (layer order, depths and the file for each language; a layer with banner lettering has one file per language), to `public/art/`. Commit the result together with the source change. `npm test` fails when the committed sheets differ from what the source produces.
+writes the PNG sheets and `sheets.json` (cell size and view order; for the action sheets `act-*.png`, the row and frame count of each action and direction), plus the scenery layers `scene-*.png` and `scene.json` (layer order, depths and the file for each language; a layer with banner lettering has one file per language), to `public/art/`. Commit the result together with the source change. `npm test` fails when the committed sheets differ from what the source produces.

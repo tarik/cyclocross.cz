@@ -9,9 +9,9 @@ Read this after `SPEC.md`. Update it in every PR.
 | 1 | Astro foundation, bilingual routes, schemas, CI, Playwright, deployment template | Merged |
 | 2 | Calendar, event pages, directory, feeds, contribution forms, researched season data | Merged (plus GitHub Pages preview) |
 | 3 | Typography, tokens, wordmark and cyclist proposals | Merged. Cyclists approved; fonts and wordmark still to be chosen by the owner |
-| 4 | Eight-direction riding study, track geometry, background, soil transition | Riding cycle and route approved and merged. Scenery proposal in review, sixth round after owner feedback: furniture off the track, cyclocross.cz and buy-an-ad banners in both languages, abstract steep banners, soil finds and molehills (`/review/scene/`) |
+| 4 | Eight-direction riding study, track geometry, background, soil transition | Merged: riding cycle, route and desktop scenery approved |
 | 5 | Supporting content, advertising placements, metadata | Not started |
-| 6 | Animation controller and action modules | Not started |
+| 6 | Animation controller and action modules | In review: sequencer, player and rough action frames on `/review/motion/` |
 | 7 | Full choreography, refined art, kits, responsive scenes | Not started |
 | 8 | Performance, accessibility, operations, launch candidate | Not started |
 
@@ -38,7 +38,14 @@ Read this after `SPEC.md`. Update it in every PR.
 
 - `art/scenery.mjs` paints the desktop scenery from `src/hero/scene.ts`, once per language because of the banner lettering; `npm run art` writes `public/art/scene-*.png` and `scene.json` (layers, their depths and a file per locale).
 - `/review/scene/` composes the layers in a canvas with riders placed on the route in the draw order the animation will use.
-- Next on the art track: owner review of the scenery, then PR 6 (animation controller: hop, dismount, run with bike, remount, pose, wave), which reads the same layers and `drawDepth`.
+- The owner approved the scenery (six review rounds) and it is merged.
+
+## What exists after the animation controller PR
+
+- `art/poses.mjs`: rough action frames from the posable model (bunny hop, dismount, carry on the shoulder on the flat and up the stairs, remount, stop and idle astride, wave). `npm run art` writes `act-{female,male}-{club,national}.png`.
+- `src/hero/choreography.ts` (speeds, hop and pose timing, coverage), `src/hero/timeline.ts` (validation and the pure, seeded sequencer), `src/hero/sprites.ts` (which sheet cell a state uses), `src/hero/player.ts` (the canvas player).
+- `/review/motion/`: the whole route running with pause, frame step, speed, rider, kit, banner language and jump-to-segment controls, plus each action looping on its own.
+- Open on the art track: the owner's review of timing and geometry; then PR 7 polishes the frames, rounds the corners of the route, makes the wheels turn while coasting, adds the tablet and phone scenes and puts the hero on the homepage.
 
 ## Data gaps to close
 

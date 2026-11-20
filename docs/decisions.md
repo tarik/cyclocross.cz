@@ -2,6 +2,18 @@
 
 Newest first. Each entry says what was decided, by whom and why. Owner decisions are binding; agent decisions are defaults that the owner can overturn.
 
+## 2026-11-20, animation controller PR
+
+- **Agent: the motion is data, the sequencer is pure.** The course (`src/hero/scene.ts`) says which action happens on each segment; `src/hero/choreography.ts` holds the speeds, hop timing, pose timing and the directions each action is drawn in. `src/hero/timeline.ts` validates both and fails on an unknown action, a segment without a speed, an impossible range or an action asked for in a direction that has no frames. The same seed gives the same loop, so the review page and the tests step through it frame by frame.
+- **Agent: actions are drawn from the same posable model as the riding cycle.** `art/poses.mjs` gives explicit joints and a bike transform (pitch around a hub or the top tube, offset) per frame; `drawRider({ posed })` renders them. The existing riding and standing sheets are unchanged byte for byte. Action sheets are `act-{body}-{kit}.png`, one row per action and direction.
+- **Agent: actions are drawn only in the directions the route needs.** Hop, dismount and remount face east; the carry faces east and north-east (the stairs); the stop and idle face west, south-west and south; the wave faces south. The coverage list in the choreography is checked against the sheets in a test.
+- **Agent: one loop is 18 to 30 seconds across the course plus a 12 to 20 second pose.** Per segment the speed changes linearly from an entry to an exit speed, so there are no jumps: 72 units a second on the flat, slowing to 40 for the dismount, 30 to 34 on the stairs, coasting up to 104 on the steep downhill, stopping at the pose area and setting off again. The pose stops facing west, turns through south-west to face the viewer, idles with breathing and a weight shift, waves zero to two times, turns back and leaves. A 1.2 second gap separates riders.
+- **Agent: facing follows the direction of travel** over 16 route units, quantised to eight directions, so a turn steps through the directions in between. A test checks the rider never turns more than one step between frames and never moves further than the fastest speed allows.
+- **Agent: hops are timed to the barriers.** The front wheel crosses the barrier in the front-up frame and the rear wheel in the rear-up frame; a test checks both and that the wheel is high enough. The shadow stays on the ground and shrinks while the bike is in the air.
+- **Agent: the rider is drawn between the scenery layers by depth** (`drawDepth`), so the near half of the flyover hides a rider underneath and the handrail passes in front of a rider on the deck.
+- **Agent: the player caps at 30 frames a second**, stops when the canvas is off screen or the tab is hidden, and resumes where it stopped without catching up. With reduced motion requested it does not play and shows a still frame of the rider at the pose area, facing the viewer (SPEC.md 5.6). The starting rider is chosen by the seed and riders alternate each loop.
+- **Agent: review toggles use the `.chip` style** so the selected option is filled; the play button changes its label instead of carrying a pressed state.
+
 ## 2026-11-18, scenery PR
 
 Sixth round, after the owner's review (2026-11-20):

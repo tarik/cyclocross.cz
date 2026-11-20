@@ -15,7 +15,7 @@ export const PITCH_DEGREES = 28;
 const PITCH = (PITCH_DEGREES * Math.PI) / 180;
 
 /** Solves a two-bone joint in the X/Y plane; `bend` picks the side (+1 forward). */
-function joint(a, b, la, lb, bend) {
+export function joint(a, b, la, lb, bend) {
   const dx = b.x - a.x;
   const dy = b.y - a.y;
   const d = Math.min(Math.hypot(dx, dy), la + lb - 0.01);
@@ -88,23 +88,40 @@ function pose(kind, build, crank) {
 }
 
 /**
+ * Moves a bicycle point: a pitch in its own plane around `pivot` (degrees,
+ * positive lifts the front), then an offset. Used for hops and for carrying.
+ */
+export function bikeTransform(bike = {}) {
+  const { pitch = 0, pivot = { x: 0, y: 0 }, dx = 0, dy = 0, dz = 0 } = bike;
+  const a = (pitch * Math.PI) / 180;
+  return (p) => {
+    const x = p.x - pivot.x;
+    const y = p.y - pivot.y;
+    return { x: pivot.x + x * Math.cos(a) - y * Math.sin(a) + dx, y: pivot.y + x * Math.sin(a) + y * Math.cos(a) + dy, z: (p.z ?? 0) + dz };
+  };
+}
+
+/**
  * Draws one frame.
  * - `direction`: one of DIRECTIONS.
  * - `body`: a key of BODIES. `design`: a key of DESIGNS.
- * - `stance`: 'ride' or 'stand'.
+ * - `stance`: 'ride' or 'stand', or `posed`: explicit joints from `poses.mjs`
+ *   ({ hip, chest, head, legs, arms, bodyZ, bike }), which wins.
  * - `parts`: which components to draw (see PARTS).
  * - `scale`: pixels per model unit.
+ * @param {{ direction: string, body: string, design?: string, stance?: string, parts?: string[], crank?: number, scale?: number,
+ *   width?: number, height?: number, anchor?: { x: number, y: number }, posed?: Record<string, any> | null }} options
  */
 export function drawRider({
   direction, body, design = 'club', stance = 'ride', parts = PARTS, crank = 35, scale = 1.3,
-  width = 76, height = 78, anchor = { x: 38, y: 69 },
+  width = 76, height = 78, anchor = { x: 38, y: 69 }, posed = null,
 }) {
   const sprite = new Sprite(width, height);
   const yaw = (DIRECTIONS[direction] * Math.PI) / 180;
   const build = BODIES[body];
   const jersey = DESIGNS[design];
   const show = (part) => parts.includes(part);
-  const project = (p) => {
+  const outer = (p) => {
     const east = p.x * Math.cos(yaw) - (p.z ?? 0) * Math.sin(yaw);
     const south = p.x * Math.sin(yaw) + (p.z ?? 0) * Math.cos(yaw);
     return {
@@ -113,6 +130,7 @@ export function drawRider({
       z: (south * Math.cos(PITCH) + p.y * Math.sin(PITCH)) * scale,
     };
   };
+  const project = outer;
   /** The rider's right, as a screen-space vector, to place jersey panels. */
   const right = { x: -Math.sin(yaw), y: Math.cos(yaw) * Math.sin(PITCH), z: Math.cos(yaw) * Math.cos(PITCH) };
   const lateral = (n) => n.x * right.x + n.y * right.y + n.z * right.z;
@@ -128,6 +146,13 @@ export function drawRider({
 
   // ---- Bicycle ----
   if (show('bike')) {
+    // Every bicycle point goes through the pose's bike transform.
+    const moved = bikeTransform(posed?.bike);
+    const project = (p) => outer(moved(p));
+    const tube = (a, b, ra, rb, material, options) => {
+      partId += 1;
+      sprite.capsule(project(a), project(b), ra * scale, rb * scale, material, options?.part ?? partId, options);
+    };
     const rearHub = P(-13.5, 10);
     const frontHub = P(17, 10);
     const bb = P(0, 8.6);
@@ -195,34 +220,37 @@ export function drawRider({
 
   // ---- Rider ----
   const limb = build.limb;
-  const joints = pose(stance, build, crank);
-  const { hip, chest, head } = joints;
+  const joints = posed ?? pose(stance, build, crank);
+  const bodyZ = joints.bodyZ ?? 0;
+  const hip = { ...joints.hip, z: bodyZ };
+  const chest = { ...joints.chest, z: bodyZ };
+  const head = { ...joints.head, z: bodyZ };
 
   if (show('legs')) {
     for (const leg of joints.legs) {
       const group = { part: 500 + leg.side, dim: far(leg.side) };
-      const hipZ = leg.side * build.hip;
-      const kneeZ = leg.side * (build.hip + 0.3);
+      const hipZ = bodyZ + leg.side * build.hip;
+      const kneeZ = leg.kneeZ ?? (bodyZ + leg.side * (build.hip + 0.3));
       tube(P(hip.x, hip.y, hipZ), P(leg.knee.x, leg.knee.y, kneeZ), 2.9 * limb, 2.2 * limb, (t) => (t < 0.72 ? 'shorts' : 'skin'), group);
       tube(P(leg.knee.x, leg.knee.y, kneeZ), P(leg.ankle.x, leg.ankle.y, leg.z), 2.0 * limb, 1.45 * limb, (t) => (t > 0.68 ? 'sock' : 'skin'), group);
       tube(P(leg.toe.x - 2.9, leg.toe.y + 0.2, leg.z), P(leg.toe.x + 2.9, leg.toe.y - 0.2, leg.z), 1.6, 1.4, 'shoe', group);
     }
-    ball(P(hip.x, hip.y + 0.2), 3.9 * limb, 'shorts', { part: 600 });
+    ball(P(hip.x, hip.y + 0.2, bodyZ), 3.9 * limb, 'shorts', { part: 600 });
   }
 
   if (show('torso')) {
     const along = { x: chest.x - hip.x, y: chest.y - hip.y };
     const length = Math.hypot(along.x, along.y);
-    const from = P(hip.x + (along.x / length) * 1.5, hip.y + (along.y / length) * 1.5);
-    tube(from, P(chest.x - (along.x / length) * 0.6, chest.y - (along.y / length) * 0.6), 4.1 * limb, build.torso,
+    const from = P(hip.x + (along.x / length) * 1.5, hip.y + (along.y / length) * 1.5, bodyZ);
+    tube(from, P(chest.x - (along.x / length) * 0.6, chest.y - (along.y / length) * 0.6, bodyZ), 4.1 * limb, build.torso,
       (t, n) => (t < 0.16 ? 'shorts' : jersey.torso(t, lateral(n))), { part: 600 });
   }
 
   if (show('arms')) {
     for (const arm of joints.arms) {
       const group = { part: 700 + arm.side, dim: far(arm.side) };
-      const shoulderZ = arm.side * build.shoulder;
-      const elbowZ = arm.side * (build.shoulder + 0.9);
+      const shoulderZ = bodyZ + arm.side * build.shoulder;
+      const elbowZ = arm.elbowZ ?? (bodyZ + arm.side * (build.shoulder + 0.9));
       tube(P(chest.x, chest.y - 0.3, shoulderZ), P(arm.elbow.x, arm.elbow.y, elbowZ), 2.1 * limb, 1.8 * limb, (t) => jersey.upperArm(t, arm.side), group);
       tube(P(arm.elbow.x, arm.elbow.y, elbowZ), P(arm.hand.x, arm.hand.y, arm.z), 1.7 * limb, 1.4 * limb, (t) => jersey.forearm(t, arm.side), group);
       ball(P(arm.hand.x + 0.2, arm.hand.y, arm.z), 1.6, 'glove', group);
@@ -231,39 +259,39 @@ export function drawRider({
 
   if (show('head')) {
     const lean = stance === 'stand' ? 0 : 1; // the riding head sits forward of the chest
-    tube(P(chest.x + 0.6 * lean, chest.y + 0.8), P(head.x - 0.6 * lean, head.y - 1.2), 1.5, 1.35, 'skin', { part: 799 });
+    tube(P(chest.x + 0.6 * lean, chest.y + 0.8, bodyZ), P(head.x - 0.6 * lean, head.y - 1.2, bodyZ), 1.5, 1.35, 'skin', { part: 799 });
     // A face longer than it is wide, with a small nose.
-    tube(P(head.x, head.y - 1.9), P(head.x, head.y + 0.7), 2.4, 2.7, 'skin', { part: 800 });
-    ball(P(head.x + 2.65, head.y - 1.2), 0.6, 'skin', { part: 800 });
+    tube(P(head.x, head.y - 1.9, bodyZ), P(head.x, head.y + 0.7, bodyZ), 2.4, 2.7, 'skin', { part: 800 });
+    ball(P(head.x + 2.65, head.y - 1.2, bodyZ), 0.6, 'skin', { part: 800 });
     if (build.ponytail) {
-      tube(P(head.x - 2.8, head.y + 0.4), P(head.x - 6.2, head.y - 3.8), 1.4, 0.8, 'hair', { part: 801 });
+      tube(P(head.x - 2.8, head.y + 0.4, bodyZ), P(head.x - 6.2, head.y - 3.8, bodyZ), 1.4, 0.8, 'hair', { part: 801 });
     } else {
-      tube(P(head.x - 2.0, head.y - 0.6, -1.8), P(head.x - 2.0, head.y - 0.6, 1.8), 1.5, 1.5, 'hair', { part: 800 });
+      tube(P(head.x - 2.0, head.y - 0.6, -1.8 + bodyZ), P(head.x - 2.0, head.y - 0.6, 1.8 + bodyZ), 1.5, 1.5, 'hair', { part: 800 });
     }
     // Helmet: a smooth aero shell. The profile is low and rounded at the
     // front, long and nearly flat on top, and ends in a blunt tail. Every rib
     // starts from the same rim height, so the lower edge is flat from the
     // front; the outer ribs are only less tall, which rounds the top.
     const rim = 1.9;
-    const profile = [P(3.0, rim), P(2.3, 3.1), P(0.4, 3.75), P(-2.0, 3.55), P(-3.5, 2.8), P(-3.4, rim)];
+    const profile = [P(3.0, rim, bodyZ), P(2.3, 3.1, bodyZ), P(0.4, 3.75, bodyZ), P(-2.0, 3.55, bodyZ), P(-3.5, 2.8, bodyZ), P(-3.4, rim, bodyZ)];
     for (const z of [-2.0, -1.0, 0, 1.0, 2.0]) {
       const squash = Math.abs(z) > 1.5 ? 0.72 : Math.abs(z) > 0.5 ? 0.94 : 1;
-      const at = (p) => P(head.x + p.x, head.y + rim + (p.y - rim) * squash, z);
+      const at = (p) => P(head.x + p.x, head.y + rim + (p.y - rim) * squash, z + bodyZ);
       for (let i = 0; i < profile.length - 1; i += 1) {
         tube(at(profile[i]), at(profile[i + 1]), 0.9, 0.9, 'helmet', { part: 802 });
       }
     }
     for (const side of [-1, 1]) {
       // The shell comes down over the top of the ear, level with the rim.
-      tube(P(head.x + 1.4, head.y + rim - 0.1, side * 2.0), P(head.x - 3.0, head.y + rim - 0.1, side * 2.0), 0.9, 0.9, 'helmet', { part: 802 });
+      tube(P(head.x + 1.4, head.y + rim - 0.1, side * 2.0 + bodyZ), P(head.x - 3.0, head.y + rim - 0.1, side * 2.0 + bodyZ), 0.9, 0.9, 'helmet', { part: 802 });
       // Faint vent shading: one intake near the front and one slot further back.
-      tube(P(head.x + 0.9, head.y + 2.5, side * 2.9), P(head.x + 2.1, head.y + 2.25, side * 2.8), 0.34, 0.34, 'vent', { part: 802, flat: true });
-      tube(P(head.x - 2.3, head.y + 2.75, side * 2.9), P(head.x - 0.4, head.y + 3.0, side * 2.9), 0.34, 0.34, 'vent', { part: 802, flat: true });
+      tube(P(head.x + 0.9, head.y + 2.5, side * 2.9 + bodyZ), P(head.x + 2.1, head.y + 2.25, side * 2.8 + bodyZ), 0.34, 0.34, 'vent', { part: 802, flat: true });
+      tube(P(head.x - 2.3, head.y + 2.75, side * 2.9 + bodyZ), P(head.x - 0.4, head.y + 3.0, side * 2.9 + bodyZ), 0.34, 0.34, 'vent', { part: 802, flat: true });
       // Glasses: two tinted lenses with a thin frame arm to the ear.
-      tube(P(head.x + 2.3, head.y - 0.35, side * 0.95), P(head.x + 2.15, head.y - 0.35, side * 1.8), 0.68, 0.62, 'lens', { part: 803, flat: true });
-      tube(P(head.x + 1.9, head.y - 0.1, side * 2.35), P(head.x - 0.2, head.y + 0.4, side * 2.7), 0.28, 0.28, 'black', { part: 803, flat: true });
+      tube(P(head.x + 2.3, head.y - 0.35, side * 0.95 + bodyZ), P(head.x + 2.15, head.y - 0.35, side * 1.8 + bodyZ), 0.68, 0.62, 'lens', { part: 803, flat: true });
+      tube(P(head.x + 1.9, head.y - 0.1, side * 2.35 + bodyZ), P(head.x - 0.2, head.y + 0.4, side * 2.7 + bodyZ), 0.28, 0.28, 'black', { part: 803, flat: true });
     }
-    tube(P(head.x + 2.45, head.y - 0.1, -0.6), P(head.x + 2.45, head.y - 0.1, 0.6), 0.28, 0.28, 'black', { part: 803, flat: true }); // bridge
+    tube(P(head.x + 2.45, head.y - 0.1, -0.6 + bodyZ), P(head.x + 2.45, head.y - 0.1, 0.6 + bodyZ), 0.28, 0.28, 'black', { part: 803, flat: true }); // bridge
   }
 
   return sprite.finish();
